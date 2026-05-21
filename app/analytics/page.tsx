@@ -5,9 +5,9 @@ import { day24Modules } from '@/lib/day24MockData';
 
 export default function Page() {
     return (
-        <PortalShell role="ADMIN" title="Teacher Reports" subtitle="Teacher workload, leaves, replacement load, submissions, and academic responsibility reporting foundation." eyebrow="DAY 24 WEB ERP DEVELOPMENT" variant="gold">
+        <PortalShell role="ADMIN" title="Operational Analytics Hub" subtitle="Attendance trends, class comparisons, teacher workload, risk alerts, and pilot-school executive reporting." eyebrow="DAY 24 WEB ERP DEVELOPMENT" variant="gold">
             <ShellStyles />
-            <Day24ModulePage config={day24Modules.teacherReports} />
+            <Day24ModulePage config={day24Modules.analyticsHub} />
         </PortalShell>
     );
 }

@@ -1,13 +1,13 @@
-import Day23ModulePage from '@/components/erp/Day23ModulePage';
+import Day24ModulePage from '@/components/erp/Day24ModulePage';
 import PortalShell from '@/components/layout/PortalShell';
 import ShellStyles from '@/components/layout/ShellStyles';
-import { day23Modules } from '@/lib/day23MockData';
+import { day24Modules } from '@/lib/day24MockData';
 
 export default function Page() {
     return (
-        <PortalShell role="ADMIN" title="Create School Notice" subtitle="Holiday alerts, announcements, achievements, and parent/student notification foundation." eyebrow="DAY 23 WEB ERP DEVELOPMENT" variant="gold">
+        <PortalShell role="ADMIN" title="Create School Notice" subtitle="Holiday alerts, announcements, achievements, and parent/student notification foundation." eyebrow="DAY 24 WEB ERP DEVELOPMENT" variant="gold">
             <ShellStyles />
-            <Day23ModulePage config={day23Modules.notices} />
+            <Day24ModulePage config={day24Modules.notices} />
         </PortalShell>
     );
 }

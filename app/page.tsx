@@ -8,6 +8,11 @@ const quickActions = [
     description: "Executive school analytics and operational insights",
   },
   {
+    title: "Operational Analytics",
+    href: "/analytics",
+    description: "Attendance trends, class comparisons and risk insights",
+  },
+  {
     title: "Attendance Reports",
     href: "/reports/attendance",
     description: "Daily, weekly and monthly attendance reporting",
@@ -47,6 +52,11 @@ const quickActions = [
     href: "/school-notices",
     description: "Create and publish school-wide announcements",
   },
+  {
+    title: "Rollout Readiness",
+    href: "/rollout-readiness",
+    description: "Pilot launch checklist and production QA gates",
+  },
 ];
 
 export default function Home() {
@@ -84,7 +94,7 @@ export default function Home() {
             </div>
 
             <div className="rounded-full border border-yellow-500/40 bg-yellow-500/10 px-5 py-2 text-sm font-semibold text-yellow-300">
-              Day 23 Web ERP
+              Day 24 Web ERP
             </div>
           </div>
         </header>

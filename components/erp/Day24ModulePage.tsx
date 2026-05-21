@@ -8,7 +8,7 @@ type Props = {
     config: Day23ModuleConfig;
 };
 
-export default function Day23ModulePage({ config }: Props) {
+export default function Day24ModulePage({ config }: Props) {
     const [activeAction, setActiveAction] = useState(config.actions[0]?.title ?? '');
     const [search, setSearch] = useState('');
 
@@ -101,7 +101,7 @@ export default function Day23ModulePage({ config }: Props) {
             <section className="day23-table-card gold-panel">
                 <div className="day23-table-header">
                     <div>
-                        <p className="eyebrow">DAY 23 DATA PREVIEW</p>
+                        <p className="eyebrow">DAY 24 DATA PREVIEW</p>
                         <h3>{config.tableTitle}</h3>
                         <p>{config.tableDescription}</p>
                     </div>

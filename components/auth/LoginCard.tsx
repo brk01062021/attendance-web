@@ -94,7 +94,7 @@ export default function LoginCard() {
             </button>
 
             <small className="dev-note">
-                Day 23 keeps safe dev auth storage. Backend JWT login can replace
+                Day 24 keeps safe dev auth storage. Backend JWT login can replace
                 this later without changing the UI shell.
             </small>
         </form>

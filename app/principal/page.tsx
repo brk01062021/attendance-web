@@ -1,13 +1,12 @@
-import Day23ModulePage from '@/components/erp/Day23ModulePage';
+import DashboardHome from '@/components/layout/DashboardHome';
 import PortalShell from '@/components/layout/PortalShell';
 import ShellStyles from '@/components/layout/ShellStyles';
-import { day23Modules } from '@/lib/day23MockData';
 
-export default function Page() {
+export default function PrincipalPage() {
     return (
-        <PortalShell role="PRINCIPAL" title="School Intelligence" subtitle="Executive intelligence for attendance pulse, risk alerts, teacher workload, timetable readiness, and rollout decisions." eyebrow="DAY 23 WEB ERP DEVELOPMENT" variant="gold">
+        <PortalShell role="PRINCIPAL" title="Principal Web ERP Portal" subtitle="Executive command center for school intelligence, reports, timetable visibility, notices, and pilot readiness." eyebrow="DAY 24 WEB ERP DEVELOPMENT">
             <ShellStyles />
-            <Day23ModulePage config={day23Modules.intelligence} />
+            <DashboardHome role="PRINCIPAL" />
         </PortalShell>
     );
 }
