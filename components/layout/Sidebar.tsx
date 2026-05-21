@@ -39,7 +39,7 @@ export default function Sidebar({ role }: SidebarProps) {
             </nav>
 
             <div className="sidebar-footer">
-                Day 24 Web ERP expands the production workflow pages while keeping the same mobile branding, splash-dark dashboard pattern, and splash-gold operational identity.
+                Day 25 prepares the first realistic school pilot with mobile-first daily workflows, web-first bulk administration, RBAC, tenant checks, imports, timetable lifecycle, holiday overrides, notices, and deployment readiness.
             </div>
         </aside>
     );

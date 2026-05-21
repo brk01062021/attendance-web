@@ -1,3 +1,4 @@
+import { portalRoutes, type PortalRole } from '@/lib/routes';
 import type { LoginRequest, WebPortalUser } from '@/types/auth';
 
 const STORAGE_KEY = 'vidyasetu-web-user';
@@ -20,6 +21,16 @@ export function storeUser(user: WebPortalUser) {
 
 export function clearStoredUser() {
   window.localStorage.removeItem(STORAGE_KEY);
+}
+
+export function isValidTenantUser(user: WebPortalUser | null): user is WebPortalUser {
+  return Boolean(user?.userId && user?.schoolId && user?.role && ['ADMIN', 'PRINCIPAL'].includes(user.role));
+}
+
+export function isRouteAllowedForRole(pathname: string, role: PortalRole) {
+  const route = portalRoutes.find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
+  if (!route) return true;
+  return route.roles.includes(role);
 }
 
 export function createDevUser(login: LoginRequest): WebPortalUser {

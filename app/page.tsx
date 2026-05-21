@@ -3,6 +3,21 @@ import Link from "next/link";
 
 const quickActions = [
   {
+    title: "Production Hardening",
+    href: "/production-hardening",
+    description: "RBAC, tenant isolation, imports, timetable lifecycle, notices and deployment readiness",
+  },
+  {
+    title: "Bulk Attendance Import",
+    href: "/attendance-import",
+    description: "Web-first missed-day attendance recovery workflow",
+  },
+  {
+    title: "Holiday Calendar",
+    href: "/holiday-calendar",
+    description: "Academic calendar overrides and holiday notice handling",
+  },
+  {
     title: "Principal Intelligence",
     href: "/principal/intelligence",
     description: "Executive school analytics and operational insights",
@@ -94,7 +109,7 @@ export default function Home() {
             </div>
 
             <div className="rounded-full border border-yellow-500/40 bg-yellow-500/10 px-5 py-2 text-sm font-semibold text-yellow-300">
-              Day 24 Web ERP
+              Day 25 Pilot Ready
             </div>
           </div>
         </header>
@@ -102,14 +117,11 @@ export default function Home() {
         <main className="mx-auto max-w-7xl px-6 py-10">
           <section className="mb-10 rounded-3xl border border-yellow-500/20 bg-black/40 p-8 shadow-2xl backdrop-blur-md">
             <h2 className="mb-4 text-5xl font-bold text-white">
-              Welcome to VidyaSetu
+              VidyaSetu Pilot Readiness
             </h2>
 
             <p className="max-w-3xl text-lg leading-9 text-gray-100">
-              Unified school ERP platform for principals, teachers,
-              students and parents with smart timetable generation,
-              attendance intelligence, replacement automation and
-              operational analytics, and pilot-ready web workflows.
+              Mobile-first school operations platform with web ERP for detailed administration, onboarding, imports, attendance recovery, timetable lifecycle, holiday overrides, notices, and pilot readiness for the first realistic school.
             </p>
           </section>
 

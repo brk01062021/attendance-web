@@ -10,7 +10,7 @@ const roleCopy = {
       ['School Setup', 'Ready', 'Import and onboarding shell'],
       ['Timetable Ops', 'Live', 'Batch center foundation'],
       ['Reports', 'Ready', 'Attendance and teacher pages'],
-      ['SaaS Guard', 'Phase-1', 'school_id + role separation'],
+      ['SaaS Guard', 'P0', 'RBAC + school_id isolation'],
     ],
   },
   PRINCIPAL: {
@@ -20,7 +20,7 @@ const roleCopy = {
       ['Executive View', 'Ready', 'Principal command shell'],
       ['Attendance Pulse', 'Live', 'Summary API-ready'],
       ['Teacher Load', 'Watch', 'Workload and replacement focus'],
-      ['Rollout', 'Day 24', 'Pilot readiness gates'],
+      ['Pilot', '14 days', 'First-school readiness'],
     ],
   },
 } satisfies Record<PortalRole, { title: string; subtitle: string; metrics: string[][] }>;
@@ -45,6 +45,9 @@ export default function DashboardHome({ role }: { role: PortalRole }) {
             <Link className="action-card" href="/reports/attendance"><span>📊</span><strong>Reports & Intelligence</strong><span>Attendance, teacher reports, workload, and executive dashboards with role-aware navigation.</span></Link>
             <Link className="action-card" href="/analytics"><span>📈</span><strong>Operational Analytics</strong><span>Attendance trends, class/section comparisons, teacher load, and risk signals for demos.</span></Link>
             <Link className="action-card" href="/rollout-readiness"><span>🚀</span><strong>Rollout Readiness</strong><span>First-school pilot launch checklist with tenant, import, timetable, reports, and access gates.</span></Link>
+            <Link className="action-card" href="/attendance-import"><span>✅</span><strong>Bulk Attendance Import</strong><span>Web-first recovery workflow for missed working days with timetable and holiday locks.</span></Link>
+            <Link className="action-card" href="/holiday-calendar"><span>🎌</span><strong>Holiday Calendar</strong><span>Academic calendar overrides, auto notice drafts, and attendance locks.</span></Link>
+            <Link className="action-card" href="/production-hardening"><span>🛡️</span><strong>Production Hardening</strong><span>RBAC, school_id isolation, route planning, pilot gates, and deployment readiness.</span></Link>
           </div>
         </section>
       </>
