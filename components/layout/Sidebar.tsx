@@ -39,7 +39,7 @@ export default function Sidebar({ role }: SidebarProps) {
             </nav>
 
             <div className="sidebar-footer">
-                Day 22 Web ERP foundation uses the same mobile branding, splash-dark dashboard pattern, and splash-gold workflow identity.
+                Day 23 Web ERP expands the production workflow pages while keeping the same mobile branding, splash-dark dashboard pattern, and splash-gold operational identity.
             </div>
         </aside>
     );

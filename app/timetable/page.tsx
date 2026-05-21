@@ -5,7 +5,13 @@ import { day23Modules } from '@/lib/day23MockData';
 
 export default function Page() {
     return (
-        <PortalShell role="ADMIN" title="Timetable Operations" subtitle="Latest batch center, review, conflicts, workload, publish, export, archive, and rollout readiness." eyebrow="DAY 23 WEB ERP DEVELOPMENT" variant="gold">
+        <PortalShell
+            role="ADMIN"
+            title="Timetable Operations"
+            subtitle="Latest batch review, conflict center, workload intelligence, publish readiness, and export foundation."
+            eyebrow="DAY 23 TIMETABLE"
+            variant="gold"
+        >
             <ShellStyles />
             <Day23ModulePage config={day23Modules.timetableOperations} />
         </PortalShell>

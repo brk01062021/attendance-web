@@ -84,7 +84,7 @@ export default function Home() {
             </div>
 
             <div className="rounded-full border border-yellow-500/40 bg-yellow-500/10 px-5 py-2 text-sm font-semibold text-yellow-300">
-              Day 22 Web ERP
+              Day 23 Web ERP
             </div>
           </div>
         </header>
@@ -99,7 +99,7 @@ export default function Home() {
               Unified school ERP platform for principals, teachers,
               students and parents with smart timetable generation,
               attendance intelligence, replacement automation and
-              operational analytics.
+              operational analytics, and pilot-ready web workflows.
             </p>
           </section>
 

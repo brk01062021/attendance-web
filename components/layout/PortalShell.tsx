@@ -16,14 +16,27 @@ type PortalShellProps = {
   variant?: 'dark' | 'gold';
 };
 
-export default function PortalShell({ role, title, subtitle, eyebrow = 'DAY 22 WEB ERP FOUNDATION', children, variant = 'dark' }: PortalShellProps) {
+export default function PortalShell({
+                                      role,
+                                      title,
+                                      subtitle,
+                                      eyebrow = 'DAY 23 WEB ERP DEVELOPMENT',
+                                      children,
+                                      variant = 'dark',
+                                    }: PortalShellProps) {
   const router = useRouter();
-  const [user] = useState<WebPortalUser | null>(() => getStoredUser());
-  const effectiveRole = user?.role || role;
+  const [user, setUser] = useState<WebPortalUser | null>(null);
 
   useEffect(() => {
-    if (!getStoredUser()) router.replace('/login');
+    const storedUser = getStoredUser();
+    if (!storedUser) {
+      router.replace('/login');
+      return;
+    }
+    setUser(storedUser);
   }, [router]);
+
+  const effectiveRole = user?.role || role;
 
   function logout() {
     clearStoredUser();
@@ -42,7 +55,9 @@ export default function PortalShell({ role, title, subtitle, eyebrow = 'DAY 22 W
             </div>
             <div className="header-actions">
               <div className="user-chip">{user?.displayName || effectiveRole}</div>
-              <button className="logout-button" type="button" onClick={logout}>Logout</button>
+              <button className="logout-button" type="button" onClick={logout}>
+                Logout
+              </button>
             </div>
           </header>
           {children}

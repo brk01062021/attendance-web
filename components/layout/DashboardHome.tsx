@@ -20,7 +20,7 @@ const roleCopy = {
       ['Executive View', 'Ready', 'Principal command shell'],
       ['Attendance Pulse', 'Live', 'Summary API-ready'],
       ['Teacher Load', 'Watch', 'Workload and replacement focus'],
-      ['Rollout', 'Day 22', 'Web ERP shell expanded'],
+      ['Rollout', 'Day 23', 'Workflow pages expanded'],
     ],
   },
 } satisfies Record<PortalRole, { title: string; subtitle: string; metrics: string[][] }>;
