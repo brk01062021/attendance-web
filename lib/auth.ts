@@ -28,9 +28,17 @@ export function isValidTenantUser(user: WebPortalUser | null): user is WebPortal
 }
 
 export function isRouteAllowedForRole(pathname: string, role: PortalRole) {
-  const route = portalRoutes.find((item) => pathname === item.href || pathname.startsWith(`${item.href}/`));
-  if (!route) return true;
-  return route.roles.includes(role);
+  const exactRoute = portalRoutes.find((item) => pathname === item.href);
+  if (exactRoute) {
+    return exactRoute.roles.includes(role);
+  }
+
+  const nestedRoute = [...portalRoutes]
+    .sort((a, b) => b.href.length - a.href.length)
+    .find((item) => pathname.startsWith(`${item.href}/`));
+
+  if (!nestedRoute) return true;
+  return nestedRoute.roles.includes(role);
 }
 
 export function createDevUser(login: LoginRequest): WebPortalUser {
@@ -41,5 +49,17 @@ export function createDevUser(login: LoginRequest): WebPortalUser {
     displayName: login.role === 'ADMIN' ? 'VidyaSetu Admin' : 'School Principal',
     schoolName: 'VidyaSetu Demo School',
     token: 'dev-web-token',
+  };
+}
+
+export function mapLoginResponseToUser(response: any) {
+  return {
+    id: response?.userId || "1",
+    name: response?.name || "Admin User",
+    email: response?.email || "admin@vidyasetu.co",
+    role: response?.role || "ADMIN",
+    schoolId: response?.schoolId || "DEMO_SCHOOL",
+    schoolName: response?.schoolName || "VidyaSetu Demo School",
+    token: response?.token || "demo-token",
   };
 }

@@ -11,7 +11,7 @@ export type PortalRoute = {
 export const portalRoutes: PortalRoute[] = [
   { icon: '🏠', label: 'Home', href: '/admin', description: 'Admin command center', roles: ['ADMIN'] },
   { icon: '🏠', label: 'Home', href: '/principal', description: 'Principal command center', roles: ['PRINCIPAL'] },
-  { icon: '🧠', label: 'School Intelligence', href: '/principal/intelligence', description: 'Executive insights', roles: ['ADMIN', 'PRINCIPAL'] },
+  { icon: '🧠', label: 'School Intelligence', href: '/school-intelligence', description: 'Executive insights', roles: ['ADMIN', 'PRINCIPAL'] },
   { icon: '📈', label: 'Operational Analytics', href: '/analytics', description: 'Trends, comparisons, risk and workload', roles: ['ADMIN', 'PRINCIPAL'] },
   { icon: '📊', label: 'Attendance Reports', href: '/reports/attendance', description: 'School attendance reports', roles: ['ADMIN', 'PRINCIPAL'] },
   { icon: '👨‍🏫', label: 'Teacher Reports', href: '/reports/teachers', description: 'Teacher workload and records', roles: ['ADMIN', 'PRINCIPAL'] },

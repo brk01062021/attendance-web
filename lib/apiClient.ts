@@ -38,6 +38,8 @@ export async function apiClient<T>(path: string, options: ApiOptions = {}): Prom
 
 export const webApi = {
   login: <T>(body: unknown) => apiClient<T>('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
+  health: <T>() => apiClient<T>('/pilot-onboarding/health'),
+  pilotOnboardingSummary: <T>(schoolId: number, token?: string) => apiClient<T>('/pilot-onboarding/summary', { token, query: { schoolId } }),
   adminSummary: <T>(date: string, token?: string) => apiClient<T>('/attendance/dashboard/admin', { token, query: { date } }),
   principalSummary: <T>(date: string, token?: string) => apiClient<T>('/principal/dashboard/summary', { token, query: { date } }),
   rolloutReadiness: <T>(batchId: string, token?: string) => apiClient<T>(`/timetable/operations/rollout-readiness/${batchId}`, { token }),

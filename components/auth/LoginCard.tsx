@@ -3,8 +3,9 @@
 import Image from 'next/image';
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createDevUser, storeUser } from '@/lib/auth';
-import type { LoginRequest, WebUserRole } from '@/types/auth';
+import { createDevUser, mapLoginResponseToUser, storeUser } from '@/lib/auth';
+import { webApi } from '@/lib/apiClient';
+import type { LoginApiResponse, LoginRequest, WebUserRole } from '@/types/auth';
 
 export default function LoginCard() {
     const router = useRouter();
@@ -12,9 +13,13 @@ export default function LoginCard() {
     const [role, setRole] = useState<WebUserRole>('ADMIN');
     const [username, setUsername] = useState('admin');
     const [password, setPassword] = useState('admin123');
+    const [isLoading, setIsLoading] = useState(false);
+    const [message, setMessage] = useState('');
 
-    function onSubmit(event: FormEvent<HTMLFormElement>) {
+    async function onSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        setIsLoading(true);
+        setMessage('');
 
         const request: LoginRequest = {
             username,
@@ -22,11 +27,25 @@ export default function LoginCard() {
             role,
         };
 
-        const user = createDevUser(request);
-
-        storeUser(user);
-
-        router.push(role === 'ADMIN' ? '/admin' : '/principal');
+        try {
+            const response = await webApi.login<LoginApiResponse>(request);
+            const user = mapLoginResponseToUser(response, role);
+            storeUser(user);
+            router.push(user.role === 'ADMIN' ? '/admin' : '/principal');
+        } catch (error) {
+            const allowDevFallback = process.env.NEXT_PUBLIC_ENABLE_DEV_AUTH_FALLBACK !== 'false';
+            if (!allowDevFallback) {
+                setMessage(error instanceof Error ? error.message : 'Login failed. Please verify backend API is running.');
+                setIsLoading(false);
+                return;
+            }
+            const user = createDevUser(request);
+            storeUser(user);
+            setMessage('Backend login unavailable, opened safe local dev session.');
+            router.push(role === 'ADMIN' ? '/admin' : '/principal');
+        } finally {
+            setIsLoading(false);
+        }
     }
 
     return (
@@ -89,12 +108,14 @@ export default function LoginCard() {
                 />
             </label>
 
-            <button className="primary-button" type="submit">
-                Open {role === 'ADMIN' ? 'Admin' : 'Principal'} Portal
+            <button className="primary-button" type="submit" disabled={isLoading}>
+                {isLoading ? 'Checking API...' : `Open ${role === 'ADMIN' ? 'Admin' : 'Principal'} Portal`}
             </button>
 
+            {message ? <small className="dev-note">{message}</small> : null}
+
             <small className="dev-note">
-                Day 25 keeps safe dev auth storage while the production JWT cookie guard, RBAC, and school_id isolation gates are prepared.
+                Day 26 uses the real /auth/login API first. Dev fallback remains available unless NEXT_PUBLIC_ENABLE_DEV_AUTH_FALLBACK=false.
             </small>
         </form>
     );

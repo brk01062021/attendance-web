@@ -14,3 +14,14 @@ export type LoginRequest = {
   password: string;
   role: WebUserRole;
 };
+
+export type LoginApiResponse = {
+  token: string;
+  userId?: number;
+  schoolId?: number;
+  teacherId?: number | null;
+  teacherName?: string | null;
+  displayName?: string | null;
+  schoolName?: string | null;
+  role: WebUserRole | string;
+};
