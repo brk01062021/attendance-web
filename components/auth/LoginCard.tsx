@@ -13,6 +13,7 @@ export default function LoginCard() {
     const [role, setRole] = useState<WebUserRole>('ADMIN');
     const [username, setUsername] = useState('admin');
     const [password, setPassword] = useState('admin123');
+    const [schoolId, setSchoolId] = useState('DEMO');
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
 
@@ -25,6 +26,7 @@ export default function LoginCard() {
             username,
             password,
             role,
+            schoolId: schoolId.trim().toUpperCase(),
         };
 
         try {
@@ -99,6 +101,16 @@ export default function LoginCard() {
             </label>
 
             <label>
+                School ID
+                <input
+                    value={schoolId}
+                    onChange={(event) => setSchoolId(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4))}
+                    placeholder="DEMO"
+                    maxLength={4}
+                />
+            </label>
+
+            <label>
                 Password
                 <input
                     type="password"
@@ -115,7 +127,7 @@ export default function LoginCard() {
             {message ? <small className="dev-note">{message}</small> : null}
 
             <small className="dev-note">
-                Day 26 uses the real /auth/login API first. Dev fallback remains available unless NEXT_PUBLIC_ENABLE_DEV_AUTH_FALLBACK=false.
+                Day 27 uses school_id-aware login. Use a 4-character tenant code such as DEMO, BRK1, or AB12.
             </small>
         </form>
     );

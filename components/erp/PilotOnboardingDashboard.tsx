@@ -13,7 +13,7 @@ export default function PilotOnboardingDashboard() {
 
     useEffect(() => {
         const user = getStoredUser();
-        webApi.pilotOnboardingSummary<PilotOnboardingSummary>(user?.schoolId || 1, user?.token)
+        webApi.pilotOnboardingSummary<PilotOnboardingSummary>(user?.schoolId || 'DEMO', user?.token)
             .then((data) => {
                 setSummary(data);
                 setApiState('live');

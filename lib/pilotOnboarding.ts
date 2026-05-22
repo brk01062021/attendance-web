@@ -10,7 +10,7 @@ export type PilotOnboardingStep = {
 };
 
 export type PilotOnboardingSummary = {
-  schoolId: number;
+  schoolId: string;
   schoolName: string;
   targetStudents: number;
   targetTeachers: number;
@@ -22,7 +22,7 @@ export type PilotOnboardingSummary = {
 };
 
 export const pilotOnboardingFallback: PilotOnboardingSummary = {
-  schoolId: 1,
+  schoolId: 'DEMO',
   schoolName: 'VidyaSetu Pilot School',
   targetStudents: 700,
   targetTeachers: 40,
