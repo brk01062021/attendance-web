@@ -15,7 +15,7 @@ export const portalRoutes: PortalRoute[] = [
   { icon: '📈', label: 'Operational Analytics', href: '/analytics', description: 'Trends, comparisons, risk and workload', roles: ['ADMIN', 'PRINCIPAL'] },
   { icon: '📊', label: 'Attendance Reports', href: '/reports/attendance', description: 'School attendance reports', roles: ['ADMIN', 'PRINCIPAL'] },
   { icon: '👨‍🏫', label: 'Teacher Reports', href: '/reports/teachers', description: 'Teacher workload and records', roles: ['ADMIN', 'PRINCIPAL'] },
-  { icon: '🗓️', label: 'Teacher Leave Planning', href: '/teacher-leave', description: 'Leave and replacements', roles: ['ADMIN', 'PRINCIPAL'] },
+  { icon: '🗓️', label: 'Leave Approvals', href: '/teacher-leave', description: 'Approve teacher leave enquiries', roles: ['ADMIN', 'PRINCIPAL'] },
   { icon: '🧩', label: 'Teacher Assignments', href: '/teacher-assignments', description: 'Subject and class mapping', roles: ['ADMIN', 'PRINCIPAL'] },
   { icon: '🕒', label: 'Generate Timetable', href: '/timetable/generate', description: 'Auto timetable engine', roles: ['ADMIN', 'PRINCIPAL'] },
   { icon: '🗂️', label: 'Timetable Operations', href: '/timetable/operations', description: 'Batch center, publish, export', roles: ['ADMIN', 'PRINCIPAL'] },

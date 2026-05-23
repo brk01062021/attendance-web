@@ -48,6 +48,12 @@ export const webApi = {
   adminSummary: <T>(date: string, token?: string, schoolId?: string) => apiClient<T>('/attendance/dashboard/admin', { token, schoolId, query: { date } }),
   principalSummary: <T>(date: string, token?: string, schoolId?: string) => apiClient<T>('/principal/dashboard/summary', { token, schoolId, query: { date } }),
   rolloutReadiness: <T>(batchId: string, token?: string, schoolId?: string) => apiClient<T>(`/timetable/operations/rollout-readiness/${batchId}`, { token, schoolId }),
+  teacherLeaveEnquiries: <T>(fromDate: string, toDate: string, token?: string, schoolId?: string) =>
+    apiClient<T>('/teacher-leave/admin/enquiries', { token, schoolId, query: { fromDate, toDate } }),
+  approveTeacherLeaveEnquiry: <T>(enquiryId: number, adminRemarks: string, token?: string, schoolId?: string) =>
+    apiClient<T>(`/teacher-leave/admin/enquiries/${enquiryId}/approve`, { method: 'POST', token, schoolId, query: { adminRemarks } }),
+  rejectTeacherLeaveEnquiry: <T>(enquiryId: number, adminRemarks: string, token?: string, schoolId?: string) =>
+    apiClient<T>(`/teacher-leave/admin/enquiries/${enquiryId}/reject`, { method: 'POST', token, schoolId, query: { adminRemarks } }),
 };
 
 export { API_BASE_URL };
