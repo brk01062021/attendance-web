@@ -1,4 +1,4 @@
-export type WebUserRole = 'ADMIN' | 'PRINCIPAL';
+export type WebUserRole = 'ADMIN' | 'PRINCIPAL' | 'TEACHER' | 'STUDENT';
 
 export type WebPortalUser = {
   userId: number;
@@ -8,6 +8,8 @@ export type WebPortalUser = {
   displayName: string;
   schoolName: string;
   token?: string;
+  teacherId?: number | null;
+  studentId?: number | null;
 };
 
 export type LoginRequest = {
@@ -25,6 +27,8 @@ export type LoginApiResponse = {
   schoolCode?: string;
   teacherId?: number | null;
   teacherName?: string | null;
+  studentId?: number | null;
+  studentName?: string | null;
   displayName?: string | null;
   schoolName?: string | null;
   role: WebUserRole | string;

@@ -96,11 +96,20 @@ export default function ShellStyles() {
       .login-copy { color: var(--ink-600); line-height: 1.55; }
       .login-card label { display: grid; gap: 8px; margin-top: 16px; font-weight: 800; color: var(--ink-900); }
       .login-card input { border: 1px solid rgba(13,23,38,0.12); border-radius: 16px; padding: 13px 14px; background: white; outline: none; color: var(--ink-900); }
-      .role-switch { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 18px 0; }
+      .role-switch { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin: 18px 0; }
       .role-pill { border: 1px solid rgba(13,23,38,0.12); border-radius: 999px; padding: 11px; background: white; cursor: pointer; font-weight: 900; color: var(--ink-600); }
       .role-pill--active { background: var(--navy-950); color: var(--gold-300); border-color: var(--gold-500); }
       .login-card .primary-button { width: 100%; margin-top: 22px; }
       .dev-note { display: block; margin-top: 14px; color: var(--ink-600); line-height: 1.45; }
+
+      .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-top: 18px; }
+      .form-grid label { display: grid; gap: 8px; color: var(--ink-900); font-weight: 900; }
+      .form-grid input, .form-grid select, .form-grid textarea { border: 1px solid rgba(13,23,38,0.12); border-radius: 16px; padding: 13px 14px; background: white; outline: none; color: var(--ink-900); width: 100%; }
+      .form-grid textarea { resize: vertical; line-height: 1.5; }
+      .form-grid--full { grid-column: 1 / -1; }
+      .button-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+      .notice-card { margin-top: 14px; border-radius: 18px; padding: 14px 16px; background: rgba(255,255,255,0.78); border: 1px solid rgba(214,168,79,0.24); color: var(--ink-800); font-weight: 800; line-height: 1.5; }
+
 
 
       .day23-hero { border-radius: 30px; padding: 26px; color: var(--ink-900); margin-bottom: 18px; display: grid; grid-template-columns: 1.25fr 0.75fr; gap: 18px; align-items: stretch; }
@@ -172,7 +181,7 @@ export default function ShellStyles() {
       .day25-timeline span { color: var(--ink-700); line-height: 1.45; }
 
       @media (max-width: 1100px) { .portal-shell { grid-template-columns: 1fr; } .sidebar { position: static; } .dashboard-grid, .action-grid { grid-template-columns: 1fr 1fr; } .two-column, .day23-hero, .day23-layout, .day25-hero, .day25-split { grid-template-columns: 1fr; } .day25-gate-grid { grid-template-columns: 1fr 1fr; } }
-      @media (max-width: 680px) { .portal-content { padding: 20px; } .dashboard-grid, .action-grid, .day25-gate-grid { grid-template-columns: 1fr; } .portal-header, .day23-table-header, .day25-section-header { flex-direction: column; } .header-actions { justify-content: flex-start; } .day23-action { grid-template-columns: 42px 1fr; } .day23-action em { grid-column: 2; justify-self: flex-start; } }
+      @media (max-width: 680px) { .portal-content { padding: 20px; } .dashboard-grid, .action-grid, .day25-gate-grid, .form-grid, .role-switch { grid-template-columns: 1fr; } .portal-header, .day23-table-header, .day25-section-header { flex-direction: column; } .header-actions { justify-content: flex-start; } .day23-action { grid-template-columns: 42px 1fr; } .day23-action em { grid-column: 2; justify-self: flex-start; } }
     `}</style>
   );
 }

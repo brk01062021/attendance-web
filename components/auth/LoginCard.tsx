@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { createDevUser, mapLoginResponseToUser, storeUser } from '@/lib/auth';
+import { createDevUser, homeRouteForRole, mapLoginResponseToUser, storeUser } from '@/lib/auth';
 import { webApi } from '@/lib/apiClient';
 import type { LoginApiResponse, LoginRequest, WebUserRole } from '@/types/auth';
 
@@ -33,7 +33,7 @@ export default function LoginCard() {
             const response = await webApi.login<LoginApiResponse>(request);
             const user = mapLoginResponseToUser(response, role);
             storeUser(user);
-            router.push(user.role === 'ADMIN' ? '/admin' : '/principal');
+            router.push(homeRouteForRole(user.role));
         } catch (error) {
             const allowDevFallback = process.env.NEXT_PUBLIC_ENABLE_DEV_AUTH_FALLBACK !== 'false';
             if (!allowDevFallback) {
@@ -44,7 +44,7 @@ export default function LoginCard() {
             const user = createDevUser(request);
             storeUser(user);
             setMessage('Backend login unavailable, opened safe local dev session.');
-            router.push(role === 'ADMIN' ? '/admin' : '/principal');
+            router.push(homeRouteForRole(role));
         } finally {
             setIsLoading(false);
         }
@@ -70,12 +70,12 @@ export default function LoginCard() {
             <h1>VidyaSetu Portal</h1>
 
             <p className="login-copy">
-                Premium Admin and Principal web ERP for school onboarding,
+                Premium Admin, Principal, Teacher and Student web ERP for school onboarding,
                 timetable operations, reports, imports, and rollout readiness.
             </p>
 
             <div className="role-switch" aria-label="Choose role">
-                {(['ADMIN', 'PRINCIPAL'] as WebUserRole[]).map((item) => (
+                {(['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT'] as WebUserRole[]).map((item) => (
                     <button
                         key={item}
                         type="button"
@@ -86,7 +86,7 @@ export default function LoginCard() {
                         }
                         onClick={() => setRole(item)}
                     >
-                        {item === 'ADMIN' ? 'Admin' : 'Principal'}
+                        {item === 'ADMIN' ? 'Admin' : item === 'PRINCIPAL' ? 'Principal' : item === 'TEACHER' ? 'Teacher' : 'Student'}
                     </button>
                 ))}
             </div>
@@ -121,13 +121,13 @@ export default function LoginCard() {
             </label>
 
             <button className="primary-button" type="submit" disabled={isLoading}>
-                {isLoading ? 'Checking API...' : `Open ${role === 'ADMIN' ? 'Admin' : 'Principal'} Portal`}
+                {isLoading ? 'Checking API...' : `Open ${role === 'ADMIN' ? 'Admin' : role === 'PRINCIPAL' ? 'Principal' : role === 'TEACHER' ? 'Teacher' : 'Student'} Portal`}
             </button>
 
             {message ? <small className="dev-note">{message}</small> : null}
 
             <small className="dev-note">
-                Day 27 uses school_id-aware login. Use a 4-character tenant code such as DEMO, BRK1, or AB12.
+                Day 30 uses school_id-aware role login. Teacher and Student are now enabled on web. Use a 4-character tenant code such as DEMO, BRK1, or AB12.
             </small>
         </form>
     );

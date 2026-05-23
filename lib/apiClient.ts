@@ -54,6 +54,10 @@ export const webApi = {
     apiClient<T>(`/teacher-leave/admin/enquiries/${enquiryId}/approve`, { method: 'POST', token, schoolId, query: { adminRemarks } }),
   rejectTeacherLeaveEnquiry: <T>(enquiryId: number, adminRemarks: string, token?: string, schoolId?: string) =>
     apiClient<T>(`/teacher-leave/admin/enquiries/${enquiryId}/reject`, { method: 'POST', token, schoolId, query: { adminRemarks } }),
+  submitTeacherLeaveEnquiry: <T>(body: unknown, token?: string, schoolId?: string) =>
+    apiClient<T>('/teacher-leave/enquiry', { method: 'POST', token, schoolId, body: JSON.stringify(body) }),
+  submitBulkAttendance: <T>(body: unknown, token?: string, schoolId?: string) =>
+    apiClient<T>('/attendance/bulk', { method: 'POST', token, schoolId, body: JSON.stringify(body) }),
 };
 
 export { API_BASE_URL };

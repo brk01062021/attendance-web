@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useSyncExternalStore } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
-import { clearStoredUser, getStoredUser, isRouteAllowedForRole, isValidTenantUser } from '@/lib/auth';
+import { clearStoredUser, getStoredUser, homeRouteForRole, isRouteAllowedForRole, isValidTenantUser } from '@/lib/auth';
 import type { WebPortalUser } from '@/types/auth';
 import type { PortalRole } from '@/lib/routes';
 import Sidebar from './Sidebar';

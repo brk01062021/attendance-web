@@ -5,7 +5,16 @@ const STORAGE_KEY = 'vidyasetu-web-user';
 const SESSION_COOKIE = 'vidyasetu_session';
 
 function normalizeRole(role?: string, fallback: WebUserRole = 'ADMIN'): WebUserRole {
-  return role?.toUpperCase() === 'PRINCIPAL' ? 'PRINCIPAL' : fallback;
+  const normalized = role?.toUpperCase();
+  if (normalized === 'PRINCIPAL' || normalized === 'TEACHER' || normalized === 'STUDENT') return normalized;
+  return fallback;
+}
+
+export function homeRouteForRole(role: WebUserRole) {
+  if (role === 'PRINCIPAL') return '/principal';
+  if (role === 'TEACHER') return '/teacher';
+  if (role === 'STUDENT') return '/student';
+  return '/admin';
 }
 
 function normalizeSchoolId(value?: string | number | null) {
@@ -36,7 +45,7 @@ export function clearStoredUser() {
 }
 
 export function isValidTenantUser(user: WebPortalUser | null): user is WebPortalUser {
-  return Boolean(user?.userId && user?.schoolId && /^[A-Z0-9]{4}$/.test(user.schoolId) && user?.role && ['ADMIN', 'PRINCIPAL'].includes(user.role));
+  return Boolean(user?.userId && user?.schoolId && /^[A-Z0-9]{4}$/.test(user.schoolId) && user?.role && ['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT'].includes(user.role));
 }
 
 export function isRouteAllowedForRole(pathname: string, role: PortalRole) {
@@ -49,13 +58,15 @@ export function isRouteAllowedForRole(pathname: string, role: PortalRole) {
 
 export function createDevUser(login: LoginRequest): WebPortalUser {
   return {
-    userId: login.role === 'ADMIN' ? 1 : 2,
+    userId: login.role === 'ADMIN' ? 1 : login.role === 'PRINCIPAL' ? 2 : login.role === 'TEACHER' ? 101 : 201,
     schoolId: normalizeSchoolId(login.schoolId),
     internalSchoolId: 1,
     role: login.role,
-    displayName: login.role === 'ADMIN' ? 'VidyaSetu Admin' : 'School Principal',
+    displayName: login.role === 'ADMIN' ? 'VidyaSetu Admin' : login.role === 'PRINCIPAL' ? 'School Principal' : login.role === 'TEACHER' ? 'Demo Teacher' : 'Demo Student',
     schoolName: 'VidyaSetu Demo School',
     token: 'dev-web-token',
+    teacherId: login.role === 'TEACHER' ? 101 : null,
+    studentId: login.role === 'STUDENT' ? 201 : null,
   };
 }
 
@@ -66,8 +77,10 @@ export function mapLoginResponseToUser(response: LoginApiResponse, requestedRole
     internalSchoolId: typeof response?.schoolId === 'number' ? response.schoolId : 1,
     schoolId: normalizeSchoolId(response?.externalSchoolId || response?.schoolCode || response?.schoolId),
     role,
-    displayName: response?.displayName || response?.teacherName || (role === 'ADMIN' ? 'VidyaSetu Admin' : 'School Principal'),
+    displayName: response?.displayName || response?.teacherName || response?.studentName || (role === 'ADMIN' ? 'VidyaSetu Admin' : role === 'PRINCIPAL' ? 'School Principal' : role === 'TEACHER' ? 'Teacher' : 'Student'),
     schoolName: response?.schoolName || 'VidyaSetu Demo School',
     token: response?.token || 'demo-token',
+    teacherId: response?.teacherId ?? (role === 'TEACHER' ? Number(response?.userId || 101) : null),
+    studentId: response?.studentId ?? (role === 'STUDENT' ? Number(response?.userId || 201) : null),
   };
 }

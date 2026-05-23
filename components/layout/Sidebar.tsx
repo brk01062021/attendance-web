@@ -15,7 +15,7 @@ export default function Sidebar({ role }: SidebarProps) {
 
     return (
         <aside className="sidebar">
-            <Link className="brand-block" href={role === 'ADMIN' ? '/admin' : '/principal'}>
+            <Link className="brand-block" href={role === 'ADMIN' ? '/admin' : role === 'PRINCIPAL' ? '/principal' : role === 'TEACHER' ? '/teacher' : '/student'}>
                 <Image className="brand-mark" src="/branding/app-icon.png" alt="VidyaSetu" width={52} height={52} priority />
                 <div>
                     <strong>VidyaSetu</strong>
@@ -39,7 +39,7 @@ export default function Sidebar({ role }: SidebarProps) {
             </nav>
 
             <div className="sidebar-footer">
-                Day 25 prepares the first realistic school pilot with mobile-first daily workflows, web-first bulk administration, RBAC, tenant checks, imports, timetable lifecycle, holiday overrides, notices, and deployment readiness.
+                Day 30 prepares the first realistic school pilot with mobile-first daily workflows, web-first bulk administration, RBAC, tenant checks, imports, timetable lifecycle, holiday overrides, notices, and deployment readiness.
             </div>
         </aside>
     );
