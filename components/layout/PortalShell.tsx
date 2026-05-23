@@ -20,7 +20,7 @@ export default function PortalShell({
                                         role,
                                         title,
                                         subtitle,
-                                        eyebrow = 'DAY 25 WEB ERP DEVELOPMENT',
+                                        eyebrow = 'DAY 32 EXECUTIVE VISUAL SYSTEM',
                                         children,
                                         variant = 'dark',
                                     }: PortalShellProps) {
@@ -107,7 +107,7 @@ export default function PortalShell({
                         <div className="user-chip user-chip--role">{roleLabel}</div>
                         <div className="user-chip">school_id: {user.schoolId}</div>
                         <button className="logout-button" type="button" onClick={logout}>
-                            Logout
+                            Sign out
                         </button>
                     </div>
                 </header>
