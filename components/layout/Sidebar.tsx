@@ -12,10 +12,11 @@ type SidebarProps = {
 export default function Sidebar({ role }: SidebarProps) {
     const pathname = usePathname();
     const items = portalRoutes.filter((item) => item.roles.includes(role));
+    const homeHref = role === 'ADMIN' ? '/admin' : role === 'PRINCIPAL' ? '/principal' : role === 'TEACHER' ? '/teacher' : '/student';
 
     return (
         <aside className="sidebar">
-            <Link className="brand-block" href={role === 'ADMIN' ? '/admin' : role === 'PRINCIPAL' ? '/principal' : role === 'TEACHER' ? '/teacher' : '/student'}>
+            <Link className="brand-block" href={homeHref}>
                 <Image className="brand-mark" src="/branding/app-icon.png" alt="VidyaSetu" width={52} height={52} priority />
                 <div>
                     <strong>VidyaSetu</strong>
@@ -24,10 +25,11 @@ export default function Sidebar({ role }: SidebarProps) {
             </Link>
 
             <nav className="nav-list" aria-label={`${role} navigation`}>
-                {items.map((item) => {
-                    const active = pathname === item.href;
+                {items.map((item, index) => {
+                    const isHomeItem = item.label === 'Home';
+                    const active = pathname === item.href && (isHomeItem || item.href !== homeHref);
                     return (
-                        <Link key={`${role}-${item.href}`} className={active ? 'nav-item nav-item--active' : 'nav-item'} href={item.href}>
+                        <Link key={`${role}-${item.href}-${item.label}-${index}`} className={active ? 'nav-item nav-item--active' : 'nav-item'} href={item.href}>
                             <span className="nav-icon">{item.icon}</span>
                             <span>
                 <strong>{item.label}</strong>
@@ -39,7 +41,7 @@ export default function Sidebar({ role }: SidebarProps) {
             </nav>
 
             <div className="sidebar-footer">
-                Day 30 prepares the first realistic school pilot with mobile-first daily workflows, web-first bulk administration, RBAC, tenant checks, imports, timetable lifecycle, holiday overrides, notices, and deployment readiness.
+                Day 31 production polish: premium role portals, dark-gold glass UI, teacher leave timeline, notifications, RBAC checks, and pilot-ready web workflows.
             </div>
         </aside>
     );

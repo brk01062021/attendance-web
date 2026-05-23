@@ -57,7 +57,7 @@ export default function PortalShell({
         if (!isRouteAllowedForRole(pathname, user.role)) {
             return {
                 allowed: false,
-                redirectTo: user.role === 'ADMIN' ? '/admin' : '/principal',
+                redirectTo: homeRouteForRole(user.role),
                 message: 'This role cannot access the requested ERP page. Redirecting to the correct dashboard.',
             };
         }
@@ -78,6 +78,7 @@ export default function PortalShell({
     }, [accessState.allowed, accessState.redirectTo, router, user]);
 
     const effectiveRole = user?.role || role;
+    const roleLabel = effectiveRole === 'ADMIN' ? 'ADMIN' : effectiveRole === 'PRINCIPAL' ? 'PRINCIPAL' : effectiveRole === 'TEACHER' ? 'TEACHER' : 'STUDENT';
 
     function logout() {
         clearStoredUser();
@@ -103,7 +104,7 @@ export default function PortalShell({
                         <span>{subtitle}</span>
                     </div>
                     <div className="header-actions">
-                        <div className="user-chip">{user.displayName}</div>
+                        <div className="user-chip user-chip--role">{roleLabel}</div>
                         <div className="user-chip">school_id: {user.schoolId}</div>
                         <button className="logout-button" type="button" onClick={logout}>
                             Logout

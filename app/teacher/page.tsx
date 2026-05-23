@@ -4,7 +4,7 @@ import ShellStyles from '@/components/layout/ShellStyles';
 
 export default function TeacherPage() {
   return (
-    <PortalShell role="TEACHER" title="Teacher Web Portal" subtitle="Teacher web workspace for leave enquiry and missed attendance recovery." eyebrow="DAY 30 WEB ERP DEVELOPMENT">
+    <PortalShell role="TEACHER" title="Teacher Web Portal" subtitle="Teacher web workspace for leave enquiry and missed attendance recovery." eyebrow="DAY 31 WEB ERP DEVELOPMENT">
       <ShellStyles />
       <DashboardHome role="TEACHER" />
     </PortalShell>
