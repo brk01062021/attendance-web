@@ -1,19 +1,18 @@
-import Day24ModulePage from '@/components/erp/Day24ModulePage';
+import ImportValidationDashboard from '@/components/erp/ImportValidationDashboard';
 import PortalShell from '@/components/layout/PortalShell';
 import ShellStyles from '@/components/layout/ShellStyles';
-import { day24Modules } from '@/lib/day24MockData';
 
 export default function Page() {
     return (
         <PortalShell
             role="ADMIN"
             title="Import School Data"
-            subtitle="Excel-first school onboarding engine for tenant setup, holidays, users, teacher pools, and timetable inputs."
-            eyebrow="DAY 24 WEB ERP DEVELOPMENT"
+            subtitle="Excel-first school onboarding engine with tenant-safe preview, validation, and error reporting."
+            eyebrow="DAY 28 WEB ERP DEVELOPMENT"
             variant="gold"
         >
             <ShellStyles />
-            <Day24ModulePage config={day24Modules.importSchoolData} />
+            <ImportValidationDashboard />
         </PortalShell>
     );
 }

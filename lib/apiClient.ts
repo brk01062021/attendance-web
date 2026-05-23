@@ -31,7 +31,10 @@ export async function apiClient<T>(path: string, options: ApiOptions = {}): Prom
 
   if (!response.ok) {
     const body = await response.json().catch(async () => ({ message: await response.text().catch(() => '') }));
-    throw new Error(body?.message || `VidyaSetu API ${response.status}: ${response.statusText}`);
+    if (response.status === 401 && typeof window !== 'undefined') {
+      window.dispatchEvent(new CustomEvent('vidyasetu:session-expired'));
+    }
+    throw new Error(body?.message || body?.errorCode || `VidyaSetu API ${response.status}: ${response.statusText}`);
   }
 
   if (response.status === 204) return undefined as T;
