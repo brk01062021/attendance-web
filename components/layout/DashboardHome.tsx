@@ -16,126 +16,126 @@ type InsightItem = { label: string; value: string; helper: string; tone: 'succes
 
 const roleCopy = {
   ADMIN: {
-    title: 'Admin Executive Command Center',
-    subtitle: 'Premium SaaS operations view for tenant setup, school readiness, attendance intelligence, approvals, and pilot hardening.',
-    focus: 'Admin and Principal now share executive-grade visual hierarchy while preserving role permissions.',
+    title: 'Admin School Operations',
+    subtitle: 'Manage school setup, attendance, leave approvals, reports, notices, timetable, and teacher assignments from one workspace.',
+    focus: 'Use this dashboard to complete daily school operations and prepare real pilot-school data validation.',
     metrics: [
-      { label: 'Tenant Readiness', value: '92%', helper: 'school_id, RBAC, onboarding gates', tone: 'success', trend: '+8%' },
-      { label: 'Attendance Pulse', value: 'Live', helper: 'Whole-school operational view', tone: 'info', trend: 'Today' },
-      { label: 'Approvals Queue', value: 'Watch', helper: 'Leave enquiries and replacements', tone: 'warning', trend: 'Action' },
-      { label: 'Production Guard', value: 'P0', helper: 'Pilot readiness and hardening', tone: 'gold', trend: 'Core' },
+      { label: 'Today Attendance', value: 'Open', helper: 'Review class-wise attendance status', tone: 'info', trend: 'Today' },
+      { label: 'Leave Approvals', value: 'Pending', helper: 'Approve or reject teacher leave enquiries', tone: 'warning', trend: 'Action' },
+      { label: 'Teacher Workload', value: 'Review', helper: 'Check timetable and replacement load', tone: 'gold', trend: 'Daily' },
+      { label: 'School Setup', value: 'Active', helper: 'Imports, subjects, sections, and assignments', tone: 'success', trend: 'Setup' },
     ],
     actions: [
-      ['/import-school-data', '📥', 'Import School Data', 'Excel onboarding workflow for school profile, users, classes, sections, subjects, holidays, and teacher pools.'],
-      ['/teacher-leave', '🗓️', 'Leave Approvals', 'Approve teacher leave enquiries and start replacement workflow.'],
-      ['/reports/attendance', '📊', 'Reports & Intelligence', 'Attendance, teacher reports, workload, and executive dashboards with role-aware navigation.'],
-      ['/analytics', '📈', 'Operational Analytics', 'Attendance trends, class/section comparisons, teacher load, and risk signals for demos.'],
-      ['/timetable/operations', '🕒', 'Timetable Operations', 'Batch review, rollout readiness, publish readiness, export foundation, and live timetable visibility.'],
-      ['/production-hardening', '🛡️', 'Production Hardening', 'RBAC, school_id isolation, route planning, pilot gates, and deployment readiness.'],
+      ['/import-school-data', '📥', 'Import School Data', 'Upload and validate school profile, users, classes, sections, subjects, holidays, and teacher pools.'],
+      ['/teacher-leave', '🗓️', 'Leave Approvals', 'Review teacher leave enquiries and start replacement workflow after approval.'],
+      ['/reports/attendance', '📊', 'Attendance Reports', 'View school, class, section, and student attendance reports.'],
+      ['/reports/teachers', '👨‍🏫', 'Teacher Reports', 'Review teacher workload, attendance submission, leave, and replacement records.'],
+      ['/timetable/operations', '🕒', 'Timetable Operations', 'Review, repair, publish, and manage school timetable batches.'],
+      ['/school-notices', '📣', 'School Notices', 'Create holiday, academic, and operational notices.'],
     ],
     insights: [
-      { label: 'School Ops', value: 'Stable', helper: 'Imports, timetable, notices, reports aligned', tone: 'success' },
-      { label: 'Risk Watch', value: 'Medium', helper: 'Validate real school data before parent rollout', tone: 'warning' },
-      { label: 'Pilot Gate', value: 'Next', helper: 'One real school activation after Day 32 polish', tone: 'gold' },
+      { label: 'Attendance Coverage', value: 'Needs Review', helper: 'Check pending classes before day close', tone: 'warning' },
+      { label: 'Replacement Coverage', value: 'Available', helper: 'Assign replacements for approved leave', tone: 'info' },
+      { label: 'Data Readiness', value: 'In Progress', helper: 'Validate school import data before rollout', tone: 'gold' },
     ],
     notifications: [
-      { title: 'Leave approval workflow', message: 'Admin/Principal approval actions should trigger teacher status visibility and notifications.', tone: 'info' },
-      { title: 'Pilot readiness', message: 'Keep parent access controlled until school data, timetable, and attendance flows are validated.', tone: 'warning' },
-      { title: 'Design audit', message: 'Dark-glass cards and gold typography are now the default executive dashboard standard.', tone: 'success' },
+      { title: 'Pending approvals', message: 'Review teacher leave enquiries and replacement requirements.', tone: 'warning' },
+      { title: 'School data validation', message: 'Confirm school_id, classes, sections, teachers, and timetable before pilot use.', tone: 'info' },
+      { title: 'Notice control', message: 'Holiday and academic notices remain controlled by Admin and Principal.', tone: 'success' },
     ],
   },
   PRINCIPAL: {
-    title: 'Principal Executive Intelligence',
-    subtitle: 'Principal-ready command center for daily school pulse, attendance, teacher load, approvals, and notices.',
-    focus: 'Principal dashboard keeps Admin-level operational depth but with executive-first decision cards.',
+    title: 'Principal School Overview',
+    subtitle: 'Monitor attendance, teacher availability, leave approvals, replacement coverage, notices, and academic operations.',
+    focus: 'Use this dashboard for school-level decisions and daily operational visibility.',
     metrics: [
-      { label: 'Executive View', value: 'Ready', helper: 'School intelligence and reports', tone: 'success', trend: 'Live' },
-      { label: 'Attendance Pulse', value: 'Track', helper: 'Daily attendance action view', tone: 'info', trend: 'Daily' },
-      { label: 'Teacher Load', value: 'Watch', helper: 'Workload and replacement load', tone: 'warning', trend: 'Ops' },
-      { label: 'Pilot Window', value: '15d', helper: 'Real-school readiness target', tone: 'gold', trend: 'Target' },
+      { label: 'School Attendance', value: 'Review', helper: 'Whole-school attendance overview', tone: 'info', trend: 'Today' },
+      { label: 'Teacher Availability', value: 'Check', helper: 'Leave, workload, and replacement coverage', tone: 'warning', trend: 'Daily' },
+      { label: 'Leave Approvals', value: 'Open', helper: 'Approve or reject teacher requests', tone: 'gold', trend: 'Action' },
+      { label: 'School Notices', value: 'Manage', helper: 'Publish academic and holiday updates', tone: 'success', trend: 'Notice' },
     ],
     actions: [
-      ['/school-intelligence', '🧠', 'School Intelligence', 'Executive insights and operational visibility.'],
-      ['/teacher-leave', '🗓️', 'Leave Approvals', 'Review teacher leave enquiries and approve/reject.'],
-      ['/reports/attendance', '📊', 'Attendance Reports', 'Whole-school attendance views.'],
-      ['/reports/teachers', '👨‍🏫', 'Teacher Reports', 'Teacher workload and records.'],
-      ['/analytics', '📈', 'Operational Analytics', 'Class/section comparisons and risk signals.'],
-      ['/school-notices', '📣', 'Create School Notice', 'Announcements and alerts.'],
+      ['/principal/intelligence', '🧠', 'School Intelligence', 'View school-level attendance, workload, and operational insights.'],
+      ['/teacher-leave', '🗓️', 'Leave Approvals', 'Review teacher leave enquiries and approve or reject requests.'],
+      ['/reports/attendance', '📊', 'Attendance Reports', 'Open class, section, and student attendance views.'],
+      ['/reports/teachers', '👨‍🏫', 'Teacher Reports', 'Review teacher workload, classes, leaves, and replacement load.'],
+      ['/analytics', '📈', 'Operational Analytics', 'Compare attendance trends, class sections, and school risk signals.'],
+      ['/school-notices', '📣', 'Create School Notice', 'Publish announcements, holiday notices, and academic alerts.'],
     ],
     insights: [
-      { label: 'Decision Support', value: 'Ready', helper: 'Approvals, attendance, and workload in one flow', tone: 'success' },
-      { label: 'Teacher Coverage', value: 'Monitor', helper: 'Replacement and leave visibility', tone: 'warning' },
-      { label: 'Parent Rollout', value: 'Hold', helper: 'Enable only after pilot data signoff', tone: 'gold' },
+      { label: 'Daily Attendance', value: 'Monitor', helper: 'Check pending and completed classes', tone: 'info' },
+      { label: 'Teacher Coverage', value: 'Review', helper: 'Confirm replacements for approved leave', tone: 'warning' },
+      { label: 'Parent Rollout', value: 'Controlled', helper: 'Enable only after pilot data signoff', tone: 'gold' },
     ],
     notifications: [
-      { title: 'Morning operating pulse', message: 'Review attendance, teacher leave, and replacement status before school day starts.', tone: 'info' },
-      { title: 'Teacher workload watch', message: 'Use replacement load and timetable data before approving extended leave.', tone: 'warning' },
-      { title: 'Notice center ready', message: 'Holiday and academic notices remain admin/principal controlled.', tone: 'success' },
+      { title: 'Morning review', message: 'Check attendance, teacher leave, and replacement coverage before school day starts.', tone: 'info' },
+      { title: 'Workload check', message: 'Use teacher workload and timetable data before approving extended leave.', tone: 'warning' },
+      { title: 'Notice publishing', message: 'Publish holiday and academic notices after Admin/Principal validation.', tone: 'success' },
     ],
   },
   TEACHER: {
-    title: 'Teacher Web Portal',
-    subtitle: 'Premium teacher workspace matching mobile flow: attendance, timetable, leave enquiry, notifications, results, and 7-day missed attendance recovery.',
-    focus: 'Teacher web now mirrors the mobile-first workflow with role-safe cards and notification visibility.',
+    title: 'Teacher Daily Workspace',
+    subtitle: 'Take attendance, view timetable, request leave enquiry, track approvals, manage replacements, and recover missed attendance.',
+    focus: 'Use this dashboard for daily teacher work. Attendance, timetable, leave enquiry, and notifications are kept role-safe.',
     metrics: [
-      { label: 'Leave Enquiry', value: 'Track', helper: 'History, remarks and timeline', tone: 'success', trend: 'Status' },
-      { label: 'Notifications', value: 'Center', helper: 'Approval/rejection updates', tone: 'info', trend: 'Live' },
-      { label: 'Bulk Import', value: '7 days', helper: 'Working-day recovery', tone: 'warning', trend: 'Web' },
-      { label: 'RBAC', value: 'Teacher', helper: 'Role-restricted pages only', tone: 'gold', trend: 'Safe' },
+      { label: 'Take Attendance', value: 'Start', helper: 'Open today class attendance flow', tone: 'success', trend: 'Today' },
+      { label: 'My Timetable', value: 'View', helper: 'Today schedule and assigned classes', tone: 'info', trend: 'Schedule' },
+      { label: 'Leave Enquiry', value: 'Request', helper: 'Submit and track leave request status', tone: 'gold', trend: 'Action' },
+      { label: 'Missed Attendance', value: 'Recover', helper: 'Bulk submit up to 7 working days', tone: 'warning', trend: 'Web' },
     ],
     actions: [
-      ['/teacher/leave-enquiry', '📝', 'Request Leave Enquiry', 'Submit leave enquiry and track Pending/Approved/Rejected status with Admin/Principal remarks.'],
-      ['/teacher/attendance-bulk', '✅', 'Missed Attendance Bulk Submission', 'Recover attendance for up to 7 working days from web.'],
-      ['/teacher', '📅', 'My Timetable', 'View today schedule, assigned classes, periods, and replacement responsibilities.'],
-      ['/teacher', '👩‍🏫', 'My Classes & Subjects', 'Class-section-subject assignments in a teacher-friendly mobile-parity card flow.'],
-      ['/teacher', '🧾', 'Results Submission', 'Placeholder for marks entry and exam result submission workflow.'],
-      ['/teacher/leave-enquiry#notifications', '🔔', 'Teacher Notifications', 'See leave approval/rejection updates from Admin/Principal.'],
+      ['/teacher/leave-enquiry', '📝', 'Request Leave Enquiry', 'Submit leave enquiry and track Pending, Approved, or Rejected status.'],
+      ['/teacher/attendance-bulk', '✅', 'Recover Missed Attendance', 'Submit missed attendance records for recent working days from web.'],
+      ['/teacher', '📅', 'My Timetable', 'View today schedule, assigned periods, and replacement responsibilities.'],
+      ['/teacher', '🏫', 'My Classes', 'View assigned classes, sections, and subjects.'],
+      ['/teacher', '🧾', 'Results Submission', 'Enter and review student exam results when enabled.'],
+      ['/teacher/leave-enquiry#notifications', '🔔', 'Notifications', 'See leave approval, rejection, and school workflow updates.'],
     ],
     insights: [
-      { label: 'Next Period', value: 'Class 10A', helper: 'Timetable placeholder card', tone: 'info' },
-      { label: 'Leave History', value: 'Visible', helper: 'Pending/Approved/Rejected timeline', tone: 'success' },
-      { label: 'Missed Attendance', value: 'Recover', helper: 'Bulk upload flow remains web-first', tone: 'warning' },
+      { label: 'Next Class', value: 'Check Timetable', helper: 'Open today schedule before attendance', tone: 'info' },
+      { label: 'Leave History', value: 'Request Status', helper: 'View submitted requests and remarks', tone: 'success' },
+      { label: 'Pending Attendance', value: 'Recover', helper: 'Use bulk entry for missed working days', tone: 'warning' },
     ],
     notifications: [
-      { title: 'Leave status updates', message: 'Approved or rejected leave enquiries appear in the teacher leave page notification area.', tone: 'info' },
-      { title: 'Attendance reminder', message: 'Use missed attendance bulk submission when working-day submissions are pending.', tone: 'warning' },
-      { title: 'Mobile parity', message: 'Teacher web cards are aligned with the mobile dashboard flow.', tone: 'success' },
+      { title: 'Leave status', message: 'Approved or rejected leave enquiries appear in the teacher leave page.', tone: 'info' },
+      { title: 'Attendance reminder', message: 'Use missed attendance recovery when previous working-day submissions are pending.', tone: 'warning' },
+      { title: 'Teacher profile', message: 'Teacher ID and school ID are bound from the login session.', tone: 'success' },
     ],
   },
   STUDENT: {
-    title: 'Student Academic Progress Center',
-    subtitle: 'Student web expansion for attendance, timetable, results, notices, assignments, and academic progress analytics cards.',
-    focus: 'Student web now gets progress-oriented analytics cards while staying simple and mobile-friendly.',
+    title: 'Student Academic Workspace',
+    subtitle: 'View attendance, timetable, exam results, notices, assignments, and academic progress in one simple portal.',
+    focus: 'Use this dashboard to check daily timetable, attendance status, results, and school notices.',
     metrics: [
-      { label: 'Attendance', value: '94%', helper: 'Monthly attendance health', tone: 'success', trend: '+2%' },
-      { label: 'Timetable', value: 'Live', helper: 'Published schedule visibility', tone: 'info', trend: 'Today' },
-      { label: 'Results', value: 'Track', helper: 'Academic overview', tone: 'gold', trend: 'Term' },
-      { label: 'Notices', value: 'Alerts', helper: 'School updates', tone: 'warning', trend: 'New' },
+      { label: 'My Attendance', value: '94%', helper: 'Current attendance percentage', tone: 'success', trend: '+2%' },
+      { label: 'Today Timetable', value: 'View', helper: 'Published class schedule', tone: 'info', trend: 'Today' },
+      { label: 'Exam Results', value: 'Open', helper: 'Subject-wise academic record', tone: 'gold', trend: 'Term' },
+      { label: 'School Notices', value: 'Alerts', helper: 'Holiday and academic updates', tone: 'warning', trend: 'New' },
     ],
     actions: [
-      ['/student', '📊', 'My Attendance', 'Attendance percentage, absent days, late marks, and monthly trend cards.'],
-      ['/student', '🕒', 'My Timetable', 'Published class timetable with holiday and replacement visibility.'],
-      ['/student', '📘', 'Exam Results', 'Subject-wise marks, grades, and improvement areas.'],
-      ['/student', '📣', 'School Notices', 'Announcements, holiday notices, and academic calendar alerts.'],
-      ['/student', '📝', 'Assignments', 'Homework and assignment summary placeholder for pilot expansion.'],
-      ['/student', '🏆', 'Achievements', 'Academic and school achievement visibility.'],
+      ['/student', '📊', 'My Attendance', 'Check attendance percentage, absent days, late marks, and monthly trend.'],
+      ['/student', '🕒', 'My Timetable', 'View published class timetable and holiday changes.'],
+      ['/student', '📘', 'Exam Results', 'Review subject marks, grades, and academic progress.'],
+      ['/student', '📣', 'School Notices', 'Read announcements, holidays, and academic calendar updates.'],
+      ['/student', '📝', 'Assignments', 'View homework and assignment summary when enabled.'],
+      ['/student', '🏆', 'Achievements', 'View academic and school achievements.'],
     ],
     insights: [
-      { label: 'Attendance Goal', value: '95%', helper: 'One more strong week reaches target', tone: 'success' },
-      { label: 'Result Trend', value: 'Improving', helper: 'Subject-wise analytics placeholder', tone: 'info' },
-      { label: 'Focus Area', value: 'Maths', helper: 'Weak subject detection placeholder', tone: 'warning' },
+      { label: 'Attendance Goal', value: '95%', helper: 'Monthly attendance goal', tone: 'success' },
+      { label: 'Result Trend', value: 'Improving', helper: 'Review subject performance after exams', tone: 'info' },
+      { label: 'Focus Subject', value: 'Maths', helper: 'Needs more practice based on latest results', tone: 'warning' },
     ],
     notifications: [
-      { title: 'Academic progress', message: 'Attendance and result progress cards are ready for future backend hookup.', tone: 'info' },
-      { title: 'School notice', message: 'Holiday and academic notices will appear here after publishing.', tone: 'gold' },
-      { title: 'Student-safe UX', message: 'Cards keep simple language and strong contrast for student readability.', tone: 'success' },
+      { title: 'Attendance update', message: 'Attendance percentage updates after teacher submission.', tone: 'info' },
+      { title: 'School notice', message: 'Holiday and academic notices appear here after publishing.', tone: 'gold' },
+      { title: 'Academic progress', message: 'Use results and timetable together to plan daily study.', tone: 'success' },
     ],
   },
-} satisfies Record<PortalRole, { title: string; subtitle: string; focus: string; metrics: Metric[]; actions: Action[]; insights: InsightItem[]; notifications: NotificationItem[] }>;
+} satisfies Record<PortalRole, { title: string; subtitle: string; focus: string; metrics: Metric[]; actions: Action[]; insights: InsightItem[]; notifications: NotificationItem[] }>; 
 
 export default function DashboardHome({ role }: { role: PortalRole }) {
   const copy = roleCopy[role];
-  const isExecutive = role === 'ADMIN' || role === 'PRINCIPAL';
+  const focusTitle = role === 'ADMIN' ? 'Admin operations' : role === 'PRINCIPAL' ? 'Principal overview' : role === 'TEACHER' ? 'Teacher workflow' : 'Student progress';
 
   return (
     <>
@@ -145,14 +145,14 @@ export default function DashboardHome({ role }: { role: PortalRole }) {
           <h2>{copy.title}</h2>
           <p>{copy.subtitle}</p>
           <div className="hero-chip-row">
-            <span className="hero-chip">Dark glass UI</span>
-            <span className="hero-chip">Gold hierarchy</span>
-            <span className="hero-chip">Role-safe navigation</span>
+            <span className="hero-chip">Today</span>
+            <span className="hero-chip">My workflow</span>
+            <span className="hero-chip">Notifications</span>
           </div>
         </div>
         <aside className="executive-focus-card">
-          <span>{isExecutive ? 'Executive audit' : 'Role workspace'}</span>
-          <strong>{isExecutive ? 'Production polish pass' : 'Portal parity pass'}</strong>
+          <span>Workspace</span>
+          <strong>{focusTitle}</strong>
           <p>{copy.focus}</p>
         </aside>
       </section>
@@ -175,8 +175,8 @@ export default function DashboardHome({ role }: { role: PortalRole }) {
 
       <div className="two-column two-column--dashboard">
         <section className="work-panel glass-panel premium-panel">
-          <p className="eyebrow">ROLE WORKFLOW CENTER</p>
-          <h2>{role === 'STUDENT' ? 'Academic Actions' : role === 'TEACHER' ? 'Teacher Actions' : 'Executive Actions'}</h2>
+          <p className="eyebrow">WORKFLOW CENTER</p>
+          <h2>{role === 'STUDENT' ? 'Student Actions' : role === 'TEACHER' ? 'Teacher Actions' : 'School Actions'}</h2>
           <p>{vidyaSetuTokens.copy.designNote}</p>
           <div className="action-grid">
             {copy.actions.map(([href, icon, title, description], index) => (
@@ -190,9 +190,9 @@ export default function DashboardHome({ role }: { role: PortalRole }) {
         </section>
 
         <section className="work-panel glass-panel premium-panel notification-center-card" id="notifications">
-          <p className="eyebrow">NOTIFICATION CENTER</p>
-          <h2>{role === 'TEACHER' ? 'Teacher Notifications' : role === 'STUDENT' ? 'Student Alerts' : 'Executive Alerts'}</h2>
-          <p>Day 32 UI architecture for consistent notification cards before full unread/read backend expansion.</p>
+          <p className="eyebrow">NOTIFICATIONS</p>
+          <h2>{role === 'TEACHER' ? 'Teacher Notifications' : role === 'STUDENT' ? 'Student Alerts' : 'School Alerts'}</h2>
+          <p>Role-specific updates and alerts appear here as backend notifications become available.</p>
           <div className="notification-list">
             {copy.notifications.map((item) => (
               <article className={`notification-item notification-item--${item.tone}`} key={item.title}>

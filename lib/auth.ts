@@ -18,8 +18,37 @@ export function homeRouteForRole(role: WebUserRole) {
 }
 
 function normalizeSchoolId(value?: string | number | null) {
-  const schoolId = String(value || 'DEMO').trim().toUpperCase();
-  return /^[A-Z0-9]{4}$/.test(schoolId) ? schoolId : 'DEMO';
+  const schoolId = String(value || '').trim().toUpperCase();
+  if (schoolId === 'DEMO') return 'BRK1';
+  return /^[A-Z0-9]{4}$/.test(schoolId) ? schoolId : 'BRK1';
+}
+
+function defaultDisplayName(role: WebUserRole, username?: string) {
+  const cleanName = username?.trim();
+  if (cleanName && cleanName.toLowerCase() !== 'admin') return cleanName;
+  if (role === 'ADMIN') return 'School Admin';
+  if (role === 'PRINCIPAL') return 'School Principal';
+  if (role === 'TEACHER') return 'Teacher';
+  return 'Student';
+}
+
+function normalizeUser(user: WebPortalUser): WebPortalUser {
+  const role = normalizeRole(user.role, 'ADMIN');
+  const schoolId = normalizeSchoolId(user.schoolId);
+  const schoolName = user.schoolName && !/demo/i.test(user.schoolName) ? user.schoolName : `${schoolId} School`;
+  const displayName = user.displayName && !((role === 'TEACHER' || role === 'STUDENT') && /admin/i.test(user.displayName))
+    ? user.displayName
+    : defaultDisplayName(role);
+
+  return {
+    ...user,
+    role,
+    schoolId,
+    schoolName,
+    displayName,
+    teacherId: role === 'TEACHER' ? Number(user.teacherId || user.userId || 1) : null,
+    studentId: role === 'STUDENT' ? Number(user.studentId || user.userId || 201) : null,
+  };
 }
 
 export function getStoredUser(): WebPortalUser | null {
@@ -27,7 +56,9 @@ export function getStoredUser(): WebPortalUser | null {
   const raw = window.localStorage.getItem(STORAGE_KEY);
   if (!raw) return null;
   try {
-    return JSON.parse(raw) as WebPortalUser;
+    const normalized = normalizeUser(JSON.parse(raw) as WebPortalUser);
+    window.localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+    return normalized;
   } catch {
     window.localStorage.removeItem(STORAGE_KEY);
     return null;
@@ -35,8 +66,9 @@ export function getStoredUser(): WebPortalUser | null {
 }
 
 export function storeUser(user: WebPortalUser) {
-  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
-  document.cookie = `${SESSION_COOKIE}=${encodeURIComponent(JSON.stringify({ role: user.role, schoolId: user.schoolId, userId: user.userId }))}; path=/; max-age=28800; SameSite=Lax`;
+  const normalized = normalizeUser(user);
+  window.localStorage.setItem(STORAGE_KEY, JSON.stringify(normalized));
+  document.cookie = `${SESSION_COOKIE}=${encodeURIComponent(JSON.stringify({ role: normalized.role, schoolId: normalized.schoolId, userId: normalized.userId }))}; path=/; max-age=28800; SameSite=Lax`;
 }
 
 export function clearStoredUser() {
@@ -45,7 +77,7 @@ export function clearStoredUser() {
 }
 
 export function isValidTenantUser(user: WebPortalUser | null): user is WebPortalUser {
-  return Boolean(user?.userId && user?.schoolId && /^[A-Z0-9]{4}$/.test(user.schoolId) && user?.role && ['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT'].includes(user.role));
+  return Boolean(user?.userId && user?.schoolId && user.schoolId !== 'DEMO' && /^[A-Z0-9]{4}$/.test(user.schoolId) && user?.role && ['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT'].includes(user.role));
 }
 
 export function isRouteAllowedForRole(pathname: string, role: PortalRole) {
@@ -57,30 +89,33 @@ export function isRouteAllowedForRole(pathname: string, role: PortalRole) {
 }
 
 export function createDevUser(login: LoginRequest): WebPortalUser {
-  return {
-    userId: login.role === 'ADMIN' ? 1 : login.role === 'PRINCIPAL' ? 2 : login.role === 'TEACHER' ? 101 : 201,
-    schoolId: normalizeSchoolId(login.schoolId),
+  const role = login.role;
+  const schoolId = normalizeSchoolId(login.schoolId);
+  return normalizeUser({
+    userId: role === 'ADMIN' ? 1 : role === 'PRINCIPAL' ? 2 : role === 'TEACHER' ? 1 : 201,
+    schoolId,
     internalSchoolId: 1,
-    role: login.role,
-    displayName: login.role === 'ADMIN' ? 'VidyaSetu Admin' : login.role === 'PRINCIPAL' ? 'School Principal' : login.role === 'TEACHER' ? 'Demo Teacher' : 'Demo Student',
-    schoolName: 'VidyaSetu Demo School',
+    role,
+    displayName: defaultDisplayName(role, login.username),
+    schoolName: `${schoolId} School`,
     token: 'dev-web-token',
-    teacherId: login.role === 'TEACHER' ? 101 : null,
-    studentId: login.role === 'STUDENT' ? 201 : null,
-  };
+    teacherId: role === 'TEACHER' ? 1 : null,
+    studentId: role === 'STUDENT' ? 201 : null,
+  });
 }
 
 export function mapLoginResponseToUser(response: LoginApiResponse, requestedRole: WebUserRole): WebPortalUser {
   const role = normalizeRole(String(response?.role || requestedRole), requestedRole);
-  return {
-    userId: Number(response?.userId || 1),
+  const schoolId = normalizeSchoolId(response?.externalSchoolId || response?.schoolCode || response?.schoolId);
+  return normalizeUser({
+    userId: Number(response?.userId || (role === 'TEACHER' ? 1 : role === 'STUDENT' ? 201 : 1)),
     internalSchoolId: typeof response?.schoolId === 'number' ? response.schoolId : 1,
-    schoolId: normalizeSchoolId(response?.externalSchoolId || response?.schoolCode || response?.schoolId),
+    schoolId,
     role,
-    displayName: response?.displayName || response?.teacherName || response?.studentName || (role === 'ADMIN' ? 'VidyaSetu Admin' : role === 'PRINCIPAL' ? 'School Principal' : role === 'TEACHER' ? 'Teacher' : 'Student'),
-    schoolName: response?.schoolName || 'VidyaSetu Demo School',
+    displayName: response?.displayName || response?.teacherName || response?.studentName || defaultDisplayName(role),
+    schoolName: response?.schoolName || `${schoolId} School`,
     token: response?.token || 'demo-token',
-    teacherId: response?.teacherId ?? (role === 'TEACHER' ? Number(response?.userId || 101) : null),
+    teacherId: response?.teacherId ?? (role === 'TEACHER' ? Number(response?.userId || 1) : null),
     studentId: response?.studentId ?? (role === 'STUDENT' ? Number(response?.userId || 201) : null),
-  };
+  });
 }

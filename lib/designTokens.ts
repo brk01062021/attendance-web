@@ -17,7 +17,7 @@ export const vidyaSetuTokens = {
     chip: 999,
   },
   copy: {
-    dashboardEyebrow: 'DAY 32 EXECUTIVE VISUAL SYSTEM',
-    designNote: 'Dark navy glass surfaces, gold hierarchy, contextual status colors, and role-faithful cards across web/mobile.',
+    dashboardEyebrow: 'VIDYASETU ERP',
+    designNote: 'Daily school operations with clear workflow cards, strong contrast, and web/mobile parity.',
   },
 } as const;

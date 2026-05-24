@@ -4,7 +4,7 @@ import ShellStyles from '@/components/layout/ShellStyles';
 
 export default function StudentPage() {
   return (
-    <PortalShell role="STUDENT" title="Student Web Portal" subtitle="Student academic overview foundation for attendance, timetable, notices, and results visibility." eyebrow="DAY 32 EXECUTIVE VISUAL SYSTEM">
+    <PortalShell role="STUDENT" title="Student Academic Workspace" subtitle="Attendance, timetable, exam results, school notices, assignments, and progress.">
       <ShellStyles />
       <DashboardHome role="STUDENT" />
     </PortalShell>

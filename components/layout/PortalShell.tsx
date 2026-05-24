@@ -20,7 +20,7 @@ export default function PortalShell({
                                         role,
                                         title,
                                         subtitle,
-                                        eyebrow = 'DAY 32 EXECUTIVE VISUAL SYSTEM',
+                                        eyebrow = 'VIDYASETU ERP',
                                         children,
                                         variant = 'dark',
                                     }: PortalShellProps) {
@@ -102,6 +102,7 @@ export default function PortalShell({
                         <p className="eyebrow">{eyebrow}</p>
                         <h1>{title}</h1>
                         <span>{subtitle}</span>
+                        <span className="session-identity">{roleLabel.charAt(0) + roleLabel.slice(1).toLowerCase()} · {user.schoolName}</span>
                     </div>
                     <div className="header-actions">
                         <div className="user-chip user-chip--role">{roleLabel}</div>

@@ -13,7 +13,7 @@ export default function LoginCard() {
     const [role, setRole] = useState<WebUserRole>('ADMIN');
     const [username, setUsername] = useState('admin');
     const [password, setPassword] = useState('admin123');
-    const [schoolId, setSchoolId] = useState('DEMO');
+    const [schoolId, setSchoolId] = useState('BRK1');
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
 
@@ -105,7 +105,7 @@ export default function LoginCard() {
                 <input
                     value={schoolId}
                     onChange={(event) => setSchoolId(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4))}
-                    placeholder="DEMO"
+                    placeholder="BRK1"
                     maxLength={4}
                 />
             </label>
@@ -127,7 +127,7 @@ export default function LoginCard() {
             {message ? <small className="dev-note">{message}</small> : null}
 
             <small className="dev-note">
-                Day 30 uses school_id-aware role login. Teacher and Student are now enabled on web. Use a 4-character tenant code such as DEMO, BRK1, or AB12.
+                Use the real 4-character school_id issued during onboarding, for example BRK1 or AB12. Teacher identity and teacherId are bound from the login session.
             </small>
         </form>
     );
