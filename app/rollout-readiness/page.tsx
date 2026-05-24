@@ -5,7 +5,7 @@ import { day24Modules } from '@/lib/day24MockData';
 
 export default function Page() {
     return (
-        <PortalShell role="ADMIN" title="Pilot Rollout Readiness" subtitle="First-school SaaS pilot checklist for tenant setup, imports, timetable publish, role access, and production validation." eyebrow="DAY 24 WEB ERP DEVELOPMENT" variant="gold">
+        <PortalShell role="ADMIN" title="Pilot Rollout Readiness" subtitle="First-school SaaS pilot checklist for tenant setup, imports, timetable publish, role access, and production validation." variant="gold">
             <ShellStyles />
             <Day24ModulePage config={day24Modules.rolloutReadiness} />
         </PortalShell>

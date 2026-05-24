@@ -6,6 +6,7 @@ import { clearStoredUser, getStoredUser, homeRouteForRole, isRouteAllowedForRole
 import type { WebPortalUser } from '@/types/auth';
 import type { PortalRole } from '@/lib/routes';
 import Sidebar from './Sidebar';
+import RoleAwarePortalHeader from './RoleAwarePortalHeader';
 
 type PortalShellProps = {
     role: PortalRole;
@@ -20,7 +21,6 @@ export default function PortalShell({
                                         role,
                                         title,
                                         subtitle,
-                                        eyebrow = 'VIDYASETU ERP',
                                         children,
                                         variant = 'dark',
                                     }: PortalShellProps) {
@@ -78,8 +78,6 @@ export default function PortalShell({
     }, [accessState.allowed, accessState.redirectTo, router, user]);
 
     const effectiveRole = user?.role || role;
-    const roleLabel = effectiveRole === 'ADMIN' ? 'ADMIN' : effectiveRole === 'PRINCIPAL' ? 'PRINCIPAL' : effectiveRole === 'TEACHER' ? 'TEACHER' : 'STUDENT';
-
     function logout() {
         clearStoredUser();
         router.push('/login');
@@ -97,21 +95,13 @@ export default function PortalShell({
         <main className={`portal-shell ${variant === 'gold' ? 'page-gold' : 'page-dark'}`}>
             <Sidebar role={effectiveRole} />
             <section className="portal-content">
-                <header className="portal-header">
-                    <div>
-                        <p className="eyebrow">{eyebrow}</p>
-                        <h1>{title}</h1>
-                        <span>{subtitle}</span>
-                        <span className="session-identity">{roleLabel.charAt(0) + roleLabel.slice(1).toLowerCase()} · {user.schoolName}</span>
-                    </div>
-                    <div className="header-actions">
-                        <div className="user-chip user-chip--role">{roleLabel}</div>
-                        <div className="user-chip">school_id: {user.schoolId}</div>
-                        <button className="logout-button" type="button" onClick={logout}>
-                            Sign out
-                        </button>
-                    </div>
-                </header>
+                <RoleAwarePortalHeader
+                    role={effectiveRole}
+                    title={title}
+                    subtitle={subtitle}
+                    user={user}
+                    onLogout={logout}
+                />
                 {children}
             </section>
         </main>

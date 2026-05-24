@@ -35,7 +35,7 @@ export default function WorkflowPage({ eyebrow, title, description, metrics, pri
                 </div>
 
                 <div className="page-card gold-panel">
-                    <p className="eyebrow">DAY 22 READINESS</p>
+                    <p className="eyebrow">READINESS</p>
                     <h2>Production checklist</h2>
                     <p>Static web foundation checklist prepared before real API form wiring and advanced CRUD screens.</p>
                     <div className="status-list">

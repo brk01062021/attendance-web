@@ -9,7 +9,7 @@ export default function SchoolIntelligencePage() {
       role="ADMIN"
       title="School Intelligence"
       subtitle="Executive intelligence for attendance pulse, risk alerts, teacher workload, timetable readiness, and rollout decisions."
-      eyebrow="DAY 26 WEB ERP DEVELOPMENT"
+     
       variant="gold"
     >
       <ShellStyles />

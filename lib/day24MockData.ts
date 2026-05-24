@@ -10,7 +10,7 @@ const attendanceColumns = [
 
 export const day24Modules: Record<string, Day23ModuleConfig> = {
     intelligence: {
-        eyebrow: 'DAY 24 EXECUTIVE INTELLIGENCE',
+        eyebrow: 'SCHOOL INTELLIGENCE',
         title: 'School Intelligence Command Center',
         description:
             'Principal/Admin executive web view for attendance pulse, timetable readiness, teacher load, risk alerts, and rollout decisions before pilot school onboarding.',
@@ -52,7 +52,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         nextSteps: ['Connect principal summary API', 'Add risk alert drilldowns', 'Add timetable readiness chart'],
     },
     attendanceReports: {
-        eyebrow: 'DAY 24 REPORTING WORKFLOW',
+        eyebrow: 'REPORTING WORKFLOW',
         title: 'Attendance Reports Center',
         description:
             'Premium gold workflow for whole-school attendance summary, class/section reports, student drilldown, date filters, and future PDF/Excel export.',
@@ -89,7 +89,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         nextSteps: ['Wire /analytics and /attendance report APIs', 'Add export buttons', 'Add student search result panel'],
     },
     teacherReports: {
-        eyebrow: 'DAY 24 TEACHER INTELLIGENCE',
+        eyebrow: 'TEACHER REPORTS',
         title: 'Teacher Reports Center',
         description:
             'Single-teacher lookup foundation for classes, sections, subjects, leave history, replacement load, exam result actions, and attendance submission audit.',
@@ -131,7 +131,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         nextSteps: ['Wire teacher search API', 'Add teacher detail route', 'Add leave/replacement drilldowns'],
     },
     teacherLeave: {
-        eyebrow: 'DAY 24 LEAVE OPERATIONS',
+        eyebrow: 'LEAVE OPERATIONS',
         title: 'Teacher Leave Planning',
         description:
             'Web workflow foundation for one-day/multi-day leave, replacement preview, approval decisions, smart assignment, and workload protection.',
@@ -173,7 +173,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         nextSteps: ['Add leave form', 'Wire preview replacements API', 'Add approval + audit log'],
     },
     teacherAssignments: {
-        eyebrow: 'DAY 24 ACADEMIC SETUP',
+        eyebrow: 'ACADEMIC SETUP',
         title: 'Teacher Assignment Center',
         description:
             'Teacher-subject-class-section mapping workflow for import validation, class-wise teacher pools, timetable generation, and workload balancing.',
@@ -215,7 +215,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         nextSteps: ['Add teacher pool CRUD', 'Connect Excel import review', 'Add mapping validation'],
     },
     timetableGenerate: {
-        eyebrow: 'DAY 24 AUTO TIMETABLE',
+        eyebrow: 'AUTO TIMETABLE',
         title: 'Generate Timetable',
         description:
             'Production-friendly web generation flow using class checklist, auto-loaded sections, default teacher pool, rules validation, and smart timetable generation.',
@@ -257,7 +257,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         nextSteps: ['Add generation form controls', 'Wire smart generation API', 'Redirect to operations latest batch'],
     },
     timetableOperations: {
-        eyebrow: 'DAY 24 TIMETABLE OPERATIONS',
+        eyebrow: 'TIMETABLE OPERATIONS',
         title: 'Timetable Operations Center',
         description:
             'Web batch center for latest timetable batch, review, conflict center, workload intelligence, repair, publish, export, archive, and rollout readiness.',
@@ -299,7 +299,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         nextSteps: ['Add latest-batch API call', 'Add publish locking', 'Add PDF/Excel export buttons'],
     },
     importSchoolData: {
-        eyebrow: 'DAY 24 SCHOOL ONBOARDING',
+        eyebrow: 'SCHOOL ONBOARDING',
         title: 'Import School Data',
         description:
             'Excel-first onboarding engine for pilot schools with mandatory holidays first, users, parents, teachers, class sections, subjects, teacher pools, and timetable-ready validation.',
@@ -341,7 +341,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         nextSteps: ['Add workbook upload UI', 'Add validation summary screen', 'Add tenant creation workflow'],
     },
     notices: {
-        eyebrow: 'DAY 24 COMMUNICATIONS',
+        eyebrow: 'COMMUNICATIONS',
         title: 'School Notice Center',
         description:
             'Admin/Principal web notice workflow for holiday alerts, school achievements, student achievements, parent notifications, and role-targeted announcements.',
@@ -383,7 +383,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         nextSteps: ['Add notice create form', 'Add image upload option', 'Wire notification backend'],
     },
     analyticsHub: {
-        eyebrow: 'DAY 24 OPERATIONAL ANALYTICS',
+        eyebrow: 'OPERATIONAL ANALYTICS',
         title: 'Operational Analytics Hub',
         description:
             'Admin/Principal web analytics command center for attendance trends, class-section comparison, teacher load, replacement pressure, and pilot-school executive reporting.',
@@ -426,7 +426,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         nextSteps: ['Wire analytics APIs', 'Add chart components', 'Add export/share snapshot'],
     },
     rolloutReadiness: {
-        eyebrow: 'DAY 24 PILOT ROLLOUT READINESS',
+        eyebrow: 'PILOT ROLLOUT READINESS',
         title: 'Pilot Rollout Readiness Center',
         description:
             'Production readiness dashboard for first-school pilot validation: tenant setup, Excel imports, timetable publish, reports, notices, role access, and demo checks.',

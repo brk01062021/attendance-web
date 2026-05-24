@@ -4,7 +4,7 @@ import ShellStyles from '@/components/layout/ShellStyles';
 
 export default function HolidayCalendarPage() {
     return (
-        <PortalShell role="ADMIN" title="Academic Calendar & Holiday Overrides" subtitle="Holiday notices should work as academic calendar overrides, not manual timetable edits." eyebrow="DAY 25 HOLIDAY HANDLING" variant="gold">
+        <PortalShell role="ADMIN" title="Academic Calendar & Holiday Overrides" subtitle="Holiday notices should work as academic calendar overrides, not manual timetable edits." variant="gold">
             <ShellStyles />
             <PilotWorkflowPage
                 eyebrow="ACADEMIC CALENDAR OVERRIDE"

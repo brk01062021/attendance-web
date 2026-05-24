@@ -9,7 +9,7 @@ export default function Page() {
             role="ADMIN"
             title="Attendance Reports"
             subtitle="School attendance analytics, class comparisons, student drilldowns, and reporting foundation."
-            eyebrow="DAY 24 REPORTING"
+           
             variant="gold"
         >
             <ShellStyles />

@@ -5,7 +5,7 @@ import { day24Modules } from '@/lib/day24MockData';
 
 export default function Page() {
     return (
-        <PortalShell role="ADMIN" title="Create School Notice" subtitle="Holiday alerts, announcements, achievements, and parent/student notification foundation." eyebrow="DAY 24 WEB ERP DEVELOPMENT" variant="gold">
+        <PortalShell role="ADMIN" title="Create School Notice" subtitle="Holiday alerts, announcements, achievements, and parent/student notification foundation." variant="gold">
             <ShellStyles />
             <Day24ModulePage config={day24Modules.notices} />
         </PortalShell>

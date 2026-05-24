@@ -101,7 +101,7 @@ export default function Day24ModulePage({ config }: Props) {
             <section className="day23-table-card gold-panel">
                 <div className="day23-table-header">
                     <div>
-                        <p className="eyebrow">DAY 24 DATA PREVIEW</p>
+                        <p className="eyebrow">DATA PREVIEW</p>
                         <h3>{config.tableTitle}</h3>
                         <p>{config.tableDescription}</p>
                     </div>

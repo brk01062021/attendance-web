@@ -53,6 +53,11 @@ export default function ShellStyles() {
       .portal-header { display: flex; justify-content: space-between; gap: 18px; align-items: flex-start; color: white; margin-bottom: 24px; }
       .portal-header h1 { margin: 4px 0 8px; font-size: clamp(30px, 4vw, 48px); letter-spacing: -0.045em; line-height: 1.02; color: #fff7df; text-shadow: 0 8px 26px rgba(0,0,0,0.35); }
       .portal-header span { color: rgba(255,255,255,0.76); line-height: 1.55; display: block; max-width: 820px; }
+      .portal-title-block .eyebrow { color: var(--gold-300); font-size: 13px; letter-spacing: 0.14em; }
+      .workspace-title { color: #f8df9b !important; font-size: clamp(17px, 2vw, 22px); font-weight: 900; letter-spacing: 0.01em; }
+      .workspace-subtitle { margin-top: 8px; }
+      .session-identity { margin-top: 8px; font-size: 13px; color: rgba(255,255,255,0.68) !important; }
+
       .header-actions { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
       .user-chip { padding: 10px 14px; border-radius: 999px; color: white; background: rgba(255,255,255,0.1); border: 1px solid rgba(244, 213, 141, 0.24); font-size: 13px; font-weight: 800; }
       .user-chip--role { color: var(--gold-300); background: rgba(214,168,79,0.13); border-color: rgba(248,223,155,0.42); }

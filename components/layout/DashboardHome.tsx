@@ -141,19 +141,19 @@ export default function DashboardHome({ role }: { role: PortalRole }) {
     <>
       <section className="executive-hero glass-panel premium-panel">
         <div>
-          <p className="eyebrow">{vidyaSetuTokens.copy.dashboardEyebrow}</p>
-          <h2>{copy.title}</h2>
-          <p>{copy.subtitle}</p>
+          <p className="eyebrow">Daily ERP Workflow</p>
+          <h2>{focusTitle}</h2>
+          <p>{copy.focus}</p>
           <div className="hero-chip-row">
             <span className="hero-chip">Today</span>
-            <span className="hero-chip">My workflow</span>
-            <span className="hero-chip">Notifications</span>
+            <span className="hero-chip">Role safe</span>
+            <span className="hero-chip">Live data ready</span>
           </div>
         </div>
         <aside className="executive-focus-card">
-          <span>Workspace</span>
-          <strong>{focusTitle}</strong>
-          <p>{copy.focus}</p>
+          <span>Current focus</span>
+          <strong>{role === 'STUDENT' ? 'Academic progress' : role === 'TEACHER' ? 'Classroom operations' : 'School operations'}</strong>
+          <p>{copy.subtitle}</p>
         </aside>
       </section>
 
@@ -177,7 +177,7 @@ export default function DashboardHome({ role }: { role: PortalRole }) {
         <section className="work-panel glass-panel premium-panel">
           <p className="eyebrow">WORKFLOW CENTER</p>
           <h2>{role === 'STUDENT' ? 'Student Actions' : role === 'TEACHER' ? 'Teacher Actions' : 'School Actions'}</h2>
-          <p>{vidyaSetuTokens.copy.designNote}</p>
+          <p>Open the operational workflows available for this role.</p>
           <div className="action-grid">
             {copy.actions.map(([href, icon, title, description], index) => (
               <Link className="action-card action-card--glass" href={href} key={`${role}-${href}-${title}-${index}`}>

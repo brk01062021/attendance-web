@@ -8,7 +8,7 @@ export default function Page() {
             role="ADMIN"
             title="Import School Data"
             subtitle="Excel-first school onboarding engine with tenant-safe preview, validation, and error reporting."
-            eyebrow="DAY 28 WEB ERP DEVELOPMENT"
+           
             variant="gold"
         >
             <ShellStyles />

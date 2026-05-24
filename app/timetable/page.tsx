@@ -9,7 +9,7 @@ export default function Page() {
             role="ADMIN"
             title="Timetable Operations"
             subtitle="Latest batch review, conflict center, workload intelligence, publish readiness, and export foundation."
-            eyebrow="DAY 24 TIMETABLE"
+           
             variant="gold"
         >
             <ShellStyles />

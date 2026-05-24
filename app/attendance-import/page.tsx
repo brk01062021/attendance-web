@@ -4,7 +4,7 @@ import ShellStyles from '@/components/layout/ShellStyles';
 
 export default function AttendanceImportPage() {
     return (
-        <PortalShell role="ADMIN" title="Bulk Attendance Import" subtitle="Web-first recovery workflow for missed teacher attendance days." eyebrow="DAY 25 ATTENDANCE HARDENING" variant="gold">
+        <PortalShell role="ADMIN" title="Bulk Attendance Import" subtitle="Web-first recovery workflow for missed teacher attendance days." variant="gold">
             <ShellStyles />
             <PilotWorkflowPage
                 eyebrow="MISSED-DAY ATTENDANCE IMPORT"

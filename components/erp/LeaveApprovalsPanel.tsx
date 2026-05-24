@@ -113,7 +113,7 @@ export default function LeaveApprovalsPanel() {
 
   return (
     <section className="work-panel gold-panel">
-      <p className="eyebrow">DAY 29 LEAVE FLOW</p>
+      <p className="eyebrow">LEAVE APPROVALS</p>
 
       <h2>Leave Approvals</h2>
 

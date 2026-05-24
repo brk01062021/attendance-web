@@ -40,7 +40,7 @@ export default function PilotOnboardingDashboard() {
 
             <section className="day25-hero gold-panel">
                 <div>
-                    <p className="eyebrow">DAY 26 REAL API CLEANUP</p>
+                    <p className="eyebrow">PILOT API CLEANUP</p>
                     <h2>{summary.schoolName} onboarding command center</h2>
                     <p>
                         This board connects the web ERP to the real backend pilot onboarding API first. If the backend is not running, it shows a safe fallback checklist so UI testing can continue without breaking the portal.

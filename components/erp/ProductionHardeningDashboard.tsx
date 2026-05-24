@@ -27,7 +27,7 @@ export default function ProductionHardeningDashboard() {
 
             <section className="day25-hero gold-panel">
                 <div>
-                    <p className="eyebrow">DAY 25 PRODUCTION HARDENING</p>
+                    <p className="eyebrow">PRODUCTION HARDENING</p>
                     <h2>Mobile-first operations, web-first administration, pilot-ready in 14 days.</h2>
                     <p>
                         This page converts Day 25 into a practical launch checklist for the first realistic school pilot. It avoids large new modules and keeps the focus on stability, usability, onboarding, attendance, timetable lifecycle, holidays, notices, and deployment readiness.
@@ -97,7 +97,7 @@ export default function ProductionHardeningDashboard() {
                     </div>
                 </div>
                 <div className="day25-panel gold-panel">
-                    <p className="eyebrow">DO NOT ADD IN DAY 25</p>
+                    <p className="eyebrow">LATER PHASE</p>
                     <h3>Keep scope tight</h3>
                     <ul className="day25-danger-list">
                         <li>Exam generation</li>
