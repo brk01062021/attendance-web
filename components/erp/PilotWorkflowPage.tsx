@@ -10,7 +10,7 @@ type Props = {
     nextLabel?: string;
 };
 
-export default function PilotWorkflowPage({ eyebrow, title, description, primary, validations, nextHref = '/production-hardening', nextLabel = 'Back to Day 25 board' }: Props) {
+export default function PilotWorkflowPage({ eyebrow, title, description, primary, validations, nextHref = '/production-hardening', nextLabel = 'Back to operations board' }: Props) {
     return (
         <>
             <section className="day25-hero gold-panel">
@@ -29,7 +29,7 @@ export default function PilotWorkflowPage({ eyebrow, title, description, primary
             </section>
             <section className="day25-split">
                 <div className="day25-panel gold-panel">
-                    <p className="eyebrow">WORKFLOW SCOPE</p>
+                    <p className="eyebrow">Operational scope</p>
                     <h3>What this page must support</h3>
                     <ul className="day25-check-list">{primary.map((item) => <li key={item}>{item}</li>)}</ul>
                 </div>

@@ -41,7 +41,7 @@ export default function Sidebar({ role }: SidebarProps) {
             </nav>
 
             <div className="sidebar-footer">
-                Day 31 production polish: premium role portals, dark-gold glass UI, teacher leave timeline, notifications, RBAC checks, and pilot-ready web workflows.
+                Daily ERP operations are organized by role, school_id, and approved access.
             </div>
         </aside>
     );

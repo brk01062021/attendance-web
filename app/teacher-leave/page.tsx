@@ -4,7 +4,7 @@ import ShellStyles from '@/components/layout/ShellStyles';
 
 export default function Page() {
     return (
-        <PortalShell role="ADMIN" title="Leave Approvals" subtitle="Admin/Principal approval workflow for teacher leave enquiries, followed by replacement planning." eyebrow="LEAVE APPROVAL WORKFLOW" variant="gold">
+        <PortalShell role="ADMIN" title="Leave Approvals" subtitle="Admin/Principal approval workflow for teacher leave enquiries, followed by replacement planning." variant="gold">
             <ShellStyles />
             <LeaveApprovalsPanel />
         </PortalShell>

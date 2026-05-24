@@ -64,19 +64,20 @@ export default function RoleAwarePortalHeader({
   onLogout,
 }: RoleAwarePortalHeaderProps) {
   const effectiveRole = formatRole(role);
-  const schoolName = title || resolveSchoolName(user);
-  const workspace = subtitle || `VidyaSetu ERP • ${roleWorkspaceLabel[effectiveRole] ?? 'Role Workspace'}`;
+  const schoolName = resolveSchoolName(user);
+  const workspace = `VidyaSetu ERP • ${roleWorkspaceLabel[effectiveRole] ?? 'Role Workspace'}`;
+  const operationalSubtitle = subtitle || title || 'Attendance • Reports • Leave Approvals • Timetable • School Operations';
   const schoolId = resolveSchoolId(user);
 
   return (
     <header className="rounded-[28px] border border-amber-300/20 bg-slate-950/70 px-5 py-4 shadow-2xl shadow-black/30 backdrop-blur md:px-7">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
-          <p className="text-xs font-semibold uppercase tracking-[0.28em] text-amber-200/70">School Workspace</p>
           <h1 className="mt-2 truncate text-2xl font-black tracking-tight text-amber-50 md:text-3xl">
             {schoolName}
           </h1>
           <p className="mt-1 text-sm font-semibold text-amber-200/85 md:text-base">{workspace}</p>
+          <p className="mt-2 max-w-3xl text-xs font-semibold leading-5 text-white/60 md:text-sm">{operationalSubtitle}</p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">

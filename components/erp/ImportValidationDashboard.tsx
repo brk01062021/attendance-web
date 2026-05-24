@@ -34,7 +34,7 @@ export default function ImportValidationDashboard() {
   return (
     <section className="space-y-6">
       <div className="rounded-[2rem] border border-amber-200/80 bg-white/85 p-6 shadow-xl shadow-amber-900/10">
-        <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">Day 28 Import Engine</p>
+        <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">Import validation engine</p>
         <h2 className="mt-2 text-2xl font-black text-slate-950">Excel Preview + Error Reporting</h2>
         <p className="mt-3 max-w-3xl text-sm font-semibold leading-6 text-slate-700">
           This validates the pilot school workbook structure before final processing: required tabs, role permission, school_id tenant isolation, row counts, and import readiness.

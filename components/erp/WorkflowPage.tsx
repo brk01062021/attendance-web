@@ -35,9 +35,9 @@ export default function WorkflowPage({ eyebrow, title, description, metrics, pri
                 </div>
 
                 <div className="page-card gold-panel">
-                    <p className="eyebrow">READINESS</p>
-                    <h2>Production checklist</h2>
-                    <p>Static web foundation checklist prepared before real API form wiring and advanced CRUD screens.</p>
+                    <p className="eyebrow">Operational status</p>
+                    <h2>Validation checklist</h2>
+                    <p>Validation checks for safe school operations and tenant-controlled updates.</p>
                     <div className="status-list">
                         {checklist.map((item) => (
                             <div className="status-row" key={item.label}>

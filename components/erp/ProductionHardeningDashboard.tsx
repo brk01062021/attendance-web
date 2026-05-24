@@ -30,7 +30,7 @@ export default function ProductionHardeningDashboard() {
                     <p className="eyebrow">PRODUCTION HARDENING</p>
                     <h2>Mobile-first operations, web-first administration, pilot-ready in 14 days.</h2>
                     <p>
-                        This page converts Day 25 into a practical launch checklist for the first realistic school pilot. It avoids large new modules and keeps the focus on stability, usability, onboarding, attendance, timetable lifecycle, holidays, notices, and deployment readiness.
+                        This page keeps the first school pilot focused on stability, usability, onboarding, attendance, timetable lifecycle, holidays, notices, and deployment readiness.
                     </p>
                 </div>
                 <div className="day25-route-card">
@@ -44,14 +44,14 @@ export default function ProductionHardeningDashboard() {
 
             <section className="day25-split">
                 <div className="day25-panel gold-panel">
-                    <p className="eyebrow">MOBILE-FIRST DAILY WORKFLOWS</p>
+                    <p className="eyebrow">Mobile daily workflows</p>
                     <h3>Use mobile for everyday school activity</h3>
                     <ul className="day25-check-list">
                         {mobileFirstWorkflows.map((item) => <li key={item}>{item}</li>)}
                     </ul>
                 </div>
                 <div className="day25-panel gold-panel">
-                    <p className="eyebrow">WEB-FIRST BULK WORKFLOWS</p>
+                    <p className="eyebrow">Web bulk workflows</p>
                     <h3>Use web ERP for bulk and detailed administration</h3>
                     <ul className="day25-check-list">
                         {webFirstWorkflows.map((item) => <li key={item}>{item}</li>)}
@@ -62,7 +62,7 @@ export default function ProductionHardeningDashboard() {
             <section className="day25-panel gold-panel">
                 <div className="day25-section-header">
                     <div>
-                        <p className="eyebrow">PILOT READINESS GATES</p>
+                        <p className="eyebrow">Pilot readiness gates</p>
                         <h3>P0/P1 validation before onboarding the first school</h3>
                     </div>
                     <Link className="mini-button" href="/pilot-readiness">Open pilot board</Link>

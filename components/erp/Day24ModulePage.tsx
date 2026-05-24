@@ -46,7 +46,7 @@ export default function Day24ModulePage({ config }: Props) {
                 <div className="day23-panel gold-panel">
                     <div className="day23-section-heading">
                         <div>
-                            <p className="eyebrow">WORKFLOW ACTIONS</p>
+                            <p className="eyebrow">Operational actions</p>
                             <h3>Operational actions</h3>
                         </div>
                     </div>
@@ -76,7 +76,7 @@ export default function Day24ModulePage({ config }: Props) {
                     <div className="day23-section-heading">
                         <div>
                             <p className="eyebrow">{config.validationTitle}</p>
-                            <h3>Production readiness</h3>
+                            <h3>Operational readiness</h3>
                         </div>
                     </div>
                     <div className="status-list">
@@ -101,7 +101,7 @@ export default function Day24ModulePage({ config }: Props) {
             <section className="day23-table-card gold-panel">
                 <div className="day23-table-header">
                     <div>
-                        <p className="eyebrow">DATA PREVIEW</p>
+                        <p className="eyebrow">Records preview</p>
                         <h3>{config.tableTitle}</h3>
                         <p>{config.tableDescription}</p>
                     </div>

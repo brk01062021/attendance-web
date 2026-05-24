@@ -20,7 +20,7 @@ const quickActions = [
   {
     title: "Principal Intelligence",
     href: "/principal/intelligence",
-    description: "Executive school analytics and operational insights",
+    description: "School analytics and operational insights",
   },
   {
     title: "Operational Analytics",
@@ -109,7 +109,7 @@ export default function Home() {
             </div>
 
             <div className="rounded-full border border-yellow-500/40 bg-yellow-500/10 px-5 py-2 text-sm font-semibold text-yellow-300">
-              Day 25 Pilot Ready
+              Pilot Ready
             </div>
           </div>
         </header>

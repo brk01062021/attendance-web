@@ -74,7 +74,7 @@ const roleCopy = {
     ],
   },
   TEACHER: {
-    title: 'Teacher Daily Workspace',
+    title: 'Teacher Daily Operations',
     subtitle: 'Take attendance, view timetable, request leave enquiry, track approvals, manage replacements, and recover missed attendance.',
     focus: 'Use this dashboard for daily teacher work. Attendance, timetable, leave enquiry, and notifications are kept role-safe.',
     metrics: [
@@ -103,7 +103,7 @@ const roleCopy = {
     ],
   },
   STUDENT: {
-    title: 'Student Academic Workspace',
+    title: 'Student Academic Operations',
     subtitle: 'View attendance, timetable, exam results, notices, assignments, and academic progress in one simple portal.',
     focus: 'Use this dashboard to check daily timetable, attendance status, results, and school notices.',
     metrics: [
@@ -135,35 +135,38 @@ const roleCopy = {
 
 export default function DashboardHome({ role }: { role: PortalRole }) {
   const copy = roleCopy[role];
-  const focusTitle = role === 'ADMIN' ? 'Admin operations' : role === 'PRINCIPAL' ? 'Principal overview' : role === 'TEACHER' ? 'Teacher workflow' : 'Student progress';
+  const overviewTitle = role === 'ADMIN' ? 'Admin operations' : role === 'PRINCIPAL' ? 'Principal overview' : role === 'TEACHER' ? 'Teacher operations' : 'Student progress';
+  const insightLabels = role === 'STUDENT'
+    ? ['Attendance Completion', 'Academic Status', 'School Notices']
+    : ['Pending Approvals', 'Attendance Completion', 'Replacement Coverage'];
 
   return (
     <>
-      <section className="executive-hero glass-panel premium-panel">
+      <section className="executive-hero glass-panel premium-panel erp-section">
         <div>
-          <p className="eyebrow">Daily ERP Workflow</p>
-          <h2>{focusTitle}</h2>
+          <p className="eyebrow">Operations overview</p>
+          <h2>{overviewTitle}</h2>
           <p>{copy.focus}</p>
-          <div className="hero-chip-row">
-            <span className="hero-chip">Today</span>
-            <span className="hero-chip">Role safe</span>
-            <span className="hero-chip">Live data ready</span>
+          <div className="hero-chip-row" aria-label="Operational insights">
+            {insightLabels.map((label) => (
+              <span className="hero-chip" key={label}>{label}</span>
+            ))}
           </div>
         </div>
         <aside className="executive-focus-card">
-          <span>Current focus</span>
-          <strong>{role === 'STUDENT' ? 'Academic progress' : role === 'TEACHER' ? 'Classroom operations' : 'School operations'}</strong>
+          <span>Daily focus</span>
+          <strong>{role === 'STUDENT' ? 'Academic status' : role === 'TEACHER' ? 'Classroom work' : 'School operations'}</strong>
           <p>{copy.subtitle}</p>
         </aside>
       </section>
 
-      <div className="dashboard-grid dashboard-grid--premium">
+      <div className="dashboard-grid dashboard-grid--premium erp-section">
         {copy.metrics.map((metric) => (
           <MetricCard key={metric.label} {...metric} />
         ))}
       </div>
 
-      <section className="insight-grid">
+      <section className="insight-grid erp-section">
         {copy.insights.map((item) => (
           <article className={`insight-card insight-card--${item.tone}`} key={item.label}>
             <span>{item.label}</span>
@@ -173,11 +176,11 @@ export default function DashboardHome({ role }: { role: PortalRole }) {
         ))}
       </section>
 
-      <div className="two-column two-column--dashboard">
+      <div className="two-column two-column--dashboard erp-section">
         <section className="work-panel glass-panel premium-panel">
-          <p className="eyebrow">WORKFLOW CENTER</p>
-          <h2>{role === 'STUDENT' ? 'Student Actions' : role === 'TEACHER' ? 'Teacher Actions' : 'School Actions'}</h2>
-          <p>Open the operational workflows available for this role.</p>
+          <p className="eyebrow">Role workflows</p>
+          <h2>{role === 'STUDENT' ? 'Student actions' : role === 'TEACHER' ? 'Teacher actions' : 'School actions'}</h2>
+          <p>Open the daily workflows available for this role.</p>
           <div className="action-grid">
             {copy.actions.map(([href, icon, title, description], index) => (
               <Link className="action-card action-card--glass" href={href} key={`${role}-${href}-${title}-${index}`}>
@@ -190,9 +193,9 @@ export default function DashboardHome({ role }: { role: PortalRole }) {
         </section>
 
         <section className="work-panel glass-panel premium-panel notification-center-card" id="notifications">
-          <p className="eyebrow">NOTIFICATIONS</p>
-          <h2>{role === 'TEACHER' ? 'Teacher Notifications' : role === 'STUDENT' ? 'Student Alerts' : 'School Alerts'}</h2>
-          <p>Role-specific updates and alerts appear here as backend notifications become available.</p>
+          <p className="eyebrow">Updates</p>
+          <h2>{role === 'TEACHER' ? 'Teacher updates' : role === 'STUDENT' ? 'Student alerts' : 'School alerts'}</h2>
+          <p>Operational updates and alerts for this workspace.</p>
           <div className="notification-list">
             {copy.notifications.map((item) => (
               <article className={`notification-item notification-item--${item.tone}`} key={item.title}>
