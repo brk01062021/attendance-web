@@ -39,10 +39,6 @@ export default function Sidebar({ role }: SidebarProps) {
                     );
                 })}
             </nav>
-
-            <div className="sidebar-footer">
-                Daily ERP operations are organized by role, school_id, and approved access.
-            </div>
         </aside>
     );
 }
