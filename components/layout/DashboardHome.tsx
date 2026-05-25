@@ -166,15 +166,6 @@ export default function DashboardHome({ role }: { role: PortalRole }) {
         ))}
       </div>
 
-      <section className="insight-grid erp-section">
-        {copy.insights.map((item) => (
-          <article className={`insight-card insight-card--${item.tone}`} key={item.label}>
-            <span>{item.label}</span>
-            <strong>{item.value}</strong>
-            <p>{item.helper}</p>
-          </article>
-        ))}
-      </section>
 
       <div className="two-column two-column--dashboard erp-section">
         <section className="work-panel glass-panel premium-panel">

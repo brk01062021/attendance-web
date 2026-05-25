@@ -224,6 +224,43 @@ export default function ShellStyles() {
       .portal-header span, .work-panel p, .action-card span, .status-row, .history-meta { color: rgba(255,255,255,0.76); }
       .logout-button { min-height: 42px; }
 
+
+
+      /* Day 38 unified dashboard rhythm system */
+      .portal-content { padding: 28px 30px 34px; gap: 18px; }
+      .portal-header { margin-bottom: 8px; align-items: flex-start; }
+      .portal-header h1 { margin: 2px 0 6px; font-size: clamp(30px, 3.5vw, 44px); line-height: 1.04; }
+      .workspace-title { margin-top: 4px; line-height: 1.28; }
+      .workspace-subtitle { margin-top: 6px; line-height: 1.42 !important; max-width: 760px; }
+      .executive-hero { min-height: 206px; grid-template-columns: minmax(0,1.4fr) minmax(280px,0.6fr); padding: 22px; margin-bottom: 0; background: linear-gradient(145deg, rgba(8, 28, 49, 0.74), rgba(3, 10, 20, 0.74)); overflow: hidden; }
+      .executive-hero::after { content: ''; position: absolute; right: 6%; bottom: -52px; width: 190px; height: 190px; border-radius: 999px; background: url('/branding/vidyasetu-logo.png') center/contain no-repeat; opacity: 0.045; pointer-events: none; }
+      .executive-hero h2 { font-size: clamp(30px, 3.1vw, 42px); line-height: 1.06; margin: 8px 0 8px; }
+      .executive-hero p { max-width: 760px; line-height: 1.48; margin-bottom: 0; }
+      .hero-chip-row { margin-top: 16px; }
+      .executive-focus-card { background: linear-gradient(145deg, #fff8e7, #f8df9b); border-color: rgba(214,168,79,0.42); color: var(--navy-950); box-shadow: 0 18px 38px rgba(0,0,0,0.18); }
+      .executive-focus-card span { color: var(--gold-700); }
+      .executive-focus-card strong { color: var(--navy-950); line-height: 1.18; }
+      .executive-focus-card p { color: var(--ink-700); }
+      .dashboard-grid { gap: 16px; }
+      .metric-card { min-height: 152px; padding: 18px; background: linear-gradient(145deg, #fff8e7, #f5dda0); border-color: rgba(214,168,79,0.5); box-shadow: 0 18px 38px rgba(0,0,0,0.18); }
+      .metric-card p { color: var(--gold-700); }
+      .metric-card strong { color: var(--navy-950) !important; font-size: 28px; }
+      .metric-card span { color: var(--ink-700); }
+      .metric-card__trend { background: rgba(10,29,50,0.08); border-color: rgba(10,29,50,0.1); color: var(--navy-900) !important; }
+      .work-panel { padding: 22px; }
+      .work-panel h2 { margin-bottom: 8px; line-height: 1.14; }
+      .work-panel > p:not(.eyebrow) { margin-bottom: 0; line-height: 1.45; }
+      .action-grid { gap: 14px; }
+      .action-card { min-height: 142px; background: linear-gradient(145deg, #fff8e7, #f8df9b); border-color: rgba(214,168,79,0.5); color: var(--navy-950); box-shadow: 0 14px 30px rgba(0,0,0,0.14); }
+      .action-card:hover { background: linear-gradient(145deg, #fff6dc, #f4d37d); border-color: rgba(214,168,79,0.7); }
+      .action-card strong { color: var(--navy-950); margin: 10px 0 6px; }
+      .action-card span { color: var(--ink-700); line-height: 1.44; }
+      .action-card-icon { color: var(--gold-700) !important; }
+      .notification-item { background: rgba(255,248,231,0.96); border-color: rgba(214,168,79,0.44); }
+      .notification-item strong { color: var(--navy-950); }
+      .notification-item span { color: var(--ink-700); }
+      .two-column--dashboard { gap: 18px; }
+
       @media (max-width: 1180px) { .portal-shell { grid-template-columns: 280px minmax(0, 1fr); } .dashboard-grid { grid-template-columns: 1fr 1fr; } .action-grid { grid-template-columns: 1fr 1fr; } .executive-hero { grid-template-columns: 1fr; } .insight-grid { grid-template-columns: 1fr 1fr 1fr; } }
       @media (max-width: 920px) { .portal-shell { grid-template-columns: 1fr; } .sidebar { position: static; max-height: 42vh; } .two-column, .day23-hero, .day23-layout, .day25-hero, .day25-split, .executive-hero { grid-template-columns: 1fr; } .day25-gate-grid, .insight-grid { grid-template-columns: 1fr 1fr; } .portal-header { flex-direction: column; } .header-actions { justify-content: flex-start; } }
       .erp-section { width: 100%; }
