@@ -27,7 +27,7 @@ export default function ProductionHardeningDashboard() {
 
             <section className="day25-hero gold-panel">
                 <div>
-                    <p className="eyebrow">PRODUCTION HARDENING</p>
+                    <p className="eyebrow">MVP READINESS</p>
                     <h2>Mobile-first operations, web-first administration, pilot-ready in 14 days.</h2>
                     <p>
                         This page keeps the first school pilot focused on stability, usability, onboarding, attendance, timetable lifecycle, holidays, notices, and deployment readiness.

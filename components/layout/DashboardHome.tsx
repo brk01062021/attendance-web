@@ -1,5 +1,4 @@
 import Link from 'next/link';
-import MetricCard from '@/components/ui/MetricCard';
 import type { PortalRole } from '@/lib/routes';
 import { vidyaSetuTokens } from '@/lib/designTokens';
 
@@ -18,7 +17,7 @@ const roleCopy = {
   ADMIN: {
     title: 'Admin School Operations',
     subtitle: 'Manage school setup, attendance, leave approvals, reports, notices, timetable, and teacher assignments from one workspace.',
-    focus: 'Use this dashboard to complete daily school operations and prepare real pilot-school data validation.',
+    focus: 'Complete daily school operations and pilot-school data validation from one workspace.',
     metrics: [
       { label: 'Today Attendance', value: 'Open', helper: 'Review class-wise attendance status', tone: 'info', trend: 'Today' },
       { label: 'Leave Approvals', value: 'Pending', helper: 'Approve or reject teacher leave enquiries', tone: 'warning', trend: 'Action' },
@@ -47,7 +46,7 @@ const roleCopy = {
   PRINCIPAL: {
     title: 'Principal School Overview',
     subtitle: 'Monitor attendance, teacher availability, leave approvals, replacement coverage, notices, and academic operations.',
-    focus: 'Use this dashboard for school-level decisions and daily operational visibility.',
+    focus: 'Monitor school-level decisions and daily operational visibility.',
     metrics: [
       { label: 'School Attendance', value: 'Review', helper: 'Whole-school attendance overview', tone: 'info', trend: 'Today' },
       { label: 'Teacher Availability', value: 'Check', helper: 'Leave, workload, and replacement coverage', tone: 'warning', trend: 'Daily' },
@@ -76,7 +75,7 @@ const roleCopy = {
   TEACHER: {
     title: 'Teacher Daily Operations',
     subtitle: 'Take attendance, view timetable, request leave enquiry, track approvals, manage replacements, and recover missed attendance.',
-    focus: 'Use this dashboard for daily teacher work. Attendance, timetable, leave enquiry, and notifications are kept role-safe.',
+    focus: 'Daily teacher work: attendance, timetable, leave enquiry, replacements, and notifications.',
     metrics: [
       { label: 'Take Attendance', value: 'Start', helper: 'Open today class attendance flow', tone: 'success', trend: 'Today' },
       { label: 'My Timetable', value: 'View', helper: 'Today schedule and assigned classes', tone: 'info', trend: 'Schedule' },
@@ -105,7 +104,7 @@ const roleCopy = {
   STUDENT: {
     title: 'Student Academic Operations',
     subtitle: 'View attendance, timetable, exam results, notices, assignments, and academic progress in one simple portal.',
-    focus: 'Use this dashboard to check daily timetable, attendance status, results, and school notices.',
+    focus: 'Check daily timetable, attendance status, results, and school notices.',
     metrics: [
       { label: 'My Attendance', value: '94%', helper: 'Current attendance percentage', tone: 'success', trend: '+2%' },
       { label: 'Today Timetable', value: 'View', helper: 'Published class schedule', tone: 'info', trend: 'Today' },
@@ -136,10 +135,6 @@ const roleCopy = {
 export default function DashboardHome({ role }: { role: PortalRole }) {
   const copy = roleCopy[role];
   const overviewTitle = role === 'ADMIN' ? 'Admin operations' : role === 'PRINCIPAL' ? 'Principal overview' : role === 'TEACHER' ? 'Teacher operations' : 'Student progress';
-  const insightLabels = role === 'STUDENT'
-    ? ['Attendance Completion', 'Academic Status', 'School Notices']
-    : ['Pending Approvals', 'Attendance Completion', 'Replacement Coverage'];
-
   return (
     <>
       <section className="executive-hero glass-panel premium-panel erp-section">
@@ -147,31 +142,14 @@ export default function DashboardHome({ role }: { role: PortalRole }) {
           <p className="eyebrow">Operations overview</p>
           <h2>{overviewTitle}</h2>
           <p>{copy.focus}</p>
-          <div className="hero-chip-row" aria-label="Operational insights">
-            {insightLabels.map((label) => (
-              <span className="hero-chip" key={label}>{label}</span>
-            ))}
-          </div>
         </div>
-        <aside className="executive-focus-card">
-          <span>Daily focus</span>
-          <strong>{role === 'STUDENT' ? 'Academic status' : role === 'TEACHER' ? 'Classroom work' : 'School operations'}</strong>
-          <p>{copy.subtitle}</p>
-        </aside>
       </section>
-
-      <div className="dashboard-grid dashboard-grid--premium erp-section">
-        {copy.metrics.map((metric) => (
-          <MetricCard key={metric.label} {...metric} />
-        ))}
-      </div>
-
 
       <div className="two-column two-column--dashboard erp-section">
         <section className="work-panel glass-panel premium-panel">
-          <p className="eyebrow">Role workflows</p>
+          <p className="eyebrow">Workflows</p>
           <h2>{role === 'STUDENT' ? 'Student actions' : role === 'TEACHER' ? 'Teacher actions' : 'School actions'}</h2>
-          <p>Open the daily workflows available for this role.</p>
+          <p>Open the work areas available for this role.</p>
           <div className="action-grid">
             {copy.actions.map(([href, icon, title, description], index) => (
               <Link className="action-card action-card--glass" href={href} key={`${role}-${href}-${title}-${index}`}>
@@ -186,7 +164,7 @@ export default function DashboardHome({ role }: { role: PortalRole }) {
         <section className="work-panel glass-panel premium-panel notification-center-card" id="notifications">
           <p className="eyebrow">Updates</p>
           <h2>{role === 'TEACHER' ? 'Teacher updates' : role === 'STUDENT' ? 'Student alerts' : 'School alerts'}</h2>
-          <p>Operational updates and alerts for this workspace.</p>
+          <p>Updates and alerts for this workspace.</p>
           <div className="notification-list">
             {copy.notifications.map((item) => (
               <article className={`notification-item notification-item--${item.tone}`} key={item.title}>

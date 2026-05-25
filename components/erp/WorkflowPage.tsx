@@ -23,11 +23,10 @@ export default function WorkflowPage({ eyebrow, title, description, metrics, pri
                     <p className="eyebrow">{eyebrow}</p>
                     <h2>{title}</h2>
                     <p>{description}</p>
-                    <div className="action-grid">
+                    <div className="status-list">
                         {primaryItems.map((item) => (
-                            <div className="action-card" key={item.title}>
-                                <span>{item.icon}</span>
-                                <strong>{item.title}</strong>
+                            <div className="status-row" key={item.title}>
+                                <strong>{item.icon} {item.title}</strong>
                                 <span>{item.body}</span>
                             </div>
                         ))}
@@ -37,7 +36,7 @@ export default function WorkflowPage({ eyebrow, title, description, metrics, pri
                 <div className="page-card gold-panel">
                     <p className="eyebrow">Operational status</p>
                     <h2>Validation checklist</h2>
-                    <p>Validation checks for safe school operations and tenant-controlled updates.</p>
+                    <p>Validation checks for school operations and tenant-controlled updates.</p>
                     <div className="status-list">
                         {checklist.map((item) => (
                             <div className="status-row" key={item.label}>
