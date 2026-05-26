@@ -21,8 +21,6 @@ export const portalRoutes: PortalRoute[] = [
   { icon: '📚', label: 'My Classes', href: '/teacher/classes', description: 'Assigned classes', roles: ['TEACHER'], group: 'Daily Work' },
   { icon: '✅', label: 'Bulk Attendance', href: '/teacher/attendance-bulk', description: 'Missed attendance recovery', roles: ['TEACHER'], group: 'Daily Work' },
   { icon: '🧾', label: 'Results Submission', href: '/teacher/results', description: 'Exam entry', roles: ['TEACHER'], group: 'Reports' },
-  { icon: '🔔', label: 'Notifications', href: '/teacher/notifications', description: 'Teacher notifications center', roles: ['TEACHER'], group: 'Reports' },
-
   { icon: '📊', label: 'My Attendance', href: '/student/attendance', description: 'Attendance overview', roles: ['STUDENT'], group: 'Daily Work' },
   { icon: '🕒', label: 'My Timetable', href: '/student/timetable', description: 'Published timetable', roles: ['STUDENT'], group: 'Daily Work' },
   { icon: '📘', label: 'Exam Results', href: '/student/results', description: 'Academic results', roles: ['STUDENT'], group: 'Reports' },

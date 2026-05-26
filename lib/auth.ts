@@ -98,7 +98,14 @@ export function isValidTenantUser(user: WebPortalUser | null): user is WebPortal
   return Boolean(user?.userId && user?.schoolId && user.schoolId !== 'DEMO' && /^[A-Z0-9]{4}$/.test(user.schoolId) && user?.role && ['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT'].includes(user.role));
 }
 
+const hiddenRoleRoutes: Record<string, PortalRole[]> = {
+  '/teacher/notifications': ['TEACHER'],
+};
+
 export function isRouteAllowedForRole(pathname: string, role: PortalRole) {
+  const hiddenRoute = Object.entries(hiddenRoleRoutes).find(([href]) => pathname === href || pathname.startsWith(`${href}/`));
+  if (hiddenRoute) return hiddenRoute[1].includes(role);
+
   const exactRoute = portalRoutes.find((item) => pathname === item.href);
   if (exactRoute) return exactRoute.roles.includes(role);
   const nestedRoute = [...portalRoutes].sort((a, b) => b.href.length - a.href.length).find((item) => pathname.startsWith(`${item.href}/`));

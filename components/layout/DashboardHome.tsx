@@ -53,7 +53,7 @@ const roleCopy = {
   },
   TEACHER: {
     overviewTitle: 'Teacher Workspace',
-    focus: 'Complete daily teacher work: attendance, timetable, leave enquiry, missed attendance recovery, and updates.',
+    focus: 'Complete daily teacher work: attendance, timetable, leave enquiry, missed attendance recovery, and notifications.',
     primaryActions: [
       ['/teacher/leave-enquiry', '📝', 'Request Leave Enquiry', 'Submit leave enquiry and track Pending, Approved, or Rejected status.'],
       ['/teacher/attendance-bulk', '✅', 'Recover Missed Attendance', 'Submit missed attendance records for recent working days from web.'],
@@ -62,7 +62,6 @@ const roleCopy = {
     ],
     secondaryActions: [
       ['/teacher/results', '🧾', 'Results Submission', 'Enter exam results when enabled.'],
-      ['/teacher/notifications', '🔔', 'Notifications', 'Review leave and workflow updates.'],
     ],
     updates: [
       { title: 'Attendance reminder', message: 'Use bulk recovery when previous working-day submissions are pending.', tone: 'warning' },
