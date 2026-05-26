@@ -1,7 +1,7 @@
 'use client';
 
-import Link from 'next/link';
 import type { PortalRole } from '@/lib/routes';
+import NotificationBell from './NotificationBell';
 
 type HeaderUser = {
   schoolName?: string;
@@ -64,18 +64,6 @@ function resolveSchoolName(user?: HeaderUser | null) {
   return suppliedName || `${schoolId} School`;
 }
 
-function notificationHref(role: string) {
-  if (role === 'TEACHER') return '/teacher/notifications';
-  if (role === 'STUDENT') return '/student/notices';
-  return '/school-notices';
-}
-
-function notificationLabel(role: string) {
-  if (role === 'TEACHER') return 'Teacher notifications';
-  if (role === 'STUDENT') return 'Student notifications';
-  return 'School notifications';
-}
-
 export default function RoleAwarePortalHeader({
   role,
   title,
@@ -84,7 +72,6 @@ export default function RoleAwarePortalHeader({
   onLogout,
 }: RoleAwarePortalHeaderProps) {
   const effectiveRole = formatRole(role);
-
   const schoolName = resolveSchoolName(user);
 
   const workspace = `VidyaSetu ERP • ${
@@ -97,19 +84,15 @@ export default function RoleAwarePortalHeader({
     'Attendance • Reports • Leave Approvals • Timetable • School Operations';
 
   const schoolId = resolveSchoolId(user);
-  const showNotificationBell = effectiveRole === 'TEACHER' || effectiveRole === 'STUDENT';
+  const showNotificationBell = ['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT'].includes(effectiveRole);
 
   return (
     <header className="rounded-[26px] border border-amber-300/20 bg-slate-950/70 px-5 py-4 shadow-2xl shadow-black/30 backdrop-blur md:px-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
-          <h1 className="erp-page-title mt-1 text-amber-50">
-            {schoolName}
-          </h1>
+          <h1 className="erp-page-title mt-1 text-amber-50">{schoolName}</h1>
 
-          <p className="erp-workspace-subtitle mt-1 text-amber-200/85">
-            {workspace}
-          </p>
+          <p className="erp-workspace-subtitle mt-1 text-amber-200/85">{workspace}</p>
 
           <p className="erp-card-description mt-2 max-w-3xl text-white/60">
             {operationalSubtitle}
@@ -117,17 +100,7 @@ export default function RoleAwarePortalHeader({
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
-          {showNotificationBell ? (
-            <Link
-              href={notificationHref(effectiveRole)}
-              aria-label={notificationLabel(effectiveRole)}
-              title={notificationLabel(effectiveRole)}
-              className="relative grid h-10 w-10 place-items-center rounded-full border border-amber-300/25 bg-amber-300/10 text-lg text-amber-100 shadow-lg shadow-black/20 transition hover:bg-amber-300/20"
-            >
-              <span aria-hidden="true">🔔</span>
-              <span className="absolute -right-0.5 -top-0.5 h-3 w-3 rounded-full border border-slate-950 bg-rose-400" />
-            </Link>
-          ) : null}
+          {showNotificationBell ? <NotificationBell role={role} /> : null}
 
           <span className="erp-status-chip rounded-full border border-amber-300/25 bg-amber-300/10 px-3 py-1 text-amber-100">
             {effectiveRole}

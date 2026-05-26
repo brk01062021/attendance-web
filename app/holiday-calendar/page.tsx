@@ -1,29 +1,52 @@
-import PilotWorkflowPage from '@/components/erp/PilotWorkflowPage';
 import PortalShell from '@/components/layout/PortalShell';
 import ShellStyles from '@/components/layout/ShellStyles';
 
 export default function HolidayCalendarPage() {
     return (
-        <PortalShell role="ADMIN" title="Academic Calendar & Holiday Overrides" subtitle="Holiday notices should work as academic calendar overrides, not manual timetable edits." variant="gold">
+        <PortalShell
+            role="ADMIN"
+            title="Holiday Calendar"
+            subtitle="Academic calendar overrides, holiday publishing, attendance locks, and timetable visibility."
+            variant="gold"
+        >
             <ShellStyles />
-            <PilotWorkflowPage
-                eyebrow="ACADEMIC CALENDAR OVERRIDE"
-                title="Create full-day or half-day holiday notices without changing the original timetable."
-                description="Admin/principal can define holidays by date, type, reason, scope, and publish flag. VidyaSetu keeps the timetable intact and overlays the holiday rule for attendance, timetable visibility, and notices."
-                primary={[
-                    'Create full-day or half-day holiday override',
-                    'Scope holiday to whole school, selected classes, or selected sections',
-                    'Auto-create editable holiday notice before publishing',
-                    'Show holiday banner in teacher, student, parent, and principal/admin views',
-                    'Lock attendance for affected dates or periods',
-                ]}
-                validations={[
-                    'Original timetable entries remain unchanged',
-                    'Override is filtered by schoolId and class/section scope',
-                    'Half-day override disables only affected periods',
-                    'Dashboard alerts and in-app notices reflect publish state',
-                ]}
-            />
+
+            <div className="space-y-6">
+                <section className="rounded-3xl border border-[#d4af37]/20 bg-[#0d1724] p-6">
+                    <div className="grid gap-4 lg:grid-cols-4">
+                        <input className="rounded-2xl border border-[#d4af37]/20 bg-[#08131f] px-4 py-3 text-sm text-[#f8f3df]" placeholder="Holiday Date" />
+                        <input className="rounded-2xl border border-[#d4af37]/20 bg-[#08131f] px-4 py-3 text-sm text-[#f8f3df]" placeholder="Holiday Type" />
+                        <input className="rounded-2xl border border-[#d4af37]/20 bg-[#08131f] px-4 py-3 text-sm text-[#f8f3df]" placeholder="Applicable Classes" />
+                        <button className="rounded-2xl bg-[#d4af37] px-4 py-3 text-sm font-semibold text-[#08131f]">
+                            Publish Holiday
+                        </button>
+                    </div>
+                </section>
+
+                <section className="rounded-3xl border border-[#d4af37]/20 bg-[#0d1724] p-6">
+                    <div className="overflow-x-auto">
+                        <table className="w-full">
+                            <thead>
+                                <tr className="border-b border-[#d4af37]/10">
+                                    <th className="px-4 py-3 text-left text-xs tracking-[0.18em] text-[#d4af37]/70">DATE</th>
+                                    <th className="px-4 py-3 text-left text-xs tracking-[0.18em] text-[#d4af37]/70">TYPE</th>
+                                    <th className="px-4 py-3 text-left text-xs tracking-[0.18em] text-[#d4af37]/70">SCOPE</th>
+                                    <th className="px-4 py-3 text-left text-xs tracking-[0.18em] text-[#d4af37]/70">STATUS</th>
+                                </tr>
+                            </thead>
+
+                            <tbody>
+                                <tr>
+                                    <td className="px-4 py-4 text-sm text-[#f8f3df]">15 August</td>
+                                    <td className="px-4 py-4 text-sm text-[#f8f3df]">Full Day Holiday</td>
+                                    <td className="px-4 py-4 text-sm text-[#f8f3df]">Whole School</td>
+                                    <td className="px-4 py-4 text-sm text-[#79d991]">Published</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+            </div>
         </PortalShell>
     );
 }

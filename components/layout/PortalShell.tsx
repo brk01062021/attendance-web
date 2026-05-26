@@ -9,101 +9,100 @@ import Sidebar from './Sidebar';
 import RoleAwarePortalHeader from './RoleAwarePortalHeader';
 
 type PortalShellProps = {
-    role: PortalRole;
-    title: string;
-    subtitle: string;
-    eyebrow?: string;
-    children: React.ReactNode;
-    variant?: 'dark' | 'gold';
+  role: PortalRole;
+  title: string;
+  subtitle: string;
+  eyebrow?: string;
+  children: React.ReactNode;
+  variant?: 'dark' | 'gold';
 };
 
 export default function PortalShell({
-                                        role,
-                                        title,
-                                        subtitle,
-                                        children,
-                                        variant = 'dark',
-                                    }: PortalShellProps) {
-    const router = useRouter();
-    const pathname = usePathname();
-    const isClient = useSyncExternalStore(
-        () => () => undefined,
-        () => true,
-        () => false,
-    );
+  role,
+  title,
+  subtitle,
+  children,
+  variant = 'dark',
+}: PortalShellProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const isClient = useSyncExternalStore(
+    () => () => undefined,
+    () => true,
+    () => false,
+  );
 
-    const user = useMemo<WebPortalUser | null>(() => {
-        if (!isClient) {
-            return null;
-        }
-        return getStoredUser();
-    }, [isClient]);
+  const user = useMemo<WebPortalUser | null>(() => {
+    if (!isClient) return null;
+    return getStoredUser();
+  }, [isClient]);
 
-    const accessState = useMemo(() => {
-        if (!user) {
-            return {
-                allowed: false,
-                redirectTo: '/login',
-                message: 'Checking secure portal access...',
-            };
-        }
-        if (!isValidTenantUser(user)) {
-            return {
-                allowed: false,
-                redirectTo: '/login',
-                message: 'Portal session is missing role or school_id. Redirecting to login.',
-            };
-        }
-        if (!isRouteAllowedForRole(pathname, user.role)) {
-            return {
-                allowed: false,
-                redirectTo: homeRouteForRole(user.role),
-                message: 'This role cannot access the requested ERP page. Redirecting to the correct dashboard.',
-            };
-        }
-        return {
-            allowed: true,
-            redirectTo: '',
-            message: '',
-        };
-    }, [pathname, user]);
-
-    useEffect(() => {
-        if (user && !isValidTenantUser(user)) {
-            clearStoredUser();
-        }
-        if (!accessState.allowed && accessState.redirectTo) {
-            router.replace(accessState.redirectTo);
-        }
-    }, [accessState.allowed, accessState.redirectTo, router, user]);
-
-    const effectiveRole = user?.role || role;
-    function logout() {
-        clearStoredUser();
-        router.push('/login');
+  const accessState = useMemo(() => {
+    if (!user) {
+      return {
+        allowed: false,
+        redirectTo: '/login',
+        message: 'Checking secure portal access...',
+      };
     }
 
-    if (!user || !accessState.allowed) {
-        return (
-            <main className={`portal-shell portal-shell--loading ${variant === 'gold' ? 'page-gold' : 'page-dark'}`}>
-                <section className="guard-card gold-panel">{accessState.message}</section>
-            </main>
-        );
+    if (!isValidTenantUser(user)) {
+      return {
+        allowed: false,
+        redirectTo: '/login',
+        message: 'Portal session is missing role or school_id. Redirecting to login.',
+      };
     }
 
+    if (!isRouteAllowedForRole(pathname, user.role)) {
+      return {
+        allowed: false,
+        redirectTo: homeRouteForRole(user.role),
+        message: 'This role cannot access the requested ERP page. Redirecting to the correct dashboard.',
+      };
+    }
+
+    return { allowed: true, redirectTo: '', message: '' };
+  }, [pathname, user]);
+
+  useEffect(() => {
+    if (user && !isValidTenantUser(user)) {
+      clearStoredUser();
+    }
+
+    if (!accessState.allowed && accessState.redirectTo) {
+      router.replace(accessState.redirectTo);
+    }
+  }, [accessState.allowed, accessState.redirectTo, router, user]);
+
+  const effectiveRole = user?.role || role;
+
+  function logout() {
+    clearStoredUser();
+    router.push('/login');
+  }
+
+  if (!user || !accessState.allowed) {
     return (
-        <main className={`portal-shell ${variant === 'gold' ? 'page-gold' : 'page-dark'}`}>
-            <Sidebar role={effectiveRole} />
-            <section className="portal-content">
-                <RoleAwarePortalHeader
-                    role={effectiveRole}
-                    title={title}
-                    subtitle={subtitle}
-                    user={user}
-                    onLogout={logout}
-                />
-                {children}
-            </section>
-        </main>
+      <main className={`portal-shell portal-shell--loading ${variant === 'gold' ? 'page-gold' : 'page-dark'}`}>
+        <section className="guard-card gold-panel">{accessState.message}</section>
+      </main>
     );
+  }
+
+  return (
+    <main className={`portal-shell ${variant === 'gold' ? 'page-gold' : 'page-dark'}`}>
+      <Sidebar role={effectiveRole} />
+      <section className="portal-content">
+        <RoleAwarePortalHeader
+          role={effectiveRole}
+          title={title}
+          subtitle={subtitle}
+          user={user}
+          onLogout={logout}
+        />
+        {children}
+      </section>
+    </main>
+  );
 }
