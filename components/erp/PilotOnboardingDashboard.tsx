@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -8,28 +9,27 @@ import { pilotOnboardingFallback, type PilotOnboardingSummary } from '@/lib/pilo
 
 export default function PilotOnboardingDashboard() {
     const [summary, setSummary] = useState<PilotOnboardingSummary>(pilotOnboardingFallback);
-    const [apiState, setApiState] = useState<'checking' | 'live' | 'fallback'>('checking');
-    const [error, setError] = useState('');
+    const [apiState, setApiState] = useState<'checking' | 'live' | 'offline'>('checking');
 
     useEffect(() => {
         const user = getStoredUser();
+
         webApi.pilotOnboardingSummary<PilotOnboardingSummary>(user?.schoolId || 'DEMO', user?.token)
             .then((data) => {
                 setSummary(data);
                 setApiState('live');
             })
-            .catch((err) => {
+            .catch(() => {
                 setSummary(pilotOnboardingFallback);
-                setApiState('fallback');
-                setError(err instanceof Error ? err.message : 'Backend pilot onboarding API unavailable.');
+                setApiState('offline');
             });
     }, []);
 
     const metrics = useMemo(() => [
-        { label: 'Pilot Students', value: String(summary.targetStudents), helper: 'Realistic first-school target', trend: '700-student pilot' },
-        { label: 'Teachers', value: String(summary.targetTeachers), helper: 'Expected teacher range', trend: '30–40 teachers' },
-        { label: 'Admin + Principal', value: String(summary.targetAdmins + summary.targetPrincipals), helper: 'Initial leadership users', trend: 'Controlled rollout' },
-        { label: 'Readiness', value: summary.readinessStatus.replaceAll('_', ' '), helper: 'Backend-driven Day 26 gate', trend: apiState === 'live' ? 'Live API' : 'Fallback mode' },
+        { label: 'Students', value: String(summary.targetStudents), helper: 'Current onboarding scope', trend: 'Import tracking active' },
+        { label: 'Teachers', value: String(summary.targetTeachers), helper: 'Faculty onboarding', trend: 'Operational sync available' },
+        { label: 'Leadership', value: String(summary.targetAdmins + summary.targetPrincipals), helper: 'Admin & Principal accounts', trend: 'Connected access control' },
+        { label: 'Rollout Status', value: summary.readinessStatus.replaceAll('_', ' '), helper: 'School activation readiness', trend: apiState === 'live' ? 'Connected' : 'Offline support' },
     ], [apiState, summary]);
 
     return (
@@ -40,29 +40,31 @@ export default function PilotOnboardingDashboard() {
 
             <section className="day25-hero gold-panel">
                 <div>
-                    <p className="eyebrow">PILOT API CLEANUP</p>
-                    <h2>{summary.schoolName} onboarding command center</h2>
+                    <p className="eyebrow">SCHOOL ROLLOUT READINESS</p>
+                    <h2>{summary.schoolName} operational onboarding center</h2>
                     <p>
-                        This board connects the web ERP to the real backend pilot onboarding API first. If the backend is not running, it shows a safe fallback checklist so UI testing can continue without breaking the portal.
+                        Monitor onboarding readiness, tenant synchronization, timetable readiness, and attendance activation before pilot-school rollout.
                     </p>
                 </div>
+
                 <div className="day25-route-card">
-                    <strong>API status</strong>
-                    <span>{apiState === 'checking' ? 'Checking backend...' : apiState === 'live' ? 'Backend API connected' : 'Fallback checklist active'}</span>
+                    <strong>Operational Status</strong>
+                    <span>{apiState === 'checking' ? 'Checking services...' : apiState === 'live' ? 'Connected' : 'Offline support available'}</span>
                     <span>school_id: {summary.schoolId}</span>
-                    <span>planned start: {summary.plannedPilotStartDate}</span>
-                    {error ? <span>{error}</span> : null}
+                    <span>pilot start: {summary.plannedPilotStartDate}</span>
                 </div>
             </section>
 
             <section className="day25-panel gold-panel">
                 <div className="day25-section-header">
                     <div>
-                        <p className="eyebrow">PILOT ONBOARDING STEPS</p>
-                        <h3>One-school rollout gates before parent/student live access</h3>
+                        <p className="eyebrow">ROLLOUT CHECKLIST</p>
+                        <h3>Operational verification before school activation</h3>
                     </div>
-                    <span className="mini-button">{summary.steps.length} gates</span>
+
+                    <span className="mini-button">{summary.steps.length} checks</span>
                 </div>
+
                 <div className="day25-gate-grid">
                     {summary.steps.map((step) => (
                         <article className="day25-gate" key={step.key}>
@@ -70,10 +72,8 @@ export default function PilotOnboardingDashboard() {
                                 <strong>{step.title}</strong>
                                 <em>{step.priority}</em>
                             </div>
+
                             <span>{step.owner} • {step.status.replaceAll('_', ' ')}</span>
-                            <ul>
-                                <li>{step.detail}</li>
-                            </ul>
                         </article>
                     ))}
                 </div>
