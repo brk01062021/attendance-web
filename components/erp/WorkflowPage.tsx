@@ -1,4 +1,5 @@
 import MetricCard from '@/components/ui/MetricCard';
+import OperationalPulse from '@/components/erp/OperationalPulse';
 
 type WorkflowPageProps = {
     eyebrow: string;
@@ -12,6 +13,7 @@ type WorkflowPageProps = {
 export default function WorkflowPage({ eyebrow, title, description, metrics, primaryItems, checklist }: WorkflowPageProps) {
     return (
         <>
+            <OperationalPulse />
             <div className="dashboard-grid">
                 {metrics.map((metric) => (
                     <MetricCard key={metric.label} label={metric.label} value={metric.value} helper={metric.helper} tone={metric.tone} />

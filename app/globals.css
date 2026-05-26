@@ -23,3 +23,69 @@ body {
 body {
   margin: 0;
 }
+
+.ops-pulse-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-bottom: 18px;
+}
+
+.ops-pulse-card {
+  border-radius: 22px;
+  border: 1px solid rgba(215, 184, 102, 0.16);
+  background: linear-gradient(180deg, rgba(15,23,42,0.96), rgba(30,41,59,0.92));
+  padding: 16px 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  min-height: 110px;
+}
+
+.ops-pulse-card span {
+  color: rgba(255,255,255,0.62);
+  font-size: 0.76rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.ops-pulse-card strong {
+  color: #f7d774;
+  font-size: 1.8rem;
+  line-height: 1;
+}
+
+.ops-pulse-card small {
+  color: rgba(255,255,255,0.72);
+  line-height: 1.45;
+}
+
+@media (max-width: 1024px) {
+  .ops-pulse-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .day23-layout,
+  .two-column {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 640px) {
+  .ops-pulse-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .day23-table-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .day23-search {
+    width: 100%;
+  }
+
+  .day23-search input {
+    width: 100%;
+  }
+}

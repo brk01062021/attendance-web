@@ -3,6 +3,7 @@
 import { useMemo, useState } from 'react';
 import MetricCard from '@/components/ui/MetricCard';
 import type { Day23ModuleConfig } from '@/types/erp';
+import OperationalPulse from '@/components/erp/OperationalPulse';
 
 type Props = {
     config: Day23ModuleConfig;
@@ -26,6 +27,8 @@ export default function Day24ModulePage({ config }: Props) {
                 ))}
             </div>
 
+            <OperationalPulse />
+
             <section className="day23-hero gold-panel">
                 <div>
                     <p className="eyebrow">{config.eyebrow}</p>
@@ -47,7 +50,7 @@ export default function Day24ModulePage({ config }: Props) {
                     <div className="day23-section-heading">
                         <div>
                             <p className="eyebrow">Operational actions</p>
-                            <h3>Operational actions</h3>
+                            <h3>Workflow actions</h3>
                         </div>
                     </div>
                     <div className="day23-action-list">
