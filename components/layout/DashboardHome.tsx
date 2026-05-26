@@ -57,12 +57,12 @@ const roleCopy = {
     primaryActions: [
       ['/teacher/leave-enquiry', '📝', 'Request Leave Enquiry', 'Submit leave enquiry and track Pending, Approved, or Rejected status.'],
       ['/teacher/attendance-bulk', '✅', 'Recover Missed Attendance', 'Submit missed attendance records for recent working days from web.'],
-      ['/teacher', '📅', 'My Timetable', 'View today schedule, periods, and replacement responsibilities.'],
-      ['/teacher', '🏫', 'My Classes', 'View assigned classes, sections, and subjects.'],
+      ['/teacher/timetable', '📅', 'My Timetable', 'View today schedule, periods, and replacement responsibilities.'],
+      ['/teacher/classes', '🏫', 'My Classes', 'View assigned classes, sections, and subjects.'],
     ],
     secondaryActions: [
-      ['/teacher', '🧾', 'Results Submission', 'Enter exam results when enabled.'],
-      ['/teacher/leave-enquiry#notifications', '🔔', 'Notifications', 'Review leave and workflow updates.'],
+      ['/teacher/results', '🧾', 'Results Submission', 'Enter exam results when enabled.'],
+      ['/teacher/notifications', '🔔', 'Notifications', 'Review leave and workflow updates.'],
     ],
     updates: [
       { title: 'Attendance reminder', message: 'Use bulk recovery when previous working-day submissions are pending.', tone: 'warning' },
@@ -74,10 +74,10 @@ const roleCopy = {
     overviewTitle: 'Student Portal',
     focus: 'View attendance, timetable, results, notices, assignments, and school updates in one simple portal.',
     primaryActions: [
-      ['/student', '📊', 'My Attendance', 'Check attendance percentage, absent days, late marks, and monthly trend.'],
-      ['/student', '🕒', 'My Timetable', 'View published class timetable and holiday changes.'],
-      ['/student', '📘', 'Exam Results', 'Review subject marks, grades, and academic progress.'],
-      ['/student', '📣', 'School Notices', 'Read announcements, holidays, and academic calendar updates.'],
+      ['/student/attendance', '📊', 'My Attendance', 'Check attendance percentage, absent days, late marks, and monthly trend.'],
+      ['/student/timetable', '🕒', 'My Timetable', 'View published class timetable and holiday changes.'],
+      ['/student/results', '📘', 'Exam Results', 'Review subject marks, grades, and academic progress.'],
+      ['/student/notices', '📣', 'School Notices', 'Read announcements, holidays, and academic calendar updates.'],
     ],
     secondaryActions: [
       ['/student', '📝', 'Assignments', 'View homework summary when enabled.'],
