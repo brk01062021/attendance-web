@@ -1,27 +1,32 @@
 import PortalShell from '@/components/layout/PortalShell';
 import ShellStyles from '@/components/layout/ShellStyles';
 
+const schedule = [
+  ['Period 1', 'English'],
+  ['Period 2', 'Mathematics'],
+  ['Period 3', 'Science'],
+  ['Period 4', 'Social'],
+];
+
 export default function Page() {
   return (
-    <PortalShell role="STUDENT" title="My Timetable" subtitle="Connected operational ERP workflow.">
+    <PortalShell role="STUDENT" title="My Timetable" subtitle="View published class timetable.">
       <ShellStyles />
       <section className="page-card gold-panel">
         <div className="section-heading-row">
           <div>
-            <p className="eyebrow">Operational workspace</p>
-            <h2>My Timetable</h2>
+            <p className="eyebrow">Published timetable</p>
+            <h2>Today’s Class Schedule</h2>
           </div>
         </div>
 
         <div className="status-list">
-          <div className="status-row">
-            <strong>Workflow status</strong>
-            <span>This module is now connected to the ERP navigation flow.</span>
-          </div>
-          <div className="status-row">
-            <strong>School identity</strong>
-            <span>BRK International School remains the primary workspace identity while BRK1 stays as tenant chip.</span>
-          </div>
+          {schedule.map(([period, subject]) => (
+            <div className="status-row" key={period}>
+              <strong>{period}</strong>
+              <span>{subject}</span>
+            </div>
+          ))}
         </div>
       </section>
     </PortalShell>

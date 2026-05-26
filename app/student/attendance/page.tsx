@@ -1,27 +1,31 @@
 import PortalShell from '@/components/layout/PortalShell';
 import ShellStyles from '@/components/layout/ShellStyles';
 
+const summary = [
+  ['This month', '92% attendance'],
+  ['Present days', '23 days'],
+  ['Absent days', '2 days'],
+];
+
 export default function Page() {
   return (
-    <PortalShell role="STUDENT" title="My Attendance" subtitle="Connected operational ERP workflow.">
+    <PortalShell role="STUDENT" title="My Attendance" subtitle="View attendance summary and recent attendance status.">
       <ShellStyles />
       <section className="page-card gold-panel">
         <div className="section-heading-row">
           <div>
-            <p className="eyebrow">Operational workspace</p>
-            <h2>My Attendance</h2>
+            <p className="eyebrow">Attendance overview</p>
+            <h2>Attendance Summary</h2>
           </div>
         </div>
 
         <div className="status-list">
-          <div className="status-row">
-            <strong>Workflow status</strong>
-            <span>This module is now connected to the ERP navigation flow.</span>
-          </div>
-          <div className="status-row">
-            <strong>School identity</strong>
-            <span>BRK International School remains the primary workspace identity while BRK1 stays as tenant chip.</span>
-          </div>
+          {summary.map(([label, value]) => (
+            <div className="status-row" key={label}>
+              <strong>{label}</strong>
+              <span>{value}</span>
+            </div>
+          ))}
         </div>
       </section>
     </PortalShell>

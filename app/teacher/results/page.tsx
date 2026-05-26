@@ -1,27 +1,30 @@
 import PortalShell from '@/components/layout/PortalShell';
 import ShellStyles from '@/components/layout/ShellStyles';
 
+const rows = [
+  ['10-A', 'Mathematics', 'Unit Test 1', 'Draft'],
+  ['9-A', 'Mathematics', 'Unit Test 1', 'Pending'],
+];
+
 export default function Page() {
   return (
-    <PortalShell role="TEACHER" title="Results Submission" subtitle="Connected operational ERP workflow.">
+    <PortalShell role="TEACHER" title="Results Submission" subtitle="Enter and review exam marks for assigned classes.">
       <ShellStyles />
       <section className="page-card gold-panel">
         <div className="section-heading-row">
           <div>
-            <p className="eyebrow">Operational workspace</p>
-            <h2>Results Submission</h2>
+            <p className="eyebrow">Exam marks</p>
+            <h2>Result Entry Queue</h2>
           </div>
         </div>
 
         <div className="status-list">
-          <div className="status-row">
-            <strong>Workflow status</strong>
-            <span>This module is now connected to the ERP navigation flow.</span>
-          </div>
-          <div className="status-row">
-            <strong>School identity</strong>
-            <span>BRK International School remains the primary workspace identity while BRK1 stays as tenant chip.</span>
-          </div>
+          {rows.map(([className, subject, exam, status]) => (
+            <div className="status-row" key={`${className}-${exam}`}>
+              <strong>{className} • {subject} • {exam}</strong>
+              <span>{status}</span>
+            </div>
+          ))}
         </div>
       </section>
     </PortalShell>

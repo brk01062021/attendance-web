@@ -1,27 +1,31 @@
 import PortalShell from '@/components/layout/PortalShell';
 import ShellStyles from '@/components/layout/ShellStyles';
 
+const notices = [
+  ['Holiday Notice', 'No active holiday notice today.'],
+  ['Academic Notice', 'No new academic notice published.'],
+  ['School Notice', 'Check this page for school announcements.'],
+];
+
 export default function Page() {
   return (
-    <PortalShell role="STUDENT" title="School Notices" subtitle="Connected operational ERP workflow.">
+    <PortalShell role="STUDENT" title="School Notices" subtitle="View school announcements and holiday notices.">
       <ShellStyles />
       <section className="page-card gold-panel">
         <div className="section-heading-row">
           <div>
-            <p className="eyebrow">Operational workspace</p>
-            <h2>School Notices</h2>
+            <p className="eyebrow">Notices</p>
+            <h2>School Notice Board</h2>
           </div>
         </div>
 
         <div className="status-list">
-          <div className="status-row">
-            <strong>Workflow status</strong>
-            <span>This module is now connected to the ERP navigation flow.</span>
-          </div>
-          <div className="status-row">
-            <strong>School identity</strong>
-            <span>BRK International School remains the primary workspace identity while BRK1 stays as tenant chip.</span>
-          </div>
+          {notices.map(([title, message]) => (
+            <div className="status-row" key={title}>
+              <strong>{title}</strong>
+              <span>{message}</span>
+            </div>
+          ))}
         </div>
       </section>
     </PortalShell>

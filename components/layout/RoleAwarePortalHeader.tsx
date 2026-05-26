@@ -35,16 +35,6 @@ function formatRole(role: PortalRole) {
   return String(role || '').toUpperCase();
 }
 
-function resolveSchoolName(user?: HeaderUser | null) {
-  return (
-    user?.schoolName ||
-    user?.school_name ||
-    user?.school?.name ||
-    user?.tenantName ||
-    'BRK International School'
-  );
-}
-
 function resolveSchoolId(user?: HeaderUser | null) {
   return (
     user?.schoolId ||
@@ -56,6 +46,23 @@ function resolveSchoolId(user?: HeaderUser | null) {
   );
 }
 
+function resolveSchoolName(user?: HeaderUser | null) {
+  const schoolId = resolveSchoolId(user);
+
+  const suppliedName =
+    user?.schoolName ||
+    user?.school_name ||
+    user?.school?.name ||
+    user?.tenantName ||
+    '';
+
+  if (String(schoolId).toUpperCase() === 'BRK1') {
+    return 'BRK International School';
+  }
+
+  return suppliedName || `${schoolId} School`;
+}
+
 export default function RoleAwarePortalHeader({
   role,
   title,
@@ -64,9 +71,18 @@ export default function RoleAwarePortalHeader({
   onLogout,
 }: RoleAwarePortalHeaderProps) {
   const effectiveRole = formatRole(role);
+
   const schoolName = resolveSchoolName(user);
-  const workspace = `VidyaSetu ERP • ${roleWorkspaceLabel[effectiveRole] ?? 'Role Workspace'}`;
-  const operationalSubtitle = subtitle || title || 'Attendance • Reports • Leave Approvals • Timetable • School Operations';
+
+  const workspace = `VidyaSetu ERP • ${
+    roleWorkspaceLabel[effectiveRole] ?? 'Role Workspace'
+  }`;
+
+  const operationalSubtitle =
+    subtitle ||
+    title ||
+    'Attendance • Reports • Leave Approvals • Timetable • School Operations';
+
   const schoolId = resolveSchoolId(user);
 
   return (
@@ -76,17 +92,25 @@ export default function RoleAwarePortalHeader({
           <h1 className="erp-page-title mt-1 text-amber-50">
             {schoolName}
           </h1>
-          <p className="erp-workspace-subtitle mt-1 text-amber-200/85">{workspace}</p>
-          <p className="erp-card-description mt-2 max-w-3xl text-white/60">{operationalSubtitle}</p>
+
+          <p className="erp-workspace-subtitle mt-1 text-amber-200/85">
+            {workspace}
+          </p>
+
+          <p className="erp-card-description mt-2 max-w-3xl text-white/60">
+            {operationalSubtitle}
+          </p>
         </div>
 
         <div className="flex flex-wrap items-center gap-2">
           <span className="erp-status-chip rounded-full border border-amber-300/25 bg-amber-300/10 px-3 py-1 text-amber-100">
             {effectiveRole}
           </span>
+
           <span className="erp-status-chip rounded-full border border-white/15 bg-white/10 px-3 py-1 text-white/85">
             {schoolId}
           </span>
+
           {onLogout ? (
             <button
               type="button"

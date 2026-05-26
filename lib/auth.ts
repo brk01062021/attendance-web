@@ -32,10 +32,28 @@ function defaultDisplayName(role: WebUserRole, username?: string) {
   return 'Student';
 }
 
+function resolveSchoolNameForTenant(schoolId: string, suppliedName?: string | null) {
+  const cleanName = String(suppliedName || '').trim();
+
+  if (schoolId === 'BRK1') {
+    return 'BRK International School';
+  }
+
+  if (
+    cleanName &&
+    !/demo/i.test(cleanName) &&
+    !new RegExp(`^${schoolId}\\s+School$`, 'i').test(cleanName)
+  ) {
+    return cleanName;
+  }
+
+  return `${schoolId} School`;
+}
+
 function normalizeUser(user: WebPortalUser): WebPortalUser {
   const role = normalizeRole(user.role, 'ADMIN');
   const schoolId = normalizeSchoolId(user.schoolId);
-  const schoolName = user.schoolName && !/demo/i.test(user.schoolName) ? user.schoolName : `${schoolId} School`;
+  const schoolName = resolveSchoolNameForTenant(schoolId, user.schoolName);
   const displayName = user.displayName && !((role === 'TEACHER' || role === 'STUDENT') && /admin/i.test(user.displayName))
     ? user.displayName
     : defaultDisplayName(role);

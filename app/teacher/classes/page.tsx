@@ -1,27 +1,31 @@
 import PortalShell from '@/components/layout/PortalShell';
 import ShellStyles from '@/components/layout/ShellStyles';
 
+const classes = [
+  ['10-A', 'Mathematics', '42 students'],
+  ['9-A', 'Mathematics', '40 students'],
+  ['8-B', 'Mathematics', '38 students'],
+];
+
 export default function Page() {
   return (
-    <PortalShell role="TEACHER" title="My Classes" subtitle="Connected operational ERP workflow.">
+    <PortalShell role="TEACHER" title="My Classes" subtitle="Assigned classes and subject responsibility.">
       <ShellStyles />
       <section className="page-card gold-panel">
         <div className="section-heading-row">
           <div>
-            <p className="eyebrow">Operational workspace</p>
-            <h2>My Classes</h2>
+            <p className="eyebrow">Assigned classes</p>
+            <h2>Teaching Assignments</h2>
           </div>
         </div>
 
         <div className="status-list">
-          <div className="status-row">
-            <strong>Workflow status</strong>
-            <span>This module is now connected to the ERP navigation flow.</span>
-          </div>
-          <div className="status-row">
-            <strong>School identity</strong>
-            <span>BRK International School remains the primary workspace identity while BRK1 stays as tenant chip.</span>
-          </div>
+          {classes.map(([className, subject, strength]) => (
+            <div className="status-row" key={className}>
+              <strong>{className} • {subject}</strong>
+              <span>{strength}</span>
+            </div>
+          ))}
         </div>
       </section>
     </PortalShell>
