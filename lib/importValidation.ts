@@ -1,4 +1,4 @@
-import { apiClient } from '@/lib/apiClient';
+import { apiClient, webApi } from '@/lib/apiClient';
 import { getStoredUser } from '@/lib/auth';
 
 export type ImportSheetPreview = {
@@ -29,6 +29,45 @@ export type ImportPreviewResponse = {
   previewedAt: string;
 };
 
+export type ImportUploadResponse = {
+  uploadId: number;
+  schoolId: string;
+  academicYear: string;
+  importType: string;
+  fileName: string;
+  checksum: string;
+  status: string;
+  duplicateFile: boolean;
+  preview: ImportPreviewResponse;
+  uploadedAt: string;
+};
+
+export type ImportUploadHistoryRow = {
+  uploadId: number;
+  schoolId: string;
+  fileName: string;
+  importType: string;
+  academicYear: string;
+  status: string;
+  totalRows: number;
+  totalSheets: number;
+  errorCount: number;
+  warningCount: number;
+  committed: boolean;
+  rolledBack: boolean;
+  uploadedAt: string;
+};
+
+export type ImportCommitResponse = {
+  uploadId: number;
+  schoolId: string;
+  status: string;
+  message: string;
+  committed: boolean;
+  rolledBack: boolean;
+  actionAt: string;
+};
+
 export const day28SampleSheets: ImportSheetPreview[] = [
   { sheetName: 'SchoolProfile', totalRows: 1, headers: ['School Access ID', 'school_name', 'academic_year'] },
   { sheetName: 'Students', totalRows: 300, headers: ['admission_no', 'student_name', 'class_name', 'section'] },
@@ -41,9 +80,13 @@ export const day28SampleSheets: ImportSheetPreview[] = [
   { sheetName: 'Schedules', totalRows: 40, headers: ['day', 'period', 'start_time', 'end_time'] },
 ];
 
+function unwrap<T>(result: { data?: T } | T): T {
+  return ('data' in (result as { data?: T }) && (result as { data?: T }).data ? (result as { data: T }).data : result) as T;
+}
+
 export async function validateImportPreview(sheets: ImportSheetPreview[] = day28SampleSheets) {
   const user = getStoredUser();
-  const schoolId = user?.schoolId || 'DEMO';
+  const schoolId = user?.schoolId || 'BRK1';
   const result = await apiClient<{ data?: ImportPreviewResponse } | ImportPreviewResponse>('/imports/preview/validate', {
     method: 'POST',
     token: user?.token,
@@ -56,5 +99,39 @@ export async function validateImportPreview(sheets: ImportSheetPreview[] = day28
       sheets,
     }),
   });
-  return ('data' in result && result.data ? result.data : result) as ImportPreviewResponse;
+  return unwrap<ImportPreviewResponse>(result);
+}
+
+export async function uploadImportWorkbook(file: File, academicYear: string, importType: string) {
+  const user = getStoredUser();
+  const schoolId = user?.schoolId || 'BRK1';
+  const formData = new FormData();
+  formData.append('file', file);
+  formData.append('schoolId', schoolId);
+  formData.append('academicYear', academicYear);
+  formData.append('importType', importType.toUpperCase().replaceAll(' ', '_'));
+  formData.append('requestedByRole', user?.role || 'ADMIN');
+  const result = await webApi.uploadImportWorkbook<{ data?: ImportUploadResponse } | ImportUploadResponse>(formData, user?.token, schoolId);
+  return unwrap<ImportUploadResponse>(result);
+}
+
+export async function getImportHistory() {
+  const user = getStoredUser();
+  const schoolId = user?.schoolId || 'BRK1';
+  const result = await webApi.importWorkbookHistory<{ data?: ImportUploadHistoryRow[] } | ImportUploadHistoryRow[]>(schoolId, user?.token);
+  return unwrap<ImportUploadHistoryRow[]>(result);
+}
+
+export async function commitImportWorkbook(uploadId: number) {
+  const user = getStoredUser();
+  const schoolId = user?.schoolId || 'BRK1';
+  const result = await webApi.commitImportWorkbook<{ data?: ImportCommitResponse } | ImportCommitResponse>(uploadId, schoolId, user?.token);
+  return unwrap<ImportCommitResponse>(result);
+}
+
+export async function rollbackImportWorkbook(uploadId: number) {
+  const user = getStoredUser();
+  const schoolId = user?.schoolId || 'BRK1';
+  const result = await webApi.rollbackImportWorkbook<{ data?: ImportCommitResponse } | ImportCommitResponse>(uploadId, schoolId, user?.token);
+  return unwrap<ImportCommitResponse>(result);
 }

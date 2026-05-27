@@ -18,10 +18,11 @@ function withQuery(path: string, query?: ApiOptions['query']) {
 
 export async function apiClient<T>(path: string, options: ApiOptions = {}): Promise<T> {
   const { token, schoolId, query, headers, ...rest } = options;
+  const isFormData = typeof FormData !== 'undefined' && rest.body instanceof FormData;
   const response = await fetch(`${API_BASE_URL}${withQuery(path, query)}`, {
     ...rest,
     headers: {
-      'Content-Type': 'application/json',
+      ...(isFormData ? {} : { 'Content-Type': 'application/json' }),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(schoolId ? { 'X-School-Id': schoolId } : {}),
       ...headers,
@@ -62,6 +63,22 @@ export const webApi = {
     apiClient<T>('/notifications', { token, schoolId, query: { userId, role } }),
   submitBulkAttendance: <T>(body: unknown, token?: string, schoolId?: string) =>
     apiClient<T>('/attendance/bulk', { method: 'POST', token, schoolId, body: JSON.stringify(body) }),
+  uploadImportWorkbook: <T>(formData: FormData, token?: string, schoolId?: string) =>
+    apiClient<T>('/imports/workbooks/upload', { method: 'POST', token, schoolId, body: formData }),
+  importWorkbookHistory: <T>(schoolId: string, token?: string) =>
+    apiClient<T>('/imports/workbooks/history', { token, schoolId, query: { schoolId } }),
+  commitImportWorkbook: <T>(uploadId: number, schoolId: string, token?: string) =>
+    apiClient<T>(`/imports/workbooks/${uploadId}/commit`, { method: 'POST', token, schoolId, query: { schoolId } }),
+  rollbackImportWorkbook: <T>(uploadId: number, schoolId: string, token?: string) =>
+    apiClient<T>(`/imports/workbooks/${uploadId}/rollback`, { method: 'POST', token, schoolId, query: { schoolId } }),
+  academicYears: <T>(token?: string, schoolId?: string) =>
+    apiClient<T>('/operational/academic-years', { token, schoolId }),
+  schoolClasses: <T>(schoolId: string, token?: string) =>
+    apiClient<T>('/operational/classes', { token, schoolId, query: { schoolId } }),
+  schoolSections: <T>(schoolId: string, className: string, token?: string) =>
+    apiClient<T>('/operational/sections', { token, schoolId, query: { schoolId, className } }),
+  teacherSearch: <T>(schoolId: string, query: string, token?: string) =>
+    apiClient<T>('/operational/teachers/search', { token, schoolId, query: { schoolId, query } }),
 };
 
 export { API_BASE_URL };

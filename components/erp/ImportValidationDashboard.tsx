@@ -1,8 +1,7 @@
-
 "use client";
 
-import { useMemo, useState } from 'react';
-import { day28SampleSheets, validateImportPreview, type ImportPreviewResponse } from '@/lib/importValidation';
+import { useEffect, useMemo, useState } from 'react';
+import { commitImportWorkbook, day28SampleSheets, getImportHistory, rollbackImportWorkbook, uploadImportWorkbook, validateImportPreview, type ImportPreviewResponse, type ImportUploadHistoryRow, type ImportUploadResponse } from '@/lib/importValidation';
 
 type SelectFieldProps = {
   label: string;
@@ -23,12 +22,6 @@ const sectionOptions = ['All Sections', 'A', 'B'];
 const academicYears = ['2026-2027', '2027-2028'];
 const importTypes = ['Master School Workbook', 'Students + Parents', 'Teachers + Assignments', 'Timetable Structure'];
 
-const uploadHistory = [
-  { file: 'BRK1_MASTER_IMPORT.xlsx', date: 'Current Pilot', rows: '1,028', status: 'Ready for validation' },
-  { file: 'Students_Parents_Template.xlsx', date: 'Pilot Setup', rows: '600', status: 'Parent linking required' },
-  { file: 'Teacher_Assignments_Template.xlsx', date: 'Pilot Setup', rows: '50', status: 'Assignment validation required' },
-];
-
 export default function ImportValidationDashboard() {
   const [preview, setPreview] = useState<ImportPreviewResponse | null>(null);
   const [loading, setLoading] = useState(false);
@@ -40,6 +33,26 @@ export default function ImportValidationDashboard() {
   const [importMonth, setImportMonth] = useState('2026-05');
   const [effectiveDate, setEffectiveDate] = useState('2026-06-01');
   const [selectedFileName, setSelectedFileName] = useState<string>('No workbook selected');
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [upload, setUpload] = useState<ImportUploadResponse | null>(null);
+  const [uploadHistory, setUploadHistory] = useState<ImportUploadHistoryRow[]>([]);
+  const [historyLoading, setHistoryLoading] = useState(false);
+
+
+  useEffect(() => {
+    loadHistory();
+  }, []);
+
+  async function loadHistory() {
+    setHistoryLoading(true);
+    try {
+      setUploadHistory(await getImportHistory());
+    } catch {
+      setUploadHistory([]);
+    } finally {
+      setHistoryLoading(false);
+    }
+  }
 
   const totals = useMemo(() => {
     const issues = preview?.issues || [];
@@ -59,8 +72,19 @@ export default function ImportValidationDashboard() {
     setMessage(null);
 
     try {
+      if (selectedFile) {
+        const result = await uploadImportWorkbook(selectedFile, academicYear, importType);
+        setUpload(result);
+        setPreview(result.preview);
+        setMessage(result.duplicateFile ? 'Workbook validated. Duplicate file warning found; review history before committing.' : 'Workbook uploaded and validated with real backend XLSX parsing.');
+        await loadHistory();
+        return;
+      }
+
       const result = await validateImportPreview(day28SampleSheets);
       setPreview(result);
+      setUpload(null);
+      setMessage('No workbook selected. Running backend validation against the standard onboarding workbook schema.');
     } catch {
       setMessage('Import validation service is temporarily unavailable. Showing local workbook readiness checks until backend synchronization is available.');
       setPreview({
@@ -113,6 +137,35 @@ export default function ImportValidationDashboard() {
     }
   }
 
+  async function commitUpload() {
+    if (!upload?.uploadId) return;
+    setLoading(true);
+    setMessage(null);
+    try {
+      const result = await commitImportWorkbook(upload.uploadId);
+      setMessage(result.message || 'Workbook import committed for onboarding approval.');
+      await loadHistory();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Workbook import could not be committed.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function rollbackUpload(uploadId: number) {
+    setLoading(true);
+    setMessage(null);
+    try {
+      const result = await rollbackImportWorkbook(uploadId);
+      setMessage(result.message || 'Workbook import rolled back.');
+      await loadHistory();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Workbook import could not be rolled back.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <section className="space-y-6">
       <div className="rounded-[2rem] border border-amber-100/60 bg-white/80 p-6 shadow-lg shadow-amber-900/5">
@@ -136,7 +189,11 @@ export default function ImportValidationDashboard() {
               <input
                 type="file"
                 accept=".xlsx,.xls"
-                onChange={(event) => setSelectedFileName(event.target.files?.[0]?.name || 'No workbook selected')}
+                onChange={(event) => {
+                  const file = event.target.files?.[0] || null;
+                  setSelectedFile(file);
+                  setSelectedFileName(file?.name || 'No workbook selected');
+                }}
                 className="w-full text-sm font-bold text-slate-700 file:mr-4 file:rounded-xl file:border-0 file:bg-slate-950 file:px-4 file:py-2 file:text-sm file:font-black file:text-white"
               />
               <p className="mt-3 text-xs font-bold text-slate-600">{selectedFileName}</p>
@@ -151,8 +208,19 @@ export default function ImportValidationDashboard() {
             disabled={loading}
             className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white shadow-lg shadow-slate-900/10 disabled:opacity-60"
           >
-            {loading ? 'Checking Workbook...' : 'Validate Workbook'}
+            {loading ? 'Checking Workbook...' : selectedFile ? 'Upload & Validate Workbook' : 'Validate Workbook Schema'}
           </button>
+
+          {upload?.uploadId ? (
+            <button
+              type="button"
+              onClick={commitUpload}
+              disabled={loading || !preview?.valid}
+              className="rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-900/10 disabled:opacity-50"
+            >
+              Commit Import
+            </button>
+          ) : null}
 
           <span className="rounded-full bg-amber-50 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-amber-800">
             school_id isolation: BRK1
@@ -282,12 +350,31 @@ export default function ImportValidationDashboard() {
               </tr>
             </thead>
             <tbody className="divide-y divide-slate-200/70 bg-white/70">
-              {uploadHistory.map((upload) => (
-                <tr key={upload.file}>
-                  <td className="px-4 py-3 font-black text-slate-950">{upload.file}</td>
-                  <td className="px-4 py-3 font-bold text-slate-700">{upload.date}</td>
-                  <td className="px-4 py-3 font-bold text-slate-700">{upload.rows}</td>
-                  <td className="px-4 py-3 font-semibold text-slate-600">{upload.status}</td>
+              {uploadHistory.length === 0 ? (
+                <tr>
+                  <td className="px-4 py-5 font-semibold text-slate-600" colSpan={4}>
+                    {historyLoading ? 'Loading workbook history...' : 'No real workbook uploads yet. Upload an Excel workbook to start onboarding history.'}
+                  </td>
+                </tr>
+              ) : uploadHistory.map((item) => (
+                <tr key={item.uploadId}>
+                  <td className="px-4 py-3 font-black text-slate-950">{item.fileName}</td>
+                  <td className="px-4 py-3 font-bold text-slate-700">{new Date(item.uploadedAt).toLocaleString()}</td>
+                  <td className="px-4 py-3 font-bold text-slate-700">{item.totalRows}</td>
+                  <td className="px-4 py-3 font-semibold text-slate-600">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span>{item.status}</span>
+                      {!item.rolledBack ? (
+                        <button
+                          type="button"
+                          onClick={() => rollbackUpload(item.uploadId)}
+                          className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700"
+                        >
+                          Rollback
+                        </button>
+                      ) : null}
+                    </div>
+                  </td>
                 </tr>
               ))}
             </tbody>
