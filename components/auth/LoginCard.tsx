@@ -127,7 +127,7 @@ export default function LoginCard() {
             {message ? <small className="dev-note">{message}</small> : null}
 
             <small className="dev-note">
-                Use the real 4-character school_id issued during onboarding, for example BRK1 or AB12. Teacher identity and teacherId are bound from the login session.
+                Use the real 4-character School Access ID issued during onboarding, for example BRK1 or AB12. Teacher identity and teacherId are bound from the login session.
             </small>
         </form>
     );

@@ -18,7 +18,7 @@ export default function AttendanceImportPage() {
                     'Keep audit trail with uploaded by, reviewed by, schoolId, and timestamp',
                 ]}
                 validations={[
-                    'school_id filter is enforced on import preview and save',
+                    'School Access ID filter is enforced on import preview and save',
                     'Teacher can only import assigned class/section/subject unless admin overrides',
                     'Attendance dates follow the active published timetable',
                     'Holiday override dates are locked from import',

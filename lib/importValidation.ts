@@ -30,7 +30,7 @@ export type ImportPreviewResponse = {
 };
 
 export const day28SampleSheets: ImportSheetPreview[] = [
-  { sheetName: 'SchoolProfile', totalRows: 1, headers: ['school_id', 'school_name', 'academic_year'] },
+  { sheetName: 'SchoolProfile', totalRows: 1, headers: ['School Access ID', 'school_name', 'academic_year'] },
   { sheetName: 'Students', totalRows: 300, headers: ['admission_no', 'student_name', 'class_name', 'section'] },
   { sheetName: 'Parents', totalRows: 300, headers: ['admission_no', 'parent_name', 'mobile'] },
   { sheetName: 'Teachers', totalRows: 30, headers: ['teacher_id', 'teacher_name', 'mobile'] },

@@ -69,11 +69,11 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         ],
         actions: [
             { icon: '🏫', title: 'Load school summary', body: 'Show total, present, absent, late, coverage, pending, and attendance percentage.', status: 'Available' },
-            { icon: '👥', title: 'Compare classes', body: 'Prepared for class-wise and section-wise comparison analytics.', status: 'Available' },
+            { icon: '👥', title: 'Compare classes', body: 'Available for class-wise and section-wise comparison analytics.', status: 'Available' },
             { icon: '🔎', title: 'Find student record', body: 'Search by student name, admission number, or roll number.', status: 'Connected' },
         ],
         tableTitle: 'Attendance report summary',
-        tableDescription: 'Static summary matching the backend report model already available in mobile/backend work.',
+        tableDescription: 'Static summary matching the attendance operations already available in current operational workflows.',
         columns: attendanceColumns,
         rows: [
             { scope: 'Whole School', present: '1,118', absent: '64', coverage: '96%', action: 'Review summary' },
@@ -110,7 +110,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { icon: '📚', title: 'Open submissions', body: 'Review recent academic submissions and attendance activity.', status: 'Connected' },
         ],
         tableTitle: 'Teacher report summary',
-        tableDescription: 'Operational layout prepares teacher reports before live backend hookup.',
+        tableDescription: 'Operational layout prepares teacher reports for current school operations.',
         columns: [
             { key: 'teacher', label: 'Teacher' },
             { key: 'classes', label: 'Classes' },
@@ -152,7 +152,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { icon: '✅', title: 'Approve and assign', body: 'Admin/principal approves and assigns replacement with audit trail.', status: 'Connected' },
         ],
         tableTitle: 'Leave planning summary',
-        tableDescription: 'Prepared for pending leave, affected periods, and replacement decisions.',
+        tableDescription: 'Available for pending leave, affected periods, and replacement decisions.',
         columns: [
             { key: 'teacher', label: 'Teacher' },
             { key: 'date', label: 'Date' },
@@ -161,7 +161,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         ],
         rows: [
             { teacher: 'Anita Sharma', date: 'Today', periods: 'P2, P4', status: 'Needs replacement' },
-            { teacher: 'Meena Rao', date: 'Tomorrow', periods: 'P1', status: 'Summary ready' },
+            { teacher: 'Meena Rao', date: 'Tomorrow', periods: '', status: 'Summary ready' },
             { teacher: 'Ravi Kumar', date: 'This week', periods: 'P5', status: 'Pending approval' },
         ],
         validationTitle: 'Leave workflow validation',
@@ -362,7 +362,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { icon: '🔔', title: 'Notify parents', body: 'Future push notification workflow for holidays, reports, and updates.', status: 'Connected' },
         ],
         tableTitle: 'Notice summary',
-        tableDescription: 'Prepared communication categories for MVP pilot launch.',
+        tableDescription: 'Available communication categories for MVP pilot launch.',
         columns: [
             { key: 'type', label: 'Type' },
             { key: 'audience', label: 'Audience' },
@@ -386,12 +386,12 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         eyebrow: 'OPERATIONAL ANALYTICS',
         title: 'Operational Analytics Hub',
         description:
-            'Admin/Principal web analytics command center for attendance trends, class-section comparison, teacher load, replacement pressure, and pilot-school executive reporting.',
+            'Admin/Principal web analytics command center for attendance trends, class-section comparison, teacher load, replacement pressure, and executive attendance and workload insights.',
         metrics: [
             { label: 'Attendance Trend', value: 'Connected', helper: 'Daily/weekly/monthly toggle', tone: 'success' },
             { label: 'Class Compare', value: 'Ready', helper: 'Class vs section view', tone: 'success' },
             { label: 'Teacher Load', value: 'Watch', helper: 'Fatigue and replacement risk', tone: 'warning' },
-            { label: 'Exports', value: 'Prepared', helper: 'PDF/Excel snapshot actions' },
+            { label: 'Exports', value: 'Available', helper: 'PDF/Excel snapshot actions' },
         ],
         filters: [
             { label: 'Period', value: 'Daily / Weekly / Monthly' },
@@ -401,18 +401,18 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         actions: [
             { icon: '📈', title: 'Review attendance trends', body: 'Track attendance movement across days, weeks, months, classes, and sections.', status: 'Available' },
             { icon: '⚖️', title: 'Compare operational load', body: 'Compare teacher workload, replacement counts, and risk signals before pilot demos.', status: 'Available' },
-            { icon: '📤', title: 'Prepare executive exports', body: 'Create shareable analytics snapshot for principal review and school demos.', status: 'Prepared' },
+            { icon: '📤', title: 'Prepare executive exports', body: 'Create shareable analytics snapshot for principal review and school demos.', status: 'Available' },
         ],
         tableTitle: 'Analytics readiness summary',
-        tableDescription: 'Operational adds a web analytics hub aligned with the mobile analytics and principal intelligence roadmap.',
+        tableDescription: 'Operational adds a web analytics hub aligned with the mobile analytics and principal intelligence operations.',
         columns: [
             { key: 'area', label: 'Analytics Area' },
             { key: 'signal', label: 'Current Signal' },
             { key: 'owner', label: 'Owner' },
-            { key: 'demo', label: 'Demo Use' },
+            { key: 'demo', label: 'Operational Purpose' },
         ],
         rows: [
-            { area: 'Attendance trend', signal: '94.2% monthly demo pulse', owner: 'Principal', demo: 'School health snapshot' },
+            { area: 'Attendance trend', signal: '94.2% monthly attendance movement', owner: 'Principal', demo: 'School health snapshot' },
             { area: 'Class comparison', signal: '10-A vs 10-B ready', owner: 'Admin', demo: 'Class-wise review' },
             { area: 'Teacher workload', signal: 'Replacement pressure watch', owner: 'Principal', demo: 'Operational fairness' },
             { area: 'Risk alerts', signal: 'Absenteeism + overload candidates', owner: 'Principal/Admin', demo: 'Action list' },
@@ -442,7 +442,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { label: 'Go-live Gate', value: 'Validate before parents' },
         ],
         actions: [
-            { icon: '🏫', title: 'Create school tenant', body: 'Confirm school_id isolation, admin/principal accounts, and safe demo data before real imports.', status: 'Checklist' },
+            { icon: '🏫', title: 'Create school tenant', body: 'Confirm School Access ID isolation, admin/principal accounts, and safe demo data before real imports.', status: 'Checklist' },
             { icon: '📥', title: 'Validate workbook import', body: 'School profile, holidays, students, parents, teachers, pools, subjects, and schedules.', status: 'Checklist' },
             { icon: '✅', title: 'Approve pilot launch', body: 'Confirm timetable, reports, notices, RBAC, exports, and demo flow before school access.', status: 'Gate' },
         ],
@@ -455,7 +455,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { key: 'status', label: 'Status' },
         ],
         rows: [
-            { gate: 'Tenant', check: 'school_id created and isolated', owner: 'Admin', status: 'Ready' },
+            { gate: 'Tenant', check: 'School Access ID created and isolated', owner: 'Admin', status: 'Ready' },
             { gate: 'Import', check: 'Workbook summary reviewed', owner: 'Admin', status: 'Review needed' },
             { gate: 'Timetable', check: 'Latest batch published and locked', owner: 'Principal', status: 'Publish-ready' },
             { gate: 'Reports', check: 'Attendance and teacher reports visible', owner: 'Principal', status: 'Ready' },

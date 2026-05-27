@@ -43,15 +43,15 @@ export default function PilotOnboardingDashboard() {
                     <p className="eyebrow">SCHOOL ROLLOUT READINESS</p>
                     <h2>{summary.schoolName} operational onboarding center</h2>
                     <p>
-                        Monitor onboarding readiness, tenant synchronization, timetable readiness, and attendance activation before pilot-school rollout.
+                        Monitor onboarding readiness, school onboarding alignment, timetable readiness, and attendance activation before pilot-school rollout.
                     </p>
                 </div>
 
                 <div className="day25-route-card">
                     <strong>Operational Status</strong>
                     <span>{apiState === 'checking' ? 'Checking services...' : apiState === 'live' ? 'Connected' : 'Offline support available'}</span>
-                    <span>school_id: {summary.schoolId}</span>
-                    <span>pilot start: {summary.plannedPilotStartDate}</span>
+                    <span>School Access ID: {summary.schoolId}</span>
+                    <span>school rollout: {summary.plannedPilotStartDate}</span>
                 </div>
             </section>
 

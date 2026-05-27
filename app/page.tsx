@@ -3,9 +3,9 @@ import Link from "next/link";
 
 const quickActions = [
   {
-    title: "Production Hardening",
+    title: "System Operations",
     href: "/production-hardening",
-    description: "RBAC, tenant isolation, imports, timetable lifecycle, notices and deployment readiness",
+    description: "RBAC, School Data Isolation, imports, timetable lifecycle, notices and Go-Live Readiness",
   },
   {
     title: "Bulk Attendance Import",

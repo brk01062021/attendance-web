@@ -43,7 +43,7 @@ export default function Day24ModulePage({ config }: Props) {
                     <input
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
-                        placeholder="Search records..."
+                        placeholder="Search available after live data sync"
                         className="w-full rounded-2xl border border-[#d4af37]/20 bg-[#08131f] px-4 py-3 text-sm text-[#f8f3df] outline-none lg:max-w-sm"
                     />
                 </div>

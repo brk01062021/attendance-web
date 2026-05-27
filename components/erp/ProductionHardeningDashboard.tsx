@@ -8,9 +8,9 @@ import {
 } from '@/lib/pilotReadiness';
 
 const timeline = [
-    ['Days 1–2', 'Protect routes, verify role access, confirm school_id isolation checks.'],
+    ['Days 1–2', 'Protect routes, verify role access, confirm School Access ID isolation checks.'],
     ['Days 3–5', 'Stabilize Import School Data validation and missed-day attendance import.'],
-    ['Days 6–8', 'Finish timetable effective dates, publish lifecycle, and auto notice draft.'],
+    ['Days 6–8', 'Finish timetable Active Academic Dates, Timetable Activation Flow, and auto notice draft.'],
     ['Days 9–10', 'Add holiday calendar overrides and dashboard holiday/timetable alerts.'],
     ['Days 11–12', 'Pilot rehearsal with 700-student sample import and teacher/principal flows.'],
     ['Days 13–14', 'Deployment readiness, demo script, backup/export checks, and school handoff.'],
@@ -30,7 +30,7 @@ export default function ProductionHardeningDashboard() {
                     <p className="eyebrow">MVP READINESS</p>
                     <h2>Mobile-first operations, web-first administration, pilot-ready in 14 days.</h2>
                     <p>
-                        This page keeps the first school pilot focused on stability, usability, onboarding, attendance, timetable lifecycle, holidays, notices, and deployment readiness.
+                        This page keeps the first school pilot focused on stability, usability, onboarding, attendance, timetable lifecycle, holidays, notices, and Go-Live Readiness.
                     </p>
                 </div>
                 <div className="day25-route-card">
@@ -63,7 +63,7 @@ export default function ProductionHardeningDashboard() {
                 <div className="day25-section-header">
                     <div>
                         <p className="eyebrow">Pilot readiness gates</p>
-                        <h3>P0/P1 validation before onboarding the first school</h3>
+                        <h3>/ validation before onboarding the first school</h3>
                     </div>
                     <Link className="mini-button" href="/pilot-readiness">Open pilot board</Link>
                 </div>

@@ -1,11 +1,11 @@
-export type PilotStepStatus = 'READY_FOR_VALIDATION' | 'IN_PROGRESS' | 'PENDING' | 'DONE' | string;
+export type PilotStepStatus = 'READY_FOR_VALIDATION' | 'IN_PROGRESS' | 'Awaiting Approval' | 'DONE' | string;
 
 export type PilotOnboardingStep = {
   key: string;
   title: string;
   owner: string;
   status: PilotStepStatus;
-  priority: 'P0' | 'P1' | 'P2' | string;
+  priority: '' | '' | 'P2' | string;
   detail: string;
 };
 
@@ -33,10 +33,10 @@ export const pilotOnboardingFallback: PilotOnboardingSummary = {
   steps: [
     {
       key: 'TENANT_SETUP',
-      title: 'Create pilot tenant and verify school_id isolation',
+      title: 'Create pilot tenant and verify School Access ID isolation',
       owner: 'Admin',
       status: 'READY_FOR_VALIDATION',
-      priority: 'P0',
+      priority: '',
       detail: 'Use backend API once available; keep local checklist visible for offline web testing.',
     },
     {
@@ -44,15 +44,15 @@ export const pilotOnboardingFallback: PilotOnboardingSummary = {
       title: 'Validate one-school Excel onboarding workbook',
       owner: 'Admin',
       status: 'IN_PROGRESS',
-      priority: 'P0',
+      priority: '',
       detail: 'SchoolProfile, Students, Parents, Teachers, TeacherPools, TeacherAssignments, Subjects, ClassSections.',
     },
     {
       key: 'GO_LIVE_SIGNOFF',
       title: 'Principal/Admin pilot signoff before enabling parents and students',
       owner: 'School Head',
-      status: 'PENDING',
-      priority: 'P0',
+      status: 'Awaiting Approval',
+      priority: '',
       detail: 'Start with one realistic school: 700 students, 30–40 teachers, one admin, one principal.',
     },
   ],

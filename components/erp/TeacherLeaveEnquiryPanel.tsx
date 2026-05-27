@@ -12,7 +12,7 @@ type LeaveHistoryItem = {
   toDate: string;
   leaveType: string;
   reason?: string;
-  status: 'PENDING' | 'APPROVED' | 'REJECTED' | string;
+  status: 'Awaiting Approval' | 'APPROVED' | 'REJECTED' | string;
   adminRemarks?: string;
   requestedAt?: string;
   decidedAt?: string;
@@ -90,7 +90,7 @@ export default function TeacherLeaveEnquiryPanel() {
         reason,
       }, user?.token, user?.schoolId);
       setReason('');
-      setMessage(`Leave enquiry submitted successfully. Status: ${String(response?.status || 'PENDING')}`);
+      setMessage(`Leave enquiry submitted successfully. Status: ${String(response?.status || 'Awaiting Approval')}`);
       await loadTeacherActivity();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Unable to submit leave enquiry.');
@@ -140,7 +140,7 @@ export default function TeacherLeaveEnquiryPanel() {
                 <div><span className="timeline-dot" />Requested: {prettyDate(item.requestedAt)}</div>
                 <div><span className="timeline-dot" />Decision: {prettyDate(item.decidedAt)}</div>
               </div>
-              <div className="remarks-box"><strong>Admin/Principal remarks:</strong><br />{item.adminRemarks || (item.status === 'PENDING' ? 'Waiting for Admin/Principal review.' : 'No remarks provided.')}</div>
+              <div className="remarks-box"><strong>Admin/Principal remarks:</strong><br />{item.adminRemarks || (item.status === 'Awaiting Approval' ? 'Waiting for Admin/Principal review.' : 'No remarks provided.')}</div>
             </article>
           ))}
         </div>
