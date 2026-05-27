@@ -4,7 +4,7 @@ import ShellStyles from '@/components/layout/ShellStyles';
 
 export default function PilotReadinessPage() {
     return (
-        <PortalShell role="ADMIN" title="Pilot School Onboarding" subtitle="Real API readiness board for one realistic school pilot." variant="gold">
+        <PortalShell role="ADMIN" title="School Rollout Readiness" subtitle="Operational onboarding readiness for school activation." variant="gold">
             <ShellStyles />
             <PilotOnboardingDashboard />
         </PortalShell>

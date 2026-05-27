@@ -7,7 +7,7 @@ export default function Page() {
         <PortalShell
             role="ADMIN"
             title="Import School Data"
-            subtitle="Excel-first school onboarding engine with tenant-safe preview, validation, and error reporting."
+            subtitle="Excel-first onboarding workspace for school data operations and activation."
            
             variant="gold"
         >

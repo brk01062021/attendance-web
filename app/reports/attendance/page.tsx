@@ -5,7 +5,7 @@ import { day24Modules } from '@/lib/day24MockData';
 
 export default function Page() {
     return (
-        <PortalShell role="ADMIN" title="Attendance Reports" subtitle="Daily, weekly, monthly, class/section, and student attendance reporting foundation." variant="gold">
+        <PortalShell role="ADMIN" title="Attendance Reports" subtitle="Daily, weekly, monthly, class/section, and student attendance operations." variant="gold">
             <ShellStyles />
             <Day24ModulePage config={day24Modules.attendanceReports} />
         </PortalShell>

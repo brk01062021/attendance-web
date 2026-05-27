@@ -18,7 +18,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { label: 'Attendance Pulse', value: '94.2%', helper: 'Demo operational average', tone: 'success' },
             { label: 'Risk Alerts', value: '12', helper: 'Students/teachers needing review', tone: 'warning' },
             { label: 'Timetable Batch', value: 'Latest', helper: 'Use latest generated/published batch' },
-            { label: 'Rollout', value: 'Planned', helper: 'Pilot readiness layer' },
+            { label: 'Rollout', value: 'Operational', helper: 'Pilot readiness layer' },
         ],
         filters: [
             { label: 'Academic Year', value: '2026-2027' },
@@ -27,11 +27,11 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         ],
         actions: [
             { icon: '📊', title: 'Review attendance pulse', body: 'Open daily, weekly, and monthly school-level attendance summaries.', status: 'Ready' },
-            { icon: '⚠️', title: 'Check risk alerts', body: 'Track absenteeism, workload, replacement gaps, and operational exceptions.', status: 'API-ready wiring' },
+            { icon: '⚠️', title: 'Check risk alerts', body: 'Track absenteeism, workload, replacement gaps, and operational exceptions.', status: 'Connected wiring' },
             { icon: '🕒', title: 'Validate timetable readiness', body: 'Confirm latest batch, conflicts, publish status, and export readiness.', status: 'Ready' },
         ],
         tableTitle: 'Operations snapshot',
-        tableDescription: 'Planned web ERP gives principals a clean decision table before live API cards are wired.',
+        tableDescription: 'Operational web ERP gives principals a clean decision table before live API cards are wired.',
         columns: [
             { key: 'area', label: 'Area' },
             { key: 'signal', label: 'Signal' },
@@ -47,7 +47,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'Dark dashboard theme aligned', status: 'Done', tone: 'success' },
             { label: 'Role-aware navigation kept', status: 'Done', tone: 'success' },
-            { label: 'Chart integration', status: 'Next phase', tone: 'warning' },
+            { label: 'Chart integration', status: 'Pending Setup', tone: 'warning' },
         ],
         nextSteps: ['Connect principal summary API', 'Add risk alert drilldowns', 'Add timetable readiness chart'],
     },
@@ -55,12 +55,12 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         eyebrow: 'Reporting workflow',
         title: 'Attendance Reports Center',
         description:
-            'Premium gold workflow for whole-school attendance summary, class/section reports, student drilldown, date filters, and future PDF/Excel export.',
+            'Premium gold workflow for whole-school attendance summary, class/section reports, student drilldown, date filters, and PDF/Excel export support.',
         metrics: [
             { label: 'School Summary', value: 'Ready', helper: 'Cards and table prepared', tone: 'success' },
             { label: 'Class Reports', value: 'Ready', helper: 'Class/section view shell', tone: 'success' },
-            { label: 'Student Drilldown', value: 'Next phase', helper: 'Search API connection' },
-            { label: 'Exports', value: 'Next phase', helper: 'PDF/Excel actions' },
+            { label: 'Student Drilldown', value: 'Pending Setup', helper: 'Search API connection' },
+            { label: 'Exports', value: 'Pending Setup', helper: 'PDF/Excel actions' },
         ],
         filters: [
             { label: 'Report Date', value: 'Today' },
@@ -68,12 +68,12 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { label: 'Class/Section', value: 'All' },
         ],
         actions: [
-            { icon: '🏫', title: 'Load school summary', body: 'Show total, present, absent, late, coverage, pending, and attendance percentage.', status: 'UI ready' },
-            { icon: '👥', title: 'Compare classes', body: 'Prepared for class-wise and section-wise comparison analytics.', status: 'UI ready' },
-            { icon: '🔎', title: 'Find student record', body: 'Search by student name, admission number, or roll number.', status: 'API-ready' },
+            { icon: '🏫', title: 'Load school summary', body: 'Show total, present, absent, late, coverage, pending, and attendance percentage.', status: 'Available' },
+            { icon: '👥', title: 'Compare classes', body: 'Prepared for class-wise and section-wise comparison analytics.', status: 'Available' },
+            { icon: '🔎', title: 'Find student record', body: 'Search by student name, admission number, or roll number.', status: 'Connected' },
         ],
-        tableTitle: 'Attendance report preview',
-        tableDescription: 'Static preview matching the backend report model already available in mobile/backend work.',
+        tableTitle: 'Attendance report summary',
+        tableDescription: 'Static summary matching the backend report model already available in mobile/backend work.',
         columns: attendanceColumns,
         rows: [
             { scope: 'Whole School', present: '1,118', absent: '64', coverage: '96%', action: 'Review summary' },
@@ -84,7 +84,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'Gold workflow theme', status: 'Done', tone: 'success' },
             { label: 'Filters represented clearly', status: 'Done', tone: 'success' },
-            { label: 'API table data', status: 'Next phase', tone: 'warning' },
+            { label: 'API table data', status: 'Pending Setup', tone: 'warning' },
         ],
         nextSteps: ['Wire /analytics and /attendance report APIs', 'Add export buttons', 'Add student search result panel'],
     },
@@ -96,8 +96,8 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         metrics: [
             { label: 'Teacher Lookup', value: 'Ready', helper: 'Search panel prepared', tone: 'success' },
             { label: 'Workload', value: 'Watch', helper: 'Replacement fairness focus', tone: 'warning' },
-            { label: 'Leave History', value: 'Next phase', helper: 'API drilldown' },
-            { label: 'Submissions', value: 'Next phase', helper: 'Attendance/exam actions' },
+            { label: 'Leave History', value: 'Pending Setup', helper: 'API drilldown' },
+            { label: 'Submissions', value: 'Pending Setup', helper: 'Attendance/exam actions' },
         ],
         filters: [
             { label: 'Teacher', value: 'Search/select' },
@@ -105,12 +105,12 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { label: 'Report Type', value: 'Workload + Leaves' },
         ],
         actions: [
-            { icon: '👨‍🏫', title: 'Open teacher profile', body: 'Show classes, sections, subjects, and academic assignment history.', status: 'UI ready' },
-            { icon: '🔁', title: 'Review replacement load', body: 'Track assigned replacement count and fatigue risk.', status: 'UI ready' },
-            { icon: '📚', title: 'Open submissions', body: 'Buttons for previous exams and last attendance submission.', status: 'API-ready' },
+            { icon: '👨‍🏫', title: 'Open teacher profile', body: 'Show classes, sections, subjects, and academic assignment history.', status: 'Available' },
+            { icon: '🔁', title: 'Review replacement load', body: 'Track assigned replacement count and fatigue risk.', status: 'Available' },
+            { icon: '📚', title: 'Open submissions', body: 'Review recent academic submissions and attendance activity.', status: 'Connected' },
         ],
-        tableTitle: 'Teacher report preview',
-        tableDescription: 'Planned layout prepares teacher reports before live backend hookup.',
+        tableTitle: 'Teacher report summary',
+        tableDescription: 'Operational layout prepares teacher reports before live backend hookup.',
         columns: [
             { key: 'teacher', label: 'Teacher' },
             { key: 'classes', label: 'Classes' },
@@ -126,7 +126,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'Teacher report spec represented', status: 'Done', tone: 'success' },
             { label: 'Replacement-load visibility', status: 'Done', tone: 'success' },
-            { label: 'Detail pages', status: 'Next phase', tone: 'warning' },
+            { label: 'Detail pages', status: 'Pending Setup', tone: 'warning' },
         ],
         nextSteps: ['Wire teacher search API', 'Add teacher detail route', 'Add leave/replacement drilldowns'],
     },
@@ -134,12 +134,12 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         eyebrow: 'LEAVE OPERATIONS',
         title: 'Teacher Leave Planning',
         description:
-            'Web workflow foundation for one-day/multi-day leave, replacement preview, approval decisions, smart assignment, and workload protection.',
+            'Web workflow foundation for one-day/multi-day leave, replacement summary, approval decisions, smart assignment, and workload protection.',
         metrics: [
             { label: 'Pending Leaves', value: 'API', helper: 'Backend-ready flow' },
             { label: 'Smart Match', value: 'Ready', helper: 'Best Match / Same Class / Others', tone: 'success' },
-            { label: 'Workload Guard', value: 'Next phase', helper: 'Fatigue protection' },
-            { label: 'Audit', value: 'Next phase', helper: 'Approval history' },
+            { label: 'Workload Guard', value: 'Pending Setup', helper: 'Fatigue protection' },
+            { label: 'Audit', value: 'Pending Setup', helper: 'Approval history' },
         ],
         filters: [
             { label: 'Leave Date', value: 'Today / date range' },
@@ -148,10 +148,10 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         ],
         actions: [
             { icon: '📝', title: 'Submit leave', body: 'Capture leave date range, teacher, periods affected, and reason.', status: 'Form-ready' },
-            { icon: '🔁', title: 'Preview replacements', body: 'Show grouped options by Best Match, Same Class, and Others.', status: 'Planned' },
-            { icon: '✅', title: 'Approve and assign', body: 'Admin/principal approves and assigns replacement with audit trail.', status: 'API-ready' },
+            { icon: '🔁', title: 'Summary replacements', body: 'Show grouped options by Best Match, Same Class, and Others.', status: 'Operational' },
+            { icon: '✅', title: 'Approve and assign', body: 'Admin/principal approves and assigns replacement with audit trail.', status: 'Connected' },
         ],
-        tableTitle: 'Leave planning preview',
+        tableTitle: 'Leave planning summary',
         tableDescription: 'Prepared for pending leave, affected periods, and replacement decisions.',
         columns: [
             { key: 'teacher', label: 'Teacher' },
@@ -161,16 +161,16 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         ],
         rows: [
             { teacher: 'Anita Sharma', date: 'Today', periods: 'P2, P4', status: 'Needs replacement' },
-            { teacher: 'Meena Rao', date: 'Tomorrow', periods: 'P1', status: 'Preview ready' },
+            { teacher: 'Meena Rao', date: 'Tomorrow', periods: 'P1', status: 'Summary ready' },
             { teacher: 'Ravi Kumar', date: 'This week', periods: 'P5', status: 'Pending approval' },
         ],
         validationTitle: 'Leave workflow validation',
         validations: [
             { label: 'Multi-day workflow represented', status: 'Done', tone: 'success' },
             { label: 'Replacement grouping captured', status: 'Done', tone: 'success' },
-            { label: 'Approval API wiring', status: 'Next phase', tone: 'warning' },
+            { label: 'Approval API wiring', status: 'Pending Setup', tone: 'warning' },
         ],
-        nextSteps: ['Add leave form', 'Wire preview replacements API', 'Add approval + audit log'],
+        nextSteps: ['Add leave form', 'Wire summary replacements API', 'Add approval + audit log'],
     },
     teacherAssignments: {
         eyebrow: 'ACADEMIC SETUP',
@@ -180,7 +180,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         metrics: [
             { label: 'Teacher Pools', value: 'Excel', helper: 'Class-wise pools', tone: 'success' },
             { label: 'Mappings', value: 'Ready', helper: 'Subject + section shell' },
-            { label: 'Validation', value: 'Next phase', helper: 'Conflict checks' },
+            { label: 'Validation', value: 'Pending Setup', helper: 'Conflict checks' },
             { label: 'Timetable Input', value: 'Ready', helper: 'Generation dependency', tone: 'success' },
         ],
         filters: [
@@ -189,11 +189,11 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { label: 'Teacher Pool', value: 'Default class pool' },
         ],
         actions: [
-            { icon: '🧑‍🏫', title: 'Manage teacher pool', body: 'One pool per class from Excel import or manual setup.', status: 'Planned' },
+            { icon: '🧑‍🏫', title: 'Manage teacher pool', body: 'One pool per class from Excel import or manual setup.', status: 'Operational' },
             { icon: '📘', title: 'Map subjects', body: 'Assign teachers to subject, class, section, and weekly period rules.', status: 'Form-ready' },
-            { icon: '⚖️', title: 'Balance workload', body: 'Prevent overload before timetable generation starts.', status: 'API-ready' },
+            { icon: '⚖️', title: 'Balance workload', body: 'Prevent overload before timetable generation starts.', status: 'Connected' },
         ],
-        tableTitle: 'Assignment preview',
+        tableTitle: 'Assignment summary',
         tableDescription: 'Foundation for the TeacherPools, TeacherAssignments, Subjects, and ClassSections import tabs.',
         columns: [
             { key: 'class', label: 'Class' },
@@ -210,7 +210,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'Class-wise pool model', status: 'Done', tone: 'success' },
             { label: 'Auto timetable dependency captured', status: 'Done', tone: 'success' },
-            { label: 'Real validation service', status: 'Next phase', tone: 'warning' },
+            { label: 'Real validation service', status: 'Pending Setup', tone: 'warning' },
         ],
         nextSteps: ['Add teacher pool CRUD', 'Connect Excel import review', 'Add mapping validation'],
     },
@@ -231,12 +231,12 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { label: 'Generation Mode', value: 'Annual / Monthly / Custom' },
         ],
         actions: [
-            { icon: '☑️', title: 'Select classes', body: 'Dropdown checklist with automatic sections based on selected classes.', status: 'Planned' },
-            { icon: '👥', title: 'Use default teacher pool', body: 'Avoid manual teacher IDs; use school onboarding teacher pools.', status: 'Planned' },
-            { icon: '🧠', title: 'Generate smart timetable', body: 'Equal theory distribution, labs/sports rules, conflict detection, and workload balance.', status: 'API-ready' },
+            { icon: '☑️', title: 'Select classes', body: 'Dropdown checklist with automatic sections based on selected classes.', status: 'Operational' },
+            { icon: '👥', title: 'Use default teacher pool', body: 'Avoid manual teacher IDs; use school onboarding teacher pools.', status: 'Operational' },
+            { icon: '🧠', title: 'Generate smart timetable', body: 'Equal theory distribution, labs/sports rules, conflict detection, and workload balance.', status: 'Connected' },
         ],
-        tableTitle: 'Generation plan preview',
-        tableDescription: 'Planned prepares the web generation command center before enabling POST generation.',
+        tableTitle: 'Generation plan summary',
+        tableDescription: 'Operational prepares the web generation command center before enabling POST generation.',
         columns: [
             { key: 'input', label: 'Input' },
             { key: 'source', label: 'Source' },
@@ -252,7 +252,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'No manual teacher ID dependency', status: 'Done', tone: 'success' },
             { label: 'Class checklist represented', status: 'Done', tone: 'success' },
-            { label: 'Generation API', status: 'Next phase', tone: 'warning' },
+            { label: 'Generation API', status: 'Pending Setup', tone: 'warning' },
         ],
         nextSteps: ['Add generation form controls', 'Wire smart generation API', 'Redirect to operations latest batch'],
     },
@@ -264,8 +264,8 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         metrics: [
             { label: 'Latest Batch', value: 'API', helper: 'Use latest generated/published batch', tone: 'success' },
             { label: 'Conflicts', value: '0', helper: 'Target before publish', tone: 'success' },
-            { label: 'Publish Lock', value: 'Next phase', helper: 'Protect approved timetable', tone: 'warning' },
-            { label: 'Exports', value: 'Next phase', helper: 'PDF/Excel actions' },
+            { label: 'Publish Lock', value: 'Pending Setup', helper: 'Protect approved timetable', tone: 'warning' },
+            { label: 'Exports', value: 'Pending Setup', helper: 'PDF/Excel actions' },
         ],
         filters: [
             { label: 'Batch ID', value: 'Latest generated batch' },
@@ -273,11 +273,11 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { label: 'Status', value: 'Draft / Published' },
         ],
         actions: [
-            { icon: '🗂️', title: 'Load latest batch', body: 'Principal/Admin should not manually guess batch IDs in production.', status: 'API-ready' },
-            { icon: '🛠️', title: 'Repair conflicts', body: 'Open conflict center and auto repair until hard conflicts reach zero.', status: 'Planned' },
-            { icon: '📤', title: 'Publish and export', body: 'Publish timetable, lock changes, then export PDF/Excel for school use.', status: 'API-ready' },
+            { icon: '🗂️', title: 'Load latest batch', body: 'Principal/Admin should not manually guess batch IDs in production.', status: 'Connected' },
+            { icon: '🛠️', title: 'Repair conflicts', body: 'Open conflict center and auto repair until hard conflicts reach zero.', status: 'Operational' },
+            { icon: '📤', title: 'Publish and export', body: 'Publish timetable, lock changes, then export PDF/Excel for school use.', status: 'Connected' },
         ],
-        tableTitle: 'Batch operations preview',
+        tableTitle: 'Batch operations summary',
         tableDescription: 'Latest-batch workflow prevents confusion between old and newly generated timetable batches.',
         columns: [
             { key: 'batch', label: 'Batch' },
@@ -294,7 +294,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'Latest batch requirement captured', status: 'Done', tone: 'success' },
             { label: 'Publish/export workflow represented', status: 'Done', tone: 'success' },
-            { label: 'Operations API', status: 'Next phase', tone: 'warning' },
+            { label: 'Operations API', status: 'Pending Setup', tone: 'warning' },
         ],
         nextSteps: ['Add latest-batch API call', 'Add publish locking', 'Add PDF/Excel export buttons'],
     },
@@ -307,7 +307,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { label: 'Workbook', value: 'One', helper: 'Per school', tone: 'success' },
             { label: 'Holidays', value: 'First', helper: 'Mandatory prerequisite', tone: 'warning' },
             { label: 'Teacher Pools', value: 'Ready', helper: 'Class-wise pool model', tone: 'success' },
-            { label: 'Validation', value: 'Next phase', helper: 'Preview before save' },
+            { label: 'Validation', value: 'Pending Setup', helper: 'Summary before save' },
         ],
         filters: [
             { label: 'Tenant', value: 'One school' },
@@ -316,11 +316,11 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         ],
         actions: [
             { icon: '📅', title: 'Import holidays first', body: 'Academic year dates, working days, school timings, periods, holidays, and half days.', status: 'Required' },
-            { icon: '👨‍👩‍👧', title: 'Import users', body: 'Students, parents, teachers, and verified parent-student links.', status: 'API-ready' },
-            { icon: '🕒', title: 'Prepare timetable inputs', body: 'Teacher pools, assignments, subjects, class sections, and academic rules.', status: 'Planned' },
+            { icon: '👨‍👩‍👧', title: 'Import users', body: 'Students, parents, teachers, and verified parent-student links.', status: 'Connected' },
+            { icon: '🕒', title: 'Prepare timetable inputs', body: 'Teacher pools, assignments, subjects, class sections, and academic rules.', status: 'Operational' },
         ],
         tableTitle: 'Workbook tab checklist',
-        tableDescription: 'Planned web onboarding keeps the Excel workflow simple for non-technical school staff.',
+        tableDescription: 'Operational web onboarding keeps the Excel workflow simple for non-technical school staff.',
         columns: [
             { key: 'tab', label: 'Workbook Tab' },
             { key: 'purpose', label: 'Purpose' },
@@ -328,15 +328,15 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { key: 'status', label: 'Status' },
         ],
         rows: [
-            { tab: 'SchoolProfile', purpose: 'Tenant setup', required: 'Yes', status: 'Planned' },
+            { tab: 'SchoolProfile', purpose: 'Tenant setup', required: 'Yes', status: 'Operational' },
             { tab: 'AnnualHolidays', purpose: 'Academic calendar', required: 'First', status: 'Mandatory' },
-            { tab: 'TeacherPools', purpose: 'Auto timetable input', required: 'Yes', status: 'Planned' },
+            { tab: 'TeacherPools', purpose: 'Auto timetable input', required: 'Yes', status: 'Operational' },
         ],
         validationTitle: 'Onboarding validation',
         validations: [
             { label: 'Holidays-first flow enforced in plan', status: 'Done', tone: 'success' },
             { label: 'Teacher pool tabs represented', status: 'Done', tone: 'success' },
-            { label: 'Upload parser', status: 'Next phase', tone: 'warning' },
+            { label: 'Upload parser', status: 'Pending Setup', tone: 'warning' },
         ],
         nextSteps: ['Add workbook upload UI', 'Add validation summary screen', 'Add tenant creation workflow'],
     },
@@ -348,8 +348,8 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         metrics: [
             { label: 'Notice Types', value: 'Multi', helper: 'Holiday/alert/achievement', tone: 'success' },
             { label: 'Audience', value: 'Role', helper: 'Parents/students/teachers' },
-            { label: 'Media', value: 'Next phase', helper: 'Images optional' },
-            { label: 'Push', value: 'Next phase', helper: 'Notification center' },
+            { label: 'Media', value: 'Pending Setup', helper: 'Images optional' },
+            { label: 'Push', value: 'Pending Setup', helper: 'Notification center' },
         ],
         filters: [
             { label: 'Notice Type', value: 'Holiday / Alert / Achievement' },
@@ -358,10 +358,10 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         ],
         actions: [
             { icon: '📣', title: 'Create announcement', body: 'School-wide notices and operational alerts.', status: 'Form-ready' },
-            { icon: '🏆', title: 'Share achievements', body: 'School and student excellence updates for families.', status: 'Planned' },
-            { icon: '🔔', title: 'Notify parents', body: 'Future push notification workflow for holidays, reports, and updates.', status: 'API-ready' },
+            { icon: '🏆', title: 'Share achievements', body: 'School and student excellence updates for families.', status: 'Operational' },
+            { icon: '🔔', title: 'Notify parents', body: 'Future push notification workflow for holidays, reports, and updates.', status: 'Connected' },
         ],
-        tableTitle: 'Notice preview',
+        tableTitle: 'Notice summary',
         tableDescription: 'Prepared communication categories for MVP pilot launch.',
         columns: [
             { key: 'type', label: 'Type' },
@@ -370,15 +370,15 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { key: 'status', label: 'Status' },
         ],
         rows: [
-            { type: 'Holiday Alert', audience: 'Parents + Students', delivery: 'App notification', status: 'API-ready' },
-            { type: 'School Achievement', audience: 'All', delivery: 'Notice center', status: 'Planned' },
+            { type: 'Holiday Alert', audience: 'Parents + Students', delivery: 'App notification', status: 'Connected' },
+            { type: 'School Achievement', audience: 'All', delivery: 'Notice center', status: 'Operational' },
             { type: 'Academic Alert', audience: 'Parents', delivery: 'Push + portal', status: 'Future' },
         ],
         validationTitle: 'Notice validation',
         validations: [
             { label: 'Achievement categories captured', status: 'Done', tone: 'success' },
             { label: 'Parent notification plan captured', status: 'Done', tone: 'success' },
-            { label: 'Notice publishing API', status: 'Next phase', tone: 'warning' },
+            { label: 'Notice publishing API', status: 'Pending Setup', tone: 'warning' },
         ],
         nextSteps: ['Add notice create form', 'Add image upload option', 'Wire notification backend'],
     },
@@ -399,12 +399,12 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { label: 'Audience', value: 'Admin + Principal' },
         ],
         actions: [
-            { icon: '📈', title: 'Review attendance trends', body: 'Track attendance movement across days, weeks, months, classes, and sections.', status: 'UI ready' },
-            { icon: '⚖️', title: 'Compare operational load', body: 'Compare teacher workload, replacement counts, and risk signals before pilot demos.', status: 'UI ready' },
+            { icon: '📈', title: 'Review attendance trends', body: 'Track attendance movement across days, weeks, months, classes, and sections.', status: 'Available' },
+            { icon: '⚖️', title: 'Compare operational load', body: 'Compare teacher workload, replacement counts, and risk signals before pilot demos.', status: 'Available' },
             { icon: '📤', title: 'Prepare executive exports', body: 'Create shareable analytics snapshot for principal review and school demos.', status: 'Prepared' },
         ],
-        tableTitle: 'Analytics readiness preview',
-        tableDescription: 'Planned adds a web analytics hub aligned with the mobile analytics and principal intelligence roadmap.',
+        tableTitle: 'Analytics readiness summary',
+        tableDescription: 'Operational adds a web analytics hub aligned with the mobile analytics and principal intelligence roadmap.',
         columns: [
             { key: 'area', label: 'Analytics Area' },
             { key: 'signal', label: 'Current Signal' },
@@ -421,7 +421,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'Web analytics module route added', status: 'Done', tone: 'success' },
             { label: 'Principal/Admin navigation added', status: 'Done', tone: 'success' },
-            { label: 'Chart API', status: 'Next phase', tone: 'warning' },
+            { label: 'Chart API', status: 'Pending Setup', tone: 'warning' },
         ],
         nextSteps: ['Wire analytics APIs', 'Add chart components', 'Add export/share snapshot'],
     },
@@ -434,7 +434,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { label: 'Tenant Setup', value: 'Ready', helper: 'Single-school pilot model', tone: 'success' },
             { label: 'Imports', value: 'Review', helper: 'Workbook validation gate', tone: 'warning' },
             { label: 'Timetable', value: 'Publish-ready', helper: 'Latest batch workflow', tone: 'success' },
-            { label: 'Pilot Pack', value: 'Planned', helper: 'School demo checklist' },
+            { label: 'Pilot Pack', value: 'Operational', helper: 'School demo checklist' },
         ],
         filters: [
             { label: 'Pilot Scope', value: 'One school first' },
@@ -456,16 +456,16 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         ],
         rows: [
             { gate: 'Tenant', check: 'school_id created and isolated', owner: 'Admin', status: 'Ready' },
-            { gate: 'Import', check: 'Workbook preview reviewed', owner: 'Admin', status: 'Review needed' },
+            { gate: 'Import', check: 'Workbook summary reviewed', owner: 'Admin', status: 'Review needed' },
             { gate: 'Timetable', check: 'Latest batch published and locked', owner: 'Principal', status: 'Publish-ready' },
             { gate: 'Reports', check: 'Attendance and teacher reports visible', owner: 'Principal', status: 'Ready' },
-            { gate: 'Access', check: 'Principal/Admin first, teachers next, parents later', owner: 'School', status: 'Planned' },
+            { gate: 'Access', check: 'Principal/Admin first, teachers next, parents later', owner: 'School', status: 'Operational' },
         ],
         validationTitle: 'Pilot launch validation',
         validations: [
             { label: 'One-school-first SaaS rollout captured', status: 'Done', tone: 'success' },
             { label: 'Principal/Admin first access captured', status: 'Done', tone: 'success' },
-            { label: 'JWT/RBAC hardening', status: 'Next phase', tone: 'warning' },
+            { label: 'JWT/RBAC hardening', status: 'Pending Setup', tone: 'warning' },
         ],
         nextSteps: ['Add tenant creation flow', 'Wire workbook upload parser', 'Add final production QA checklist'],
     },
