@@ -43,7 +43,9 @@ export default function ShellStyles() {
       body { margin: 0; background: var(--navy-950); -webkit-font-smoothing: antialiased; text-rendering: optimizeLegibility; }
       h1, h2, h3, p { text-wrap: pretty; }
       .erp-page-title { font-size: var(--erp-page-title); line-height: 1.05; letter-spacing: -0.045em; font-weight: 950; }
+      .erp-school-name-title { color: #f8df9b !important; text-shadow: 0 10px 28px rgba(0,0,0,0.36); }
       .erp-workspace-subtitle { font-size: var(--erp-workspace-title); line-height: 1.35; font-weight: 900; }
+      .erp-workspace-context-title { color: #d8c3a5 !important; font-weight: 800; }
       .erp-section-label { font-size: var(--erp-section-label); line-height: 1.25; font-weight: 900; letter-spacing: 0.13em; text-transform: uppercase; }
       .erp-card-title { font-size: var(--erp-card-title); line-height: 1.25; font-weight: 900; }
       .erp-card-description { font-size: var(--erp-card-description); line-height: 1.45; font-weight: 700; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }

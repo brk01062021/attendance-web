@@ -90,9 +90,9 @@ export default function RoleAwarePortalHeader({
     <header className="rounded-[26px] border border-amber-300/20 bg-slate-950/70 px-5 py-4 shadow-2xl shadow-black/30 backdrop-blur md:px-6">
       <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div className="min-w-0">
-          <h1 className="erp-page-title mt-1 text-amber-50">{schoolName}</h1>
+          <h1 className="erp-page-title erp-school-name-title mt-1">{schoolName}</h1>
 
-          <p className="erp-workspace-subtitle mt-1 text-amber-200/85">{workspace}</p>
+          <p className="erp-workspace-subtitle erp-workspace-context-title mt-1">{workspace}</p>
 
           <p className="erp-card-description mt-2 max-w-3xl text-white/60">
             {operationalSubtitle}
