@@ -1,6 +1,7 @@
 'use client';
 
 import Image from 'next/image';
+import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createDevUser, homeRouteForRole, mapLoginResponseToUser, storeUser } from '@/lib/auth';
@@ -123,6 +124,15 @@ export default function LoginCard() {
             <button className="primary-button" type="submit" disabled={isLoading}>
                 {isLoading ? 'Checking API...' : `Open ${role === 'ADMIN' ? 'Admin' : role === 'PRINCIPAL' ? 'Principal' : role === 'TEACHER' ? 'Teacher' : 'Student'} Portal`}
             </button>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
+                <Link className="secondary-button" href="/register-school" style={{ textAlign: 'center' }}>
+                    Register School
+                </Link>
+                <Link className="secondary-button" href="/request-pilot-demo" style={{ textAlign: 'center' }}>
+                    Request Pilot Demo
+                </Link>
+            </div>
 
             {message ? <small className="dev-note">{message}</small> : null}
 
