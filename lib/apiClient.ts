@@ -31,11 +31,18 @@ export async function apiClient<T>(path: string, options: ApiOptions = {}): Prom
   });
 
   if (!response.ok) {
-    const body = await response.json().catch(async () => ({ message: await response.text().catch(() => '') }));
+    const rawText = await response.text().catch(() => '');
+    let body: { message?: string; errorCode?: string; data?: { message?: string } } = {};
+    try {
+      body = rawText ? JSON.parse(rawText) : {};
+    } catch {
+      body = { message: rawText };
+    }
     if (response.status === 401 && typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('vidyasetu:session-expired'));
     }
-    throw new Error(body?.message || body?.errorCode || `VidyaSetu API ${response.status}: ${response.statusText}`);
+    const message = body?.message || body?.data?.message || body?.errorCode || rawText || `VidyaSetu API ${response.status}: ${response.statusText}`;
+    throw new Error(message);
   }
 
   if (response.status === 204) return undefined as T;
@@ -67,18 +74,20 @@ export const webApi = {
     apiClient<T>('/imports/workbooks/upload', { method: 'POST', token, schoolId, body: formData }),
   importWorkbookHistory: <T>(schoolId: string, token?: string) =>
     apiClient<T>('/imports/workbooks/history', { token, schoolId, query: { schoolId } }),
+  importWorkbookPreview: <T>(uploadId: number, schoolId: string, token?: string) =>
+    apiClient<T>(`/imports/workbooks/${uploadId}/preview`, { token, schoolId, query: { schoolId } }),
   commitImportWorkbook: <T>(uploadId: number, schoolId: string, token?: string) =>
     apiClient<T>(`/imports/workbooks/${uploadId}/commit`, { method: 'POST', token, schoolId, query: { schoolId } }),
   rollbackImportWorkbook: <T>(uploadId: number, schoolId: string, token?: string) =>
     apiClient<T>(`/imports/workbooks/${uploadId}/rollback`, { method: 'POST', token, schoolId, query: { schoolId } }),
   academicYears: <T>(token?: string, schoolId?: string) =>
-    apiClient<T>('/operational/academic-years', { token, schoolId }),
+    apiClient<T>('/api/operational-lookups/academic-years', { token, schoolId, query: { schoolId } }),
   schoolClasses: <T>(schoolId: string, token?: string) =>
-    apiClient<T>('/operational/classes', { token, schoolId, query: { schoolId } }),
+    apiClient<T>('/api/operational-lookups/classes', { token, schoolId, query: { schoolId } }),
   schoolSections: <T>(schoolId: string, className: string, token?: string) =>
-    apiClient<T>('/operational/sections', { token, schoolId, query: { schoolId, className } }),
+    apiClient<T>('/api/operational-lookups/sections', { token, schoolId, query: { schoolId, className } }),
   teacherSearch: <T>(schoolId: string, query: string, token?: string) =>
-    apiClient<T>('/operational/teachers/search', { token, schoolId, query: { schoolId, query } }),
+    apiClient<T>('/api/operational-lookups/teachers/search', { token, schoolId, query: { schoolId, query } }),
 };
 
 export { API_BASE_URL };

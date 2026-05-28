@@ -1,28 +1,39 @@
 "use client";
 
 import { useEffect, useMemo, useState } from 'react';
-import { commitImportWorkbook, day28SampleSheets, getImportHistory, rollbackImportWorkbook, uploadImportWorkbook, validateImportPreview, type ImportPreviewResponse, type ImportUploadHistoryRow, type ImportUploadResponse } from '@/lib/importValidation';
+import {
+  commitImportWorkbook,
+  day28SampleSheets,
+  getImportHistory,
+  getImportPreview,
+  rollbackImportWorkbook,
+  toSafeImportMessage,
+  uploadImportWorkbook,
+  uploadToHistoryRow,
+  validateImportPreview,
+  type ImportPreviewResponse,
+  type ImportUploadHistoryRow,
+  type ImportUploadResponse,
+} from '@/lib/importValidation';
+import { getStoredUser } from '@/lib/auth';
 
-type SelectFieldProps = {
-  label: string;
-  value: string;
-  options: string[];
-  onChange: (value: string) => void;
-};
-
-type DateFieldProps = {
-  label: string;
-  type: 'date' | 'month';
-  value: string;
-  onChange: (value: string) => void;
-};
+type SelectFieldProps = { label: string; value: string; options: string[]; onChange: (value: string) => void };
+type DateFieldProps = { label: string; type: 'date' | 'month'; value: string; onChange: (value: string) => void };
 
 const classOptions = ['All Classes', 'Class 1', 'Class 2', 'Class 3', 'Class 4', 'Class 5', 'Class 6', 'Class 7', 'Class 8', 'Class 9', 'Class 10'];
 const sectionOptions = ['All Sections', 'A', 'B'];
 const academicYears = ['2026-2027', '2027-2028'];
 const importTypes = ['Master School Workbook', 'Students + Parents', 'Teachers + Assignments', 'Timetable Structure'];
 
+function normalizeImportType(value: string) {
+  return value.toUpperCase().replaceAll(' ', '_').replaceAll('+', 'AND');
+}
+
 export default function ImportValidationDashboard() {
+  const storedUser = typeof window !== 'undefined' ? getStoredUser() : null;
+  const schoolId = storedUser?.schoolId || 'BRK1';
+  const role = storedUser?.role || 'ADMIN';
+
   const [preview, setPreview] = useState<ImportPreviewResponse | null>(null);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
@@ -37,7 +48,8 @@ export default function ImportValidationDashboard() {
   const [upload, setUpload] = useState<ImportUploadResponse | null>(null);
   const [uploadHistory, setUploadHistory] = useState<ImportUploadHistoryRow[]>([]);
   const [historyLoading, setHistoryLoading] = useState(false);
-
+  const [historyError, setHistoryError] = useState<string | null>(null);
+  const [activeReportId, setActiveReportId] = useState<number | null>(null);
 
   useEffect(() => {
     loadHistory();
@@ -46,9 +58,11 @@ export default function ImportValidationDashboard() {
   async function loadHistory() {
     setHistoryLoading(true);
     try {
-      setUploadHistory(await getImportHistory());
-    } catch {
-      setUploadHistory([]);
+      const rows = await getImportHistory();
+      setUploadHistory(rows);
+      setHistoryError(null);
+    } catch (error) {
+      setHistoryError(toSafeImportMessage(error, 'Upload history is unavailable. Backend may not be running.'));
     } finally {
       setHistoryLoading(false);
     }
@@ -56,13 +70,12 @@ export default function ImportValidationDashboard() {
 
   const totals = useMemo(() => {
     const issues = preview?.issues || [];
-
     return {
       sheets: Object.keys(preview?.rowCounts || {}).length,
       rows: Object.values(preview?.rowCounts || {}).reduce((sum, value) => sum + value, 0),
       errors: issues.filter((issue) => issue.severity === 'ERROR').length,
       warnings: issues.filter((issue) => issue.severity === 'WARNING').length,
-      parentLinks: preview ? Math.max((preview.rowCounts.Parents || 0) - issues.filter((issue) => issue.sheetName === 'Parents').length, 0) : 0,
+      parentLinks: preview ? Math.max((preview.rowCounts.Parents || 0) - issues.filter((issue) => issue.sheetName === 'Parents' && issue.severity === 'ERROR').length, 0) : 0,
       teachers: preview?.rowCounts.Teachers || 0,
     };
   }, [preview]);
@@ -70,13 +83,18 @@ export default function ImportValidationDashboard() {
   async function runPreview() {
     setLoading(true);
     setMessage(null);
-
     try {
       if (selectedFile) {
-        const result = await uploadImportWorkbook(selectedFile, academicYear, importType);
+        const result = await uploadImportWorkbook(selectedFile, academicYear, normalizeImportType(importType));
         setUpload(result);
         setPreview(result.preview);
-        setMessage(result.duplicateFile ? 'Workbook validated. Duplicate file warning found; review history before committing.' : 'Workbook uploaded and validated with real backend XLSX parsing.');
+        setActiveReportId(result.uploadId);
+        setUploadHistory((current) => {
+          const optimistic = uploadToHistoryRow(result);
+          const withoutDuplicate = current.filter((item) => item.uploadId !== optimistic.uploadId);
+          return [optimistic, ...withoutDuplicate].slice(0, 20);
+        });
+        setMessage(result.duplicateFile ? 'Workbook validated by backend. Duplicate file warning found; review history before committing.' : 'Workbook uploaded and validated through backend multipart XLSX parsing.');
         await loadHistory();
         return;
       }
@@ -84,69 +102,44 @@ export default function ImportValidationDashboard() {
       const result = await validateImportPreview(day28SampleSheets);
       setPreview(result);
       setUpload(null);
-      setMessage('No workbook selected. Running backend validation against the standard onboarding workbook schema.');
-    } catch {
-      setMessage('Import validation service is temporarily unavailable. Showing local workbook readiness checks until backend synchronization is available.');
-      setPreview({
-        schoolId: 'BRK1',
-        importType: 'MASTER_WORKBOOK',
-        fileName: selectedFileName === 'No workbook selected' ? 'pilot-school-master.xlsx' : selectedFileName,
-        valid: false,
-        tenantSafe: true,
-        status: 'Needs Review',
-        summary: 'Workbook structure is ready for onboarding review. Backend validation should confirm duplicates, parent links, teacher assignments, and tenant-safe import before activation.',
-        rowCounts: {
-          SchoolProfile: 1,
-          Students: 600,
-          Parents: 600,
-          Teachers: 50,
-          TeacherAssignments: 120,
-          Subjects: 72,
-          ClassSections: 20,
-          TeacherPools: 10,
-          Schedules: 45,
-        },
-        previewSheets: day28SampleSheets,
-        issues: [
-          {
-            sheetName: 'Students',
-            rowNumber: 14,
-            fieldName: 'admission_no',
-            severity: 'WARNING',
-            message: 'Duplicate admission number should be reviewed before final import.',
-          },
-          {
-            sheetName: 'Parents',
-            rowNumber: 42,
-            fieldName: 'admission_no',
-            severity: 'ERROR',
-            message: 'Parent record is missing a matching student admission number.',
-          },
-          {
-            sheetName: 'TeacherAssignments',
-            rowNumber: 6,
-            fieldName: 'teacher_id',
-            severity: 'WARNING',
-            message: 'Teacher assignment should be checked against class-section workload.',
-          },
-        ],
-        previewedAt: new Date().toISOString(),
-      });
+      setActiveReportId(null);
+      setMessage('No workbook selected. Backend schema validation completed against the standard onboarding workbook structure.');
+    } catch (error) {
+      setMessage(toSafeImportMessage(error));
+      if (selectedFile) return;
+      setPreview(null);
     } finally {
       setLoading(false);
     }
   }
 
-  async function commitUpload() {
-    if (!upload?.uploadId) return;
+  async function openHistoryReport(uploadId: number) {
     setLoading(true);
     setMessage(null);
     try {
-      const result = await commitImportWorkbook(upload.uploadId);
+      const result = await getImportPreview(uploadId);
+      setPreview(result);
+      setActiveReportId(uploadId);
+      setMessage('Validation report loaded from backend upload history.');
+    } catch (error) {
+      setMessage(toSafeImportMessage(error, 'Validation report could not be loaded from upload history.'));
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function commitUpload(uploadId = upload?.uploadId) {
+    if (!uploadId) return;
+    setLoading(true);
+    setMessage(null);
+    try {
+      const result = await commitImportWorkbook(uploadId);
+      setUploadHistory((current) => current.map((item) => item.uploadId === uploadId ? { ...item, status: result.status, committed: result.committed, rolledBack: result.rolledBack, importBatchId: result.importBatchId || item.importBatchId } : item));
       setMessage(result.message || 'Workbook import committed for onboarding approval.');
       await loadHistory();
+      if (activeReportId === uploadId) await openHistoryReport(uploadId);
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Workbook import could not be committed.');
+      setMessage(toSafeImportMessage(error, 'Workbook import could not be committed.'));
     } finally {
       setLoading(false);
     }
@@ -157,14 +150,17 @@ export default function ImportValidationDashboard() {
     setMessage(null);
     try {
       const result = await rollbackImportWorkbook(uploadId);
+      setUploadHistory((current) => current.map((item) => item.uploadId === uploadId ? { ...item, status: result.status, committed: result.committed, rolledBack: result.rolledBack, importBatchId: result.importBatchId || item.importBatchId } : item));
       setMessage(result.message || 'Workbook import rolled back.');
       await loadHistory();
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Workbook import could not be rolled back.');
+      setMessage(toSafeImportMessage(error, 'Workbook import could not be rolled back.'));
     } finally {
       setLoading(false);
     }
   }
+
+  const canCommitActiveUpload = Boolean(upload?.uploadId && preview?.valid && !uploadHistory.find((item) => item.uploadId === upload.uploadId)?.committed);
 
   return (
     <section className="space-y-6">
@@ -174,6 +170,13 @@ export default function ImportValidationDashboard() {
         <p className="mt-3 max-w-4xl text-sm font-semibold leading-6 text-slate-700">
           Upload and validate Excel workbooks for students, parents, teachers, class sections, subjects, teacher pools, timetable structure, and tenant-safe school activation.
         </p>
+
+        <div className="mt-5 flex flex-wrap gap-2">
+          <Badge label={`school_id isolation: ${schoolId}`} />
+          <Badge label={`Role access: ${role}`} />
+          <Badge label="Backend XLSX preview" />
+          <Badge label="Commit & rollback foundation" />
+        </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
           <SelectField label="Academic Year" value={academicYear} options={academicYears} onChange={setAcademicYear} />
@@ -188,11 +191,13 @@ export default function ImportValidationDashboard() {
             <div className="mt-2 rounded-2xl border border-dashed border-amber-300/80 bg-amber-50/60 p-4">
               <input
                 type="file"
-                accept=".xlsx,.xls"
+                accept=".xlsx"
                 onChange={(event) => {
                   const file = event.target.files?.[0] || null;
                   setSelectedFile(file);
                   setSelectedFileName(file?.name || 'No workbook selected');
+                  setUpload(null);
+                  setActiveReportId(null);
                 }}
                 className="w-full text-sm font-bold text-slate-700 file:mr-4 file:rounded-xl file:border-0 file:bg-slate-950 file:px-4 file:py-2 file:text-sm file:font-black file:text-white"
               />
@@ -202,36 +207,22 @@ export default function ImportValidationDashboard() {
         </div>
 
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <button
-            type="button"
-            onClick={runPreview}
-            disabled={loading}
-            className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white shadow-lg shadow-slate-900/10 disabled:opacity-60"
-          >
+          <button type="button" onClick={runPreview} disabled={loading} className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-black text-white shadow-lg shadow-slate-900/10 disabled:opacity-60">
             {loading ? 'Checking Workbook...' : selectedFile ? 'Upload & Validate Workbook' : 'Validate Workbook Schema'}
           </button>
 
           {upload?.uploadId ? (
-            <button
-              type="button"
-              onClick={commitUpload}
-              disabled={loading || !preview?.valid}
-              className="rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-900/10 disabled:opacity-50"
-            >
+            <button type="button" onClick={() => commitUpload()} disabled={loading || !canCommitActiveUpload} className="rounded-2xl bg-emerald-700 px-5 py-3 text-sm font-black text-white shadow-lg shadow-emerald-900/10 disabled:opacity-50">
               Commit Import
             </button>
           ) : null}
 
-          <span className="rounded-full bg-amber-50 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-amber-800">
-            school_id isolation: BRK1
-          </span>
+          <button type="button" onClick={loadHistory} disabled={historyLoading} className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-black text-slate-800 disabled:opacity-60">
+            Refresh History
+          </button>
         </div>
 
-        {message ? (
-          <p className="mt-4 rounded-2xl bg-amber-50 p-4 text-sm font-bold text-amber-800">
-            {message}
-          </p>
-        ) : null}
+        {message ? <p className="mt-4 rounded-2xl bg-amber-50 p-4 text-sm font-bold text-amber-800">{message}</p> : null}
       </div>
 
       <div className="grid gap-4 md:grid-cols-3 xl:grid-cols-6">
@@ -251,11 +242,12 @@ export default function ImportValidationDashboard() {
                 <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-700">{preview.status}</p>
                 <h3 className="mt-2 text-xl font-black text-slate-950">{preview.schoolId} · {preview.fileName}</h3>
                 <p className="mt-2 max-w-4xl text-sm font-semibold leading-6 text-slate-700">{preview.summary}</p>
+                {upload?.importBatchId ? <p className="mt-2 text-xs font-black uppercase tracking-[0.16em] text-amber-700">Batch: {upload.importBatchId}</p> : null}
               </div>
-
-              <span className={`rounded-full px-4 py-2 text-xs font-black ${preview.valid ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>
-                {preview.valid ? 'Ready to Import' : 'Needs Attention'}
-              </span>
+              <div className="flex flex-wrap gap-2">
+                <span className={`rounded-full px-4 py-2 text-xs font-black ${preview.valid ? 'bg-emerald-50 text-emerald-700' : 'bg-amber-50 text-amber-700'}`}>{preview.valid ? 'Ready to Import' : 'Needs Attention'}</span>
+                <span className={`rounded-full px-4 py-2 text-xs font-black ${preview.tenantSafe ? 'bg-emerald-50 text-emerald-700' : 'bg-red-50 text-red-700'}`}>{preview.tenantSafe ? 'Tenant Safe' : 'Tenant Blocked'}</span>
+              </div>
             </div>
           </div>
 
@@ -263,24 +255,11 @@ export default function ImportValidationDashboard() {
             <section className="rounded-[2rem] border border-amber-100/60 bg-white/82 p-6 shadow-lg shadow-amber-900/5">
               <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">Import Preview</p>
               <h3 className="mt-2 text-xl font-black text-slate-950">Workbook Sheets</h3>
-
               <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200/70">
                 <table className="w-full text-left text-sm">
-                  <thead className="bg-slate-950 text-xs uppercase tracking-[0.16em] text-amber-100">
-                    <tr>
-                      <th className="px-4 py-3">Sheet</th>
-                      <th className="px-4 py-3">Rows</th>
-                      <th className="px-4 py-3">Headers</th>
-                    </tr>
-                  </thead>
+                  <thead className="bg-slate-950 text-xs uppercase tracking-[0.16em] text-amber-100"><tr><th className="px-4 py-3">Sheet</th><th className="px-4 py-3">Rows</th><th className="px-4 py-3">Headers</th></tr></thead>
                   <tbody className="divide-y divide-slate-200/70 bg-white/70">
-                    {preview.previewSheets.map((sheet) => (
-                      <tr key={sheet.sheetName}>
-                        <td className="px-4 py-3 font-black text-slate-950">{sheet.sheetName}</td>
-                        <td className="px-4 py-3 font-bold text-slate-700">{sheet.totalRows}</td>
-                        <td className="px-4 py-3 font-semibold text-slate-600">{sheet.headers.join(', ')}</td>
-                      </tr>
-                    ))}
+                    {preview.previewSheets.map((sheet) => <tr key={sheet.sheetName}><td className="px-4 py-3 font-black text-slate-950">{sheet.sheetName}</td><td className="px-4 py-3 font-bold text-slate-700">{sheet.totalRows}</td><td className="px-4 py-3 font-semibold text-slate-600">{sheet.headers.join(', ')}</td></tr>)}
                   </tbody>
                 </table>
               </div>
@@ -289,44 +268,24 @@ export default function ImportValidationDashboard() {
             <section className="rounded-[2rem] border border-amber-100/60 bg-white/82 p-6 shadow-lg shadow-amber-900/5">
               <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">Tenant Validation</p>
               <h3 className="mt-2 text-xl font-black text-slate-950">Onboarding Checks</h3>
-
               <div className="mt-5 space-y-3">
                 <StatusRow title="school_id isolation" body={`${preview.schoolId} validation applied before import activation.`} />
-                <StatusRow title="Duplicate detection" body="Admission numbers and teacher IDs are checked before final save." />
-                <StatusRow title="Parent/student linking" body="Parent rows must match valid student admission numbers." />
-                <StatusRow title="Teacher assignment validation" body="Teacher, subject, class, and section mappings are reviewed for conflicts." />
+                <StatusRow title="Validation hydration" body={`${totals.errors} error(s) and ${totals.warnings} warning(s) mapped from backend workbook inspection.`} />
+                <StatusRow title="Parent/student linking" body="Parent rows are checked against student admission numbers before commit." />
+                <StatusRow title="Teacher assignment validation" body="Teacher, subject, class, and section mappings are reviewed before save activation." />
               </div>
             </section>
           </div>
 
           <section className="rounded-[2rem] border border-amber-100/60 bg-white/82 p-6 shadow-lg shadow-amber-900/5">
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">Failed Rows & Error Reporting</p>
-            <h3 className="mt-2 text-xl font-black text-slate-950">Validation Issues</h3>
-
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">Validation Report</p>
+            <h3 className="mt-2 text-xl font-black text-slate-950">Workbook Issues</h3>
             <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200/70">
               <table className="w-full text-left text-sm">
-                <thead className="bg-slate-950 text-xs uppercase tracking-[0.16em] text-amber-100">
-                  <tr>
-                    <th className="px-4 py-3">Sheet</th>
-                    <th className="px-4 py-3">Row</th>
-                    <th className="px-4 py-3">Field</th>
-                    <th className="px-4 py-3">Severity</th>
-                    <th className="px-4 py-3">Message</th>
-                  </tr>
-                </thead>
+                <thead className="bg-slate-950 text-xs uppercase tracking-[0.16em] text-amber-100"><tr><th className="px-4 py-3">Sheet</th><th className="px-4 py-3">Row</th><th className="px-4 py-3">Field</th><th className="px-4 py-3">Severity</th><th className="px-4 py-3">Message</th></tr></thead>
                 <tbody className="divide-y divide-slate-200/70 bg-white/70">
-                  {preview.issues.map((issue) => (
-                    <tr key={`${issue.sheetName}-${issue.rowNumber}-${issue.fieldName}`}>
-                      <td className="px-4 py-3 font-black text-slate-950">{issue.sheetName}</td>
-                      <td className="px-4 py-3 font-bold text-slate-700">{issue.rowNumber}</td>
-                      <td className="px-4 py-3 font-bold text-slate-700">{issue.fieldName}</td>
-                      <td className="px-4 py-3">
-                        <span className={`rounded-full px-3 py-1 text-xs font-black ${issue.severity === 'ERROR' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>
-                          {issue.severity}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 font-semibold text-slate-600">{issue.message}</td>
-                    </tr>
+                  {preview.issues.length === 0 ? <tr><td className="px-4 py-5 font-semibold text-slate-600" colSpan={5}>No validation issues returned by backend.</td></tr> : preview.issues.map((issue, index) => (
+                    <tr key={`${issue.sheetName}-${issue.rowNumber}-${issue.fieldName}-${index}`}><td className="px-4 py-3 font-black text-slate-950">{issue.sheetName}</td><td className="px-4 py-3 font-bold text-slate-700">{issue.rowNumber}</td><td className="px-4 py-3 font-bold text-slate-700">{issue.fieldName}</td><td className="px-4 py-3"><span className={`rounded-full px-3 py-1 text-xs font-black ${issue.severity === 'ERROR' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>{issue.severity}</span></td><td className="px-4 py-3 font-semibold text-slate-600">{issue.message}</td></tr>
                   ))}
                 </tbody>
               </table>
@@ -338,41 +297,23 @@ export default function ImportValidationDashboard() {
       <section className="rounded-[2rem] border border-amber-100/60 bg-white/82 p-6 shadow-lg shadow-amber-900/5">
         <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">Upload History</p>
         <h3 className="mt-2 text-xl font-black text-slate-950">Pilot School Workbook Activity</h3>
-
+        {historyError ? <p className="mt-3 rounded-2xl bg-amber-50 p-3 text-sm font-bold text-amber-800">{historyError}</p> : null}
         <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200/70">
           <table className="w-full text-left text-sm">
-            <thead className="bg-slate-950 text-xs uppercase tracking-[0.16em] text-amber-100">
-              <tr>
-                <th className="px-4 py-3">Workbook</th>
-                <th className="px-4 py-3">Date</th>
-                <th className="px-4 py-3">Rows</th>
-                <th className="px-4 py-3">Status</th>
-              </tr>
-            </thead>
+            <thead className="bg-slate-950 text-xs uppercase tracking-[0.16em] text-amber-100"><tr><th className="px-4 py-3">Workbook</th><th className="px-4 py-3">Date</th><th className="px-4 py-3">Rows</th><th className="px-4 py-3">Issues</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Actions</th></tr></thead>
             <tbody className="divide-y divide-slate-200/70 bg-white/70">
-              {uploadHistory.length === 0 ? (
-                <tr>
-                  <td className="px-4 py-5 font-semibold text-slate-600" colSpan={4}>
-                    {historyLoading ? 'Loading workbook history...' : 'No real workbook uploads yet. Upload an Excel workbook to start onboarding history.'}
-                  </td>
-                </tr>
-              ) : uploadHistory.map((item) => (
+              {uploadHistory.length === 0 ? <tr><td className="px-4 py-5 font-semibold text-slate-600" colSpan={6}>{historyLoading ? 'Loading workbook history...' : 'No real workbook uploads yet. Upload an Excel workbook to start onboarding history.'}</td></tr> : uploadHistory.map((item) => (
                 <tr key={item.uploadId}>
-                  <td className="px-4 py-3 font-black text-slate-950">{item.fileName}</td>
+                  <td className="px-4 py-3"><p className="font-black text-slate-950">{item.fileName}</p>{item.importBatchId ? <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-amber-700">{item.importBatchId}</p> : null}</td>
                   <td className="px-4 py-3 font-bold text-slate-700">{new Date(item.uploadedAt).toLocaleString()}</td>
                   <td className="px-4 py-3 font-bold text-slate-700">{item.totalRows}</td>
-                  <td className="px-4 py-3 font-semibold text-slate-600">
+                  <td className="px-4 py-3 font-bold text-slate-700">{item.errorCount} error · {item.warningCount} warning</td>
+                  <td className="px-4 py-3 font-semibold text-slate-600">{item.status}</td>
+                  <td className="px-4 py-3">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span>{item.status}</span>
-                      {!item.rolledBack ? (
-                        <button
-                          type="button"
-                          onClick={() => rollbackUpload(item.uploadId)}
-                          className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700"
-                        >
-                          Rollback
-                        </button>
-                      ) : null}
+                      <button type="button" onClick={() => openHistoryReport(item.uploadId)} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">View Report</button>
+                      {!item.committed && !item.rolledBack && item.errorCount === 0 ? <button type="button" onClick={() => commitUpload(item.uploadId)} className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">Commit</button> : null}
+                      {!item.rolledBack ? <button type="button" onClick={() => rollbackUpload(item.uploadId)} className="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-800">Rollback</button> : null}
                     </div>
                   </td>
                 </tr>
@@ -386,50 +327,21 @@ export default function ImportValidationDashboard() {
 }
 
 function SelectField({ label, value, options, onChange }: SelectFieldProps) {
-  return (
-    <div>
-      <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-600">{label}</label>
-      <select
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="mt-2 w-full rounded-2xl border border-amber-200/80 bg-white/85 px-4 py-3 text-sm font-bold text-slate-800 outline-none transition focus:border-amber-500"
-      >
-        {options.map((option) => (
-          <option key={option} value={option}>{option}</option>
-        ))}
-      </select>
-    </div>
-  );
+  return <div><label className="text-xs font-black uppercase tracking-[0.18em] text-slate-600">{label}</label><select value={value} onChange={(event) => onChange(event.target.value)} className="mt-2 w-full rounded-2xl border border-amber-200/80 bg-white/85 px-4 py-3 text-sm font-bold text-slate-800 outline-none transition focus:border-amber-500">{options.map((option) => <option key={option} value={option}>{option}</option>)}</select></div>;
 }
 
 function DateField({ label, type, value, onChange }: DateFieldProps) {
-  return (
-    <div>
-      <label className="text-xs font-black uppercase tracking-[0.18em] text-slate-600">{label}</label>
-      <input
-        type={type}
-        value={value}
-        onChange={(event) => onChange(event.target.value)}
-        className="mt-2 w-full rounded-2xl border border-amber-200/80 bg-white/85 px-4 py-3 text-sm font-bold text-slate-800 outline-none transition focus:border-amber-500"
-      />
-    </div>
-  );
+  return <div><label className="text-xs font-black uppercase tracking-[0.18em] text-slate-600">{label}</label><input type={type} value={value} onChange={(event) => onChange(event.target.value)} className="mt-2 w-full rounded-2xl border border-amber-200/80 bg-white/85 px-4 py-3 text-sm font-bold text-slate-800 outline-none transition focus:border-amber-500" /></div>;
 }
 
 function Metric({ label, value }: { label: string; value: number }) {
-  return (
-    <div className="rounded-2xl border border-amber-100/70 bg-white/82 p-4 shadow-lg shadow-amber-900/5">
-      <p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">{label}</p>
-      <h4 className="mt-2 text-2xl font-black text-slate-950">{value}</h4>
-    </div>
-  );
+  return <div className="rounded-2xl border border-amber-100/70 bg-white/82 p-4 shadow-lg shadow-amber-900/5"><p className="text-xs font-black uppercase tracking-[0.18em] text-slate-500">{label}</p><h4 className="mt-2 text-2xl font-black text-slate-950">{value}</h4></div>;
 }
 
 function StatusRow({ title, body }: { title: string; body: string }) {
-  return (
-    <div className="rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4">
-      <p className="text-sm font-black text-slate-950">{title}</p>
-      <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{body}</p>
-    </div>
-  );
+  return <div className="rounded-2xl border border-slate-200/70 bg-slate-50/80 p-4"><p className="text-sm font-black text-slate-950">{title}</p><p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{body}</p></div>;
+}
+
+function Badge({ label }: { label: string }) {
+  return <span className="rounded-full bg-amber-50 px-4 py-2 text-xs font-black uppercase tracking-[0.16em] text-amber-800">{label}</span>;
 }

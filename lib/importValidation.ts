@@ -37,6 +37,7 @@ export type ImportUploadResponse = {
   fileName: string;
   checksum: string;
   status: string;
+  importBatchId?: string;
   duplicateFile: boolean;
   preview: ImportPreviewResponse;
   uploadedAt: string;
@@ -49,6 +50,7 @@ export type ImportUploadHistoryRow = {
   importType: string;
   academicYear: string;
   status: string;
+  importBatchId?: string;
   totalRows: number;
   totalSheets: number;
   errorCount: number;
@@ -62,6 +64,7 @@ export type ImportCommitResponse = {
   uploadId: number;
   schoolId: string;
   status: string;
+  importBatchId?: string;
   message: string;
   committed: boolean;
   rolledBack: boolean;
@@ -102,6 +105,16 @@ export async function validateImportPreview(sheets: ImportSheetPreview[] = day28
   return unwrap<ImportPreviewResponse>(result);
 }
 
+export function toSafeImportMessage(error: unknown, fallback = 'The import service could not complete this action. Please verify backend is running and try again.') {
+  const message = error instanceof Error ? error.message : '';
+  if (!message) return fallback;
+  if (message.includes('Failed to fetch') || message.includes('NetworkError')) return 'Backend connection is unavailable. Start attendanceApp on port 8080 and retry the workbook upload.';
+  if (message.toLowerCase().includes('school_id') || message.toLowerCase().includes('tenant')) return 'The workbook tenant does not match the active school. Please verify school_id and login context.';
+  if (message.toLowerCase().includes('xlsx') || message.toLowerCase().includes('workbook')) return message;
+  if (message.toLowerCase().includes('validation errors')) return message;
+  return fallback;
+}
+
 export async function uploadImportWorkbook(file: File, academicYear: string, importType: string) {
   const user = getStoredUser();
   const schoolId = user?.schoolId || 'BRK1';
@@ -109,7 +122,7 @@ export async function uploadImportWorkbook(file: File, academicYear: string, imp
   formData.append('file', file);
   formData.append('schoolId', schoolId);
   formData.append('academicYear', academicYear);
-  formData.append('importType', importType.toUpperCase().replaceAll(' ', '_'));
+  formData.append('importType', importType.toUpperCase().replaceAll(' ', '_').replaceAll('+', 'AND'));
   formData.append('requestedByRole', user?.role || 'ADMIN');
   const result = await webApi.uploadImportWorkbook<{ data?: ImportUploadResponse } | ImportUploadResponse>(formData, user?.token, schoolId);
   return unwrap<ImportUploadResponse>(result);
@@ -120,6 +133,13 @@ export async function getImportHistory() {
   const schoolId = user?.schoolId || 'BRK1';
   const result = await webApi.importWorkbookHistory<{ data?: ImportUploadHistoryRow[] } | ImportUploadHistoryRow[]>(schoolId, user?.token);
   return unwrap<ImportUploadHistoryRow[]>(result);
+}
+
+export async function getImportPreview(uploadId: number) {
+  const user = getStoredUser();
+  const schoolId = user?.schoolId || 'BRK1';
+  const result = await webApi.importWorkbookPreview<{ data?: ImportPreviewResponse } | ImportPreviewResponse>(uploadId, schoolId, user?.token);
+  return unwrap<ImportPreviewResponse>(result);
 }
 
 export async function commitImportWorkbook(uploadId: number) {
@@ -134,4 +154,25 @@ export async function rollbackImportWorkbook(uploadId: number) {
   const schoolId = user?.schoolId || 'BRK1';
   const result = await webApi.rollbackImportWorkbook<{ data?: ImportCommitResponse } | ImportCommitResponse>(uploadId, schoolId, user?.token);
   return unwrap<ImportCommitResponse>(result);
+}
+
+
+export function uploadToHistoryRow(upload: ImportUploadResponse): ImportUploadHistoryRow {
+  const issues = upload.preview?.issues || [];
+  return {
+    uploadId: upload.uploadId,
+    schoolId: upload.schoolId,
+    fileName: upload.fileName,
+    importType: upload.importType,
+    academicYear: upload.academicYear,
+    status: upload.status,
+    importBatchId: upload.importBatchId,
+    totalRows: Object.values(upload.preview?.rowCounts || {}).reduce((sum, value) => sum + value, 0),
+    totalSheets: Object.keys(upload.preview?.rowCounts || {}).length,
+    errorCount: issues.filter((issue) => issue.severity === 'ERROR').length,
+    warningCount: issues.filter((issue) => issue.severity === 'WARNING').length,
+    committed: false,
+    rolledBack: false,
+    uploadedAt: upload.uploadedAt,
+  };
 }
