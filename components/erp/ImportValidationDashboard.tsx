@@ -134,7 +134,7 @@ export default function ImportValidationDashboard() {
     setMessage(null);
     try {
       const result = await commitImportWorkbook(uploadId);
-      setUploadHistory((current) => current.map((item) => item.uploadId === uploadId ? { ...item, status: result.status, committed: result.committed, rolledBack: result.rolledBack, importBatchId: result.importBatchId || item.importBatchId } : item));
+      setUploadHistory((current) => current.map((item) => item.uploadId === uploadId ? { ...item, status: result.status, committed: result.committed, rolledBack: result.rolledBack, stagedRowCount: result.stagedRowCount ?? item.stagedRowCount, lifecycleMessage: result.lifecycleMessage || item.lifecycleMessage, importBatchId: result.importBatchId || item.importBatchId } : item));
       setMessage(result.message || 'Workbook import committed for onboarding approval.');
       await loadHistory();
       if (activeReportId === uploadId) await openHistoryReport(uploadId);
@@ -150,7 +150,7 @@ export default function ImportValidationDashboard() {
     setMessage(null);
     try {
       const result = await rollbackImportWorkbook(uploadId);
-      setUploadHistory((current) => current.map((item) => item.uploadId === uploadId ? { ...item, status: result.status, committed: result.committed, rolledBack: result.rolledBack, importBatchId: result.importBatchId || item.importBatchId } : item));
+      setUploadHistory((current) => current.map((item) => item.uploadId === uploadId ? { ...item, status: result.status, committed: result.committed, rolledBack: result.rolledBack, stagedRowCount: result.stagedRowCount ?? item.stagedRowCount, lifecycleMessage: result.lifecycleMessage || item.lifecycleMessage, importBatchId: result.importBatchId || item.importBatchId } : item));
       setMessage(result.message || 'Workbook import rolled back.');
       await loadHistory();
     } catch (error) {
@@ -160,7 +160,8 @@ export default function ImportValidationDashboard() {
     }
   }
 
-  const canCommitActiveUpload = Boolean(upload?.uploadId && preview?.valid && !uploadHistory.find((item) => item.uploadId === upload.uploadId)?.committed);
+  const activeHistoryRow = upload?.uploadId ? uploadHistory.find((item) => item.uploadId === upload.uploadId) : null;
+  const canCommitActiveUpload = Boolean(upload?.uploadId && preview?.valid && !activeHistoryRow?.committed && !activeHistoryRow?.rolledBack);
 
   return (
     <section className="space-y-6">
@@ -175,7 +176,8 @@ export default function ImportValidationDashboard() {
           <Badge label={`school_id isolation: ${schoolId}`} />
           <Badge label={`Role access: ${role}`} />
           <Badge label="Backend XLSX preview" />
-          <Badge label="Commit & rollback foundation" />
+          <Badge label="Real commit staging" />
+          <Badge label="Rollback-safe lifecycle" />
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -222,6 +224,7 @@ export default function ImportValidationDashboard() {
           </button>
         </div>
 
+        {upload?.uploadId && !canCommitActiveUpload ? <p className="mt-4 rounded-2xl bg-slate-50 p-4 text-sm font-bold text-slate-700">Commit is gated until the workbook is valid, not rolled back, and not already committed.</p> : null}
         {message ? <p className="mt-4 rounded-2xl bg-amber-50 p-4 text-sm font-bold text-amber-800">{message}</p> : null}
       </div>
 
@@ -300,15 +303,16 @@ export default function ImportValidationDashboard() {
         {historyError ? <p className="mt-3 rounded-2xl bg-amber-50 p-3 text-sm font-bold text-amber-800">{historyError}</p> : null}
         <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200/70">
           <table className="w-full text-left text-sm">
-            <thead className="bg-slate-950 text-xs uppercase tracking-[0.16em] text-amber-100"><tr><th className="px-4 py-3">Workbook</th><th className="px-4 py-3">Date</th><th className="px-4 py-3">Rows</th><th className="px-4 py-3">Issues</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Actions</th></tr></thead>
+            <thead className="bg-slate-950 text-xs uppercase tracking-[0.16em] text-amber-100"><tr><th className="px-4 py-3">Workbook</th><th className="px-4 py-3">Date</th><th className="px-4 py-3">Rows</th><th className="px-4 py-3">Issues</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Staged</th><th className="px-4 py-3">Actions</th></tr></thead>
             <tbody className="divide-y divide-slate-200/70 bg-white/70">
-              {uploadHistory.length === 0 ? <tr><td className="px-4 py-5 font-semibold text-slate-600" colSpan={6}>{historyLoading ? 'Loading workbook history...' : 'No real workbook uploads yet. Upload an Excel workbook to start onboarding history.'}</td></tr> : uploadHistory.map((item) => (
+              {uploadHistory.length === 0 ? <tr><td className="px-4 py-5 font-semibold text-slate-600" colSpan={7}>{historyLoading ? 'Loading workbook history...' : 'No real workbook uploads yet. Upload an Excel workbook to start onboarding history.'}</td></tr> : uploadHistory.map((item) => (
                 <tr key={item.uploadId}>
                   <td className="px-4 py-3"><p className="font-black text-slate-950">{item.fileName}</p>{item.importBatchId ? <p className="mt-1 text-xs font-bold uppercase tracking-[0.12em] text-amber-700">{item.importBatchId}</p> : null}</td>
                   <td className="px-4 py-3 font-bold text-slate-700">{new Date(item.uploadedAt).toLocaleString()}</td>
                   <td className="px-4 py-3 font-bold text-slate-700">{item.totalRows}</td>
                   <td className="px-4 py-3 font-bold text-slate-700">{item.errorCount} error · {item.warningCount} warning</td>
-                  <td className="px-4 py-3 font-semibold text-slate-600">{item.status}</td>
+                  <td className="px-4 py-3"><p className="font-semibold text-slate-600">{item.status}</p>{item.lifecycleMessage ? <p className="mt-1 max-w-xs text-xs font-semibold leading-5 text-slate-500">{item.lifecycleMessage}</p> : null}</td>
+                  <td className="px-4 py-3 font-bold text-slate-700">{item.stagedRowCount || 0}</td>
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <button type="button" onClick={() => openHistoryReport(item.uploadId)} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">View Report</button>

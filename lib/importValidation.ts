@@ -57,6 +57,8 @@ export type ImportUploadHistoryRow = {
   warningCount: number;
   committed: boolean;
   rolledBack: boolean;
+  stagedRowCount?: number;
+  lifecycleMessage?: string;
   uploadedAt: string;
 };
 
@@ -68,6 +70,8 @@ export type ImportCommitResponse = {
   message: string;
   committed: boolean;
   rolledBack: boolean;
+  stagedRowCount?: number;
+  lifecycleMessage?: string;
   actionAt: string;
 };
 
@@ -173,6 +177,8 @@ export function uploadToHistoryRow(upload: ImportUploadResponse): ImportUploadHi
     warningCount: issues.filter((issue) => issue.severity === 'WARNING').length,
     committed: false,
     rolledBack: false,
+    stagedRowCount: 0,
+    lifecycleMessage: upload.status === 'BLOCKED' ? 'Workbook uploaded but commit is blocked until validation errors are resolved.' : 'Workbook uploaded, validated, and ready for commit staging.',
     uploadedAt: upload.uploadedAt,
   };
 }
