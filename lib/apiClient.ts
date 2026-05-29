@@ -71,6 +71,10 @@ export const webApi = {
     apiClient<T>(`/school-registration/review/${referenceId}/status`, { method: 'POST', body: JSON.stringify({ status, reviewNotes }) }),
   onboardingLifecycleAction: <T>(referenceId: string, action: 'approve' | 'reject' | 'mark-pilot' | 'activate', reviewNotes?: string) =>
     apiClient<T>(`/school-registration/review/${referenceId}/${action}`, { method: 'POST', body: JSON.stringify({ reviewNotes }) }),
+  activationPackage: <T>(referenceId: string) =>
+    apiClient<T>(`/school-registration/activation-package/${referenceId}`),
+  generateActivationPackage: <T>(referenceId: string) =>
+    apiClient<T>(`/school-registration/activation-package/${referenceId}/generate`, { method: 'POST' }),
   pilotOnboardingSummary: <T>(schoolId: string, token?: string) => apiClient<T>('/pilot-onboarding/summary', { token, schoolId, query: { schoolId } }),
   adminSummary: <T>(date: string, token?: string, schoolId?: string) => apiClient<T>('/attendance/dashboard/admin', { token, schoolId, query: { date } }),
   principalSummary: <T>(date: string, token?: string, schoolId?: string) => apiClient<T>('/principal/dashboard/summary', { token, schoolId, query: { date } }),

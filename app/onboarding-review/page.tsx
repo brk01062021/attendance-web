@@ -4,7 +4,7 @@ import Link from 'next/link';
 import { useEffect, useMemo, useState } from 'react';
 import ShellStyles from '@/components/layout/ShellStyles';
 import { webApi } from '@/lib/apiClient';
-import { ONBOARDING_ACTIONS, OnboardingReviewItem, OnboardingStatusResponse, onboardingStatusLabel, onboardingStatusTone } from '@/lib/onboardingLifecycle';
+import { ONBOARDING_ACTIONS, OnboardingReviewItem, OnboardingStatusResponse, normalizeOnboardingText, onboardingStatusLabel, onboardingStatusTone } from '@/lib/onboardingLifecycle';
 
 function canRunAction(current: string, next: string) {
   if (current === 'PENDING') return next === 'APPROVED' || next === 'REJECTED';
@@ -14,7 +14,7 @@ function canRunAction(current: string, next: string) {
 }
 
 function splitHistory(history?: string | null) {
-  return (history || '').split('\n').map((line) => line.trim()).filter(Boolean).reverse();
+  return normalizeOnboardingText(history).split('\n').map((line) => line.trim()).filter(Boolean).reverse();
 }
 
 export default function OnboardingReviewPage() {
@@ -27,7 +27,7 @@ export default function OnboardingReviewPage() {
   const metrics = useMemo(() => {
     const count = (status: string) => items.filter((item) => item.status === status).length;
     return [
-      { label: 'Pending Review', value: count('PENDING') },
+      { label: 'Pending VidyaSetu Review', value: count('PENDING') },
       { label: 'Approved', value: count('APPROVED') },
       { label: 'Pilot', value: count('PILOT') },
       { label: 'Active', value: count('ACTIVE') },
@@ -54,7 +54,7 @@ export default function OnboardingReviewPage() {
     setActiveReference(item.referenceId);
     setMessage('');
     try {
-      const response = await webApi.onboardingLifecycleAction<OnboardingStatusResponse>(item.referenceId, action, `${label} from Admin/Principal onboarding review.`);
+      const response = await webApi.onboardingLifecycleAction<OnboardingStatusResponse>(item.referenceId, action, `${label} by VidyaSetu onboarding team.`);
       setMessage(`${response.schoolName} moved to ${onboardingStatusLabel(response.status)}. ${response.nextStep}`);
       await loadQueue();
     } catch (error) {
@@ -71,9 +71,9 @@ export default function OnboardingReviewPage() {
       <ShellStyles />
       <section className="premium-panel" style={{ position: 'relative', zIndex: 1, maxWidth: 1180, margin: '0 auto', borderRadius: 30, padding: 28 }}>
         <p className="eyebrow">TENANT ACTIVATION</p>
-        <h1 className="erp-page-title erp-school-name-title" style={{ margin: '8px 0' }}>Admin / Principal Onboarding Review Queue</h1>
+        <h1 className="erp-page-title erp-school-name-title" style={{ margin: '8px 0' }}>VidyaSetu Onboarding Review Queue</h1>
         <p className="erp-workspace-subtitle erp-workspace-context-title" style={{ marginTop: 0 }}>
-          Review school registrations and pilot demo requests through Pending → Approved → Pilot → Active. Login is enabled only after Active. Final Excel import remains disabled.
+          VidyaSetu onboarding team reviews school registrations through Pending → Approved → Pilot → Active. Login and credentials are enabled only after Active. Final Excel import remains disabled.
         </p>
 
         <div className="button-row" style={{ marginBottom: 18 }}>
@@ -97,7 +97,7 @@ export default function OnboardingReviewPage() {
                   <strong>{item.schoolName}</strong>
                   <div>{item.schoolId || 'school_id pending'} • {item.requestType.replaceAll('_', ' ')} • {item.referenceId}</div>
                 </div>
-                <span>{onboardingStatusTone(item.status)}</span>
+                <span>{onboardingStatusTone(item.status)}{item.status === 'ACTIVE' ? ' • ERP Login Enabled' : ''}</span>
               </div>
               <div style={{ opacity: 0.86 }}>
                 Contact: {item.contactPerson || 'Not provided'} • {item.contactPhone || 'No phone'} • {item.contactEmail || 'No email'}<br />
@@ -105,7 +105,7 @@ export default function OnboardingReviewPage() {
               </div>
               <div className="button-row">
                 <button className="secondary-button" type="button" onClick={() => setSelected(item)}>View Details</button>
-                {item.status === 'ACTIVE' ? <span className="secondary-button" style={{ pointerEvents: 'none', opacity: 0.82 }}>Activated ✓</span> : null}
+                {item.status === 'ACTIVE' ? <Link className="primary-button" href={`/activation-package?referenceId=${item.referenceId}`}>Manage Activation Package</Link> : null}
                 {ONBOARDING_ACTIONS.filter((action) => canRunAction(item.status, action.status)).map((action) => (
                   <button
                     key={action.endpoint}
@@ -136,7 +136,16 @@ export default function OnboardingReviewPage() {
               <strong>school_id:</strong> {selected.schoolId || 'Pending'}<br />
               <strong>Expected size:</strong> {selected.expectedStudents ?? '—'} students / {selected.expectedTeachers ?? '—'} teachers<br />
               <strong>Contact:</strong> {selected.contactPerson || '—'} • {selected.contactPhone || '—'} • {selected.contactEmail || '—'}<br />
+              <strong>Submitted By:</strong> {selected.submittedBy || 'School Registration Portal'}<br />
               <strong>Submitted:</strong> {selected.submittedAt || '—'}<br />
+              <strong>Approved By:</strong> {selected.approvedBy || '—'}<br />
+              <strong>Approved Date:</strong> {selected.approvedAt || '—'}<br />
+              <strong>Pilot Enabled By:</strong> {selected.pilotEnabledBy || '—'}<br />
+              <strong>Pilot Date:</strong> {selected.pilotActivatedAt || '—'}<br />
+              <strong>Activated By:</strong> {selected.activatedBy || '—'}<br />
+              <strong>Activated Date:</strong> {selected.activatedAt || '—'}<br />
+              <strong>Credentials Issued By:</strong> {selected.credentialsIssuedBy || '—'}<br />
+              <strong>Credentials Issued Date:</strong> {selected.credentialsIssuedAt || '—'}<br />
               <strong>Last Updated:</strong> {selected.updatedAt || '—'}
             </div>
             <h3>Audit History</h3>

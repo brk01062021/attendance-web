@@ -4,11 +4,10 @@ import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import ShellStyles from '@/components/layout/ShellStyles';
 import { webApi } from '@/lib/apiClient';
-import { OnboardingStatusResponse, onboardingStatusLabel } from '@/lib/onboardingLifecycle';
+import { OnboardingStatusResponse, normalizeOnboardingText, onboardingStatusLabel, statusTimeline } from '@/lib/onboardingLifecycle';
 
-function cleanReference(value: string) {
-  return value.trim().toUpperCase();
-}
+function cleanReference(value: string) { return value.trim().toUpperCase(); }
+function row(label: string, value?: string | null) { return <div><strong>{label}:</strong> {value || '—'}</div>; }
 
 export default function CheckRegistrationStatusPage() {
   const [referenceId, setReferenceId] = useState('');
@@ -19,53 +18,64 @@ export default function CheckRegistrationStatusPage() {
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const clean = cleanReference(referenceId);
-    if (!clean) {
-      setMessage('Enter the reference ID received after registration.');
-      return;
-    }
-    setLoading(true);
-    setMessage('');
-    setStatus(null);
-    try {
-      const response = await webApi.onboardingStatus<OnboardingStatusResponse>(clean);
-      setStatus(response);
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Unable to find registration status.');
-    } finally {
-      setLoading(false);
-    }
+    if (!clean) { setMessage('Enter the reference ID received after registration.'); return; }
+    setLoading(true); setMessage(''); setStatus(null);
+    try { setStatus(await webApi.onboardingStatus<OnboardingStatusResponse>(clean)); }
+    catch (error) { setMessage(error instanceof Error ? error.message : 'Unable to find registration status.'); }
+    finally { setLoading(false); }
   }
 
   return (
     <main className="page-dark" style={{ minHeight: '100vh', padding: 24 }}>
       <ShellStyles />
-      <section className="premium-panel" style={{ position: 'relative', zIndex: 1, maxWidth: 760, margin: '0 auto', borderRadius: 30, padding: 28 }}>
+      <section className="premium-panel" style={{ position: 'relative', zIndex: 1, maxWidth: 860, margin: '0 auto', borderRadius: 30, padding: 28 }}>
         <p className="eyebrow">PUBLIC ONBOARDING STATUS</p>
         <h1 className="erp-page-title erp-school-name-title" style={{ margin: '8px 0' }}>Check Registration Status</h1>
         <p className="erp-workspace-subtitle erp-workspace-context-title" style={{ marginTop: 0 }}>
-          Schools can track onboarding by reference ID. Login credentials are issued only after the tenant becomes Active.
+          Track school onboarding by Reference ID. Login access is enabled only after Active status and credential provisioning.
         </p>
         <form onSubmit={onSubmit} style={{ display: 'grid', gap: 14 }}>
-          <label>
-            Reference ID
-            <input value={referenceId} onChange={(event) => setReferenceId(event.target.value.toUpperCase())} placeholder="REG-202605290012-D74FC5" />
-          </label>
-          <div className="button-row">
-            <button className="primary-button" type="submit" disabled={loading}>{loading ? 'Checking...' : 'Check Status'}</button>
-            <Link className="secondary-button" href="/login">Back to Login</Link>
-          </div>
+          <label>Reference ID<input value={referenceId} onChange={(event) => setReferenceId(event.target.value.toUpperCase())} placeholder="REG-202605290012-D74FC5" /></label>
+          <div className="button-row"><button className="primary-button" type="submit" disabled={loading}>{loading ? 'Checking...' : 'Check Status'}</button><Link className="secondary-button" href="/login">Back to Login</Link></div>
         </form>
         {message ? <div className="notice-card" style={{ marginTop: 16 }}>{message}</div> : null}
         {status ? (
-          <div className="notice-card" style={{ marginTop: 16 }}>
-            <strong>{status.schoolName}</strong><br />
-            Reference: {status.referenceId}<br />
-            school_id: {status.schoolId || 'Pending'}<br />
-            Status: {onboardingStatusLabel(status.status)}<br />
-            Login: {status.loginEnabled ? 'Enabled after credentials are shared' : 'Disabled until Active'}<br />
-            Excel Import: Disabled<br /><br />
-            {status.message}<br />
-            Next: {status.nextStep}
+          <div style={{ display: 'grid', gap: 14, marginTop: 16 }}>
+            <div className="notice-card">
+              <strong style={{ fontSize: 18 }}>{status.schoolName}</strong><br />
+              {row('Reference ID', status.referenceId)}
+              {row('School ID', status.schoolId || 'Pending')}
+              {row('Registration Date', status.registrationDate || status.submittedAt)}
+              {row('Current Status', onboardingStatusLabel(status.status))}
+              {row('Login Access', status.loginEnabled ? 'Enabled after credentials are issued' : 'Disabled')}
+              {row('Next Step', normalizeOnboardingText(status.nextStep))}
+            </div>
+
+            <div className="notice-card">
+              <strong>Status Message</strong>
+              <p style={{ margin: '8px 0 0' }}>{normalizeOnboardingText(status.message)}</p>
+            </div>
+
+            <div className="notice-card">
+              <strong>Status Timeline</strong>
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', gap: 10, marginTop: 12 }}>
+                {statusTimeline(status.status).map((step) => <div key={step.key} className="secondary-button" style={{ pointerEvents: 'none', opacity: step.done ? 1 : 0.45 }}>{step.done ? '✓ ' : '○ '}{step.label}</div>)}
+              </div>
+            </div>
+
+            <div className="notice-card">
+              <strong>Audit Trail</strong>
+              <div style={{ marginTop: 8, display: 'grid', gap: 4 }}>
+                {row('Submitted By', status.submittedBy || 'School Registration Portal')}
+                {row('Submitted Date', status.submittedAt)}
+                {row('Approved By', status.approvedBy)}
+                {row('Approved Date', status.approvedAt)}
+                {row('Pilot Enabled By', status.pilotEnabledBy)}
+                {row('Pilot Date', status.pilotActivatedAt)}
+                {row('Activated By', status.activatedBy)}
+                {row('Activated Date', status.activatedAt)}
+              </div>
+            </div>
           </div>
         ) : null}
       </section>
