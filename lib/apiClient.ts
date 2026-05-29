@@ -60,6 +60,15 @@ export const webApi = {
     apiClient<T>('/school-registration/register', { method: 'POST', body: JSON.stringify(body) }),
   requestPilotDemo: <T>(body: unknown) =>
     apiClient<T>('/school-registration/pilot-demo/request', { method: 'POST', body: JSON.stringify(body) }),
+
+  onboardingStatus: <T>(referenceId: string) =>
+    apiClient<T>('/school-registration/status', { query: { referenceId } }),
+  onboardingStatusBySchoolId: <T>(schoolId: string) =>
+    apiClient<T>('/school-registration/status/by-school-id', { query: { schoolId } }),
+  onboardingReviewQueue: <T>() =>
+    apiClient<T>('/school-registration/review-queue'),
+  updateOnboardingStatus: <T>(referenceId: string, status: string, reviewNotes?: string) =>
+    apiClient<T>(`/school-registration/review/${referenceId}/status`, { method: 'POST', body: JSON.stringify({ status, reviewNotes }) }),
   pilotOnboardingSummary: <T>(schoolId: string, token?: string) => apiClient<T>('/pilot-onboarding/summary', { token, schoolId, query: { schoolId } }),
   adminSummary: <T>(date: string, token?: string, schoolId?: string) => apiClient<T>('/attendance/dashboard/admin', { token, schoolId, query: { date } }),
   principalSummary: <T>(date: string, token?: string, schoolId?: string) => apiClient<T>('/principal/dashboard/summary', { token, schoolId, query: { date } }),

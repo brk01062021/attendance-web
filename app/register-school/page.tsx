@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { FormEvent, useMemo, useState } from 'react';
 import ShellStyles from '@/components/layout/ShellStyles';
 import { webApi } from '@/lib/apiClient';
+import { OnboardingStatusResponse, onboardingStatusLabel } from '@/lib/onboardingLifecycle';
 
 type SchoolIdCheck = {
   schoolId: string;
@@ -35,6 +36,7 @@ export default function RegisterSchoolPage() {
   const [schoolIdCheck, setSchoolIdCheck] = useState<SchoolIdCheck | null>(null);
   const [result, setResult] = useState<RegistrationResponse | null>(null);
   const [message, setMessage] = useState('');
+  const [statusDetails, setStatusDetails] = useState<OnboardingStatusResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   const cleanSchoolId = useMemo(
@@ -45,6 +47,7 @@ export default function RegisterSchoolPage() {
   async function checkSchoolId() {
     setMessage('');
     setResult(null);
+    setStatusDetails(null);
     if (cleanSchoolId.length !== 4) {
       setMessage('Enter exactly 4 uppercase letters/numbers for school_id.');
       return;
@@ -62,6 +65,7 @@ export default function RegisterSchoolPage() {
     setIsLoading(true);
     setMessage('');
     setResult(null);
+    setStatusDetails(null);
 
     try {
       const response = await webApi.registerSchool<RegistrationResponse>({
@@ -77,6 +81,8 @@ export default function RegisterSchoolPage() {
         notes,
       });
       setResult(response);
+      const status = await webApi.onboardingStatus<OnboardingStatusResponse>(response.referenceId);
+      setStatusDetails(status);
       setSchoolIdCheck(null);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'School registration could not be saved.');
@@ -117,6 +123,7 @@ export default function RegisterSchoolPage() {
         {schoolIdCheck ? <div className="notice-card">{schoolIdCheck.schoolId}: {schoolIdCheck.message}</div> : null}
         {message ? <div className="notice-card">{message}</div> : null}
         {result ? <div className="notice-card">Reference {result.referenceId} • {result.message}<br />Next: {result.nextStep}</div> : null}
+        {statusDetails ? <div className="notice-card">Lifecycle: {onboardingStatusLabel(statusDetails.status)} • Login {statusDetails.loginEnabled ? 'enabled for pilot/active tenant' : 'disabled until pilot or active'} • Excel import disabled<br />Next: {statusDetails.nextStep}</div> : null}
       </section>
     </main>
   );

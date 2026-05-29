@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { FormEvent, useState } from 'react';
 import ShellStyles from '@/components/layout/ShellStyles';
 import { webApi } from '@/lib/apiClient';
+import { OnboardingStatusResponse, onboardingStatusLabel } from '@/lib/onboardingLifecycle';
 
 type PilotResponse = {
   referenceId: string;
@@ -25,6 +26,7 @@ export default function RequestPilotDemoPage() {
   const [notes, setNotes] = useState('');
   const [result, setResult] = useState<PilotResponse | null>(null);
   const [message, setMessage] = useState('');
+  const [statusDetails, setStatusDetails] = useState<OnboardingStatusResponse | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   async function onSubmit(event: FormEvent<HTMLFormElement>) {
@@ -32,6 +34,7 @@ export default function RequestPilotDemoPage() {
     setIsLoading(true);
     setMessage('');
     setResult(null);
+    setStatusDetails(null);
 
     try {
       const response = await webApi.requestPilotDemo<PilotResponse>({
@@ -46,6 +49,8 @@ export default function RequestPilotDemoPage() {
         notes,
       });
       setResult(response);
+      const status = await webApi.onboardingStatus<OnboardingStatusResponse>(response.referenceId);
+      setStatusDetails(status);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Pilot demo request could not be saved.');
     } finally {
@@ -82,6 +87,7 @@ export default function RequestPilotDemoPage() {
 
         {message ? <div className="notice-card">{message}</div> : null}
         {result ? <div className="notice-card">Reference {result.referenceId} • {result.message}<br />Next: {result.nextStep}</div> : null}
+        {statusDetails ? <div className="notice-card">Lifecycle: {onboardingStatusLabel(statusDetails.status)} • Login {statusDetails.loginEnabled ? 'enabled for pilot/active tenant' : 'disabled until pilot or active'} • Excel import disabled<br />Next: {statusDetails.nextStep}</div> : null}
       </section>
     </main>
   );
