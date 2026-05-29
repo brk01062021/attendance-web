@@ -25,8 +25,22 @@ export type OnboardingReviewItem = {
   expectedTeachers?: number | null;
   city?: string | null;
   state?: string | null;
+  submittedAt?: string | null;
   updatedAt?: string | null;
+  approvedAt?: string | null;
+  pilotActivatedAt?: string | null;
+  activatedAt?: string | null;
+  rejectedAt?: string | null;
+  reviewNotes?: string | null;
+  statusHistory?: string | null;
 };
+
+export const ONBOARDING_ACTIONS = [
+  { status: 'APPROVED' as OnboardingStatus, label: 'Approve', endpoint: 'approve' },
+  { status: 'REJECTED' as OnboardingStatus, label: 'Reject', endpoint: 'reject' },
+  { status: 'PILOT' as OnboardingStatus, label: 'Mark Pilot', endpoint: 'mark-pilot' },
+  { status: 'ACTIVE' as OnboardingStatus, label: 'Activate Tenant', endpoint: 'activate' },
+];
 
 export const ONBOARDING_STATUS_OPTIONS: OnboardingStatus[] = ['PENDING', 'APPROVED', 'PILOT', 'ACTIVE', 'REJECTED'];
 
