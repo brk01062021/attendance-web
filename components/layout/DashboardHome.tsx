@@ -7,7 +7,7 @@ type UpdateItem = { title: string; message: string; tone: 'success' | 'warning' 
 const roleCopy = {
   ADMIN: {
     overviewTitle: 'Admin Operations',
-    focus: 'Run daily school operations, validate pilot-school data, and monitor approvals from one calm workspace.',
+    focus: 'Run daily school operations, monitor approvals, and manage school workflows from one calm workspace.',
     primaryActions: [
       ['/import-school-data', '📥', 'Import School Data', 'Validate school profile, users, classes, sections, subjects, holidays, and teacher pools.'],
       ['/teacher-leave', '🗓️', 'Leave Approvals', 'Review teacher leave enquiries and begin replacement coverage after approval.'],
@@ -24,7 +24,6 @@ const roleCopy = {
     ],
     updates: [
       { title: 'Daily close check', message: 'Review pending attendance, leave approvals, and replacement coverage before day close.', tone: 'warning' },
-      { title: 'Pilot readiness', message: 'Confirm school_id, imported users, timetable, and reports before friend/internal testing.', tone: 'info' },
       { title: 'Notice control', message: 'Holiday and academic notices stay under Admin and Principal approval.', tone: 'success' },
     ],
   },
@@ -43,7 +42,6 @@ const roleCopy = {
       ['/timetable/operations', '🕒', 'Timetable Operations', 'Review and publish timetable batches.'],
       ['/teacher-assignments', '🧩', 'Teacher Assignments', 'Review class and subject mappings.'],
       ['/holiday-calendar', '🎌', 'Holiday Calendar', 'Manage academic calendar overrides.'],
-      ['/pilot-readiness', '🚀', 'Pilot Readiness', 'Track internal testing readiness.'],
     ],
     updates: [
       { title: 'Morning review', message: 'Check attendance, teacher leave, and replacement coverage before school day starts.', tone: 'info' },

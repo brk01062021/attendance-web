@@ -4,7 +4,8 @@ export type OnboardingStatus =
   | 'APPROVED'
   | 'PILOT'
   | 'ACTIVE'
-  | 'REJECTED';
+  | 'REJECTED'
+  | 'NOT_STARTED';
 
 export type OnboardingStatusResponse = {
   referenceId: string;
@@ -78,13 +79,13 @@ export const ONBOARDING_ACTIONS = [
   { status: 'APPROVED' as OnboardingStatus, label: 'Approve', endpoint: 'approve' },
   { status: 'REJECTED' as OnboardingStatus, label: 'Reject', endpoint: 'reject' },
   { status: 'PILOT' as OnboardingStatus, label: 'Mark Pilot', endpoint: 'mark-pilot' },
-  { status: 'ACTIVE' as OnboardingStatus, label: 'Activate Tenant', endpoint: 'activate' },
+  { status: 'ACTIVE' as OnboardingStatus, label: 'Mark Active', endpoint: 'activate' },
 ];
 
 export function getAvailableOnboardingActions(status: OnboardingStatus): OnboardingAction[] {
   if (status === 'PENDING') return [{ label: 'Approve', endpoint: 'approve', tone: 'primary' }, { label: 'Reject', endpoint: 'reject', tone: 'danger' }];
   if (status === 'APPROVED') return [{ label: 'Mark Pilot', endpoint: 'mark-pilot', tone: 'primary' }];
-  if (status === 'PILOT') return [{ label: 'Activate Tenant', endpoint: 'activate', tone: 'success' }];
+  if (status === 'PILOT') return [{ label: 'Mark Active', endpoint: 'activate', tone: 'success' }];
   return [];
 }
 
@@ -93,10 +94,10 @@ export function onboardingStatusLabel(status: string) {
 }
 
 export function onboardingStatusTone(status: string) {
-  if (status === 'ACTIVE') return 'Active tenant';
+  if (status === 'ACTIVE') return 'Active School Workspace';
   if (status === 'PILOT') return 'Pilot validation';
   if (status === 'APPROVED') return 'Approved';
-  if (status === 'PENDING') return 'Pending VidyaSetu review';
+  if (status === 'PENDING') return 'Registration Submitted';
   if (status === 'RESERVED') return 'Reserved';
   if (status === 'REJECTED') return 'Rejected';
   return 'Review needed';
@@ -107,7 +108,13 @@ export function normalizeOnboardingText(value?: string | null) {
     .replace(/Admin\/Principal must review/g, 'VidyaSetu onboarding team will review')
     .replace(/registration submitted for Admin\/Principal review/gi, 'Registration submitted for VidyaSetu onboarding team review')
     .replace(/ADMIN_PRINCIPAL/g, 'VidyaSetu Onboarding Team')
-    .replace(/\\n/g, '\n');
+    .replace(/Admin Review/gi, 'VidyaSetu Onboarding Team Review')
+    .replace(/Principal Review/gi, 'VidyaSetu Onboarding Team Review')
+    .replace(/Tenant Activation Queue/gi, 'VidyaSetu Onboarding Status')
+    .replace(/Activation Queue/gi, 'VidyaSetu Onboarding Status')
+    .replace(/Activate Tenant/gi, 'Mark Active')
+    .replace(/\\n/g, '\n')
+    .replace(/\r\n/g, '\n');
 }
 
 export function isLoginEnabledForStatus(status?: string | null) { return status === 'ACTIVE'; }
@@ -117,7 +124,7 @@ export function statusTimeline(status?: string | null) {
   const order = ['PENDING', 'APPROVED', 'PILOT', 'ACTIVE'];
   const currentIndex = Math.max(0, order.indexOf(status || 'PENDING'));
   return [
-    { key: 'PENDING', label: 'Submitted', done: currentIndex >= 0 },
+    { key: 'PENDING', label: 'Registration Submitted', done: currentIndex >= 0 },
     { key: 'APPROVED', label: 'Approved', done: currentIndex >= 1 },
     { key: 'PILOT', label: 'Pilot', done: currentIndex >= 2 },
     { key: 'ACTIVE', label: 'Active', done: currentIndex >= 3 },

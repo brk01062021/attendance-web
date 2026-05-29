@@ -6,7 +6,7 @@ export type PortalRoute = {
   icon: string;
   description: string;
   roles: PortalRole[];
-  group: 'Home' | 'Daily Work' | 'Reports' | 'Setup' | 'Pilot';
+  group: 'Home' | 'Daily Work' | 'Reports' | 'Setup';
 };
 
 export const portalRoutes: PortalRoute[] = [
@@ -37,6 +37,5 @@ export const portalRoutes: PortalRoute[] = [
   { icon: '🧩', label: 'Teacher Assignments', href: '/teacher-assignments', description: 'Class mapping', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
   { icon: '🎌', label: 'Holiday Calendar', href: '/holiday-calendar', description: 'Calendar overrides', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
   { icon: '📣', label: 'Create Notice', href: '/school-notices', description: 'Announcements', roles: ['ADMIN', 'PRINCIPAL'], group: 'Daily Work' },
-  { icon: '🛡️', label: 'System Operations', href: '/production-hardening', description: 'Role Access Control', roles: ['ADMIN', 'PRINCIPAL'], group: 'Pilot' },
-  { icon: '🚀', label: 'Pilot Readiness', href: '/pilot-readiness', description: 'Rollout center', roles: ['ADMIN', 'PRINCIPAL'], group: 'Pilot' },
+  { icon: '🛡️', label: 'System Operations', href: '/production-hardening', description: 'Role Access Control', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
 ];

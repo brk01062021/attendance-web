@@ -9,7 +9,7 @@ type SidebarProps = {
   role: PortalRole;
 };
 
-const groupOrder = ['Home', 'Daily Work', 'Reports', 'Setup', 'Pilot'] as const;
+const groupOrder = ['Home', 'Daily Work', 'Reports', 'Setup'] as const;
 
 export default function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname();

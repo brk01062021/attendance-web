@@ -32,7 +32,7 @@ export default function CheckRegistrationStatusPage() {
         <p className="eyebrow">PUBLIC ONBOARDING STATUS</p>
         <h1 className="erp-page-title erp-school-name-title" style={{ margin: '8px 0' }}>Check Registration Status</h1>
         <p className="erp-workspace-subtitle erp-workspace-context-title" style={{ marginTop: 0 }}>
-          Track school onboarding by Reference ID. Login access is enabled only after Active status and credential provisioning.
+          Track school onboarding by Reference ID. Login access stays disabled until the VidyaSetu Onboarding Team activates the school workspace and issues credentials.
         </p>
         <form onSubmit={onSubmit} style={{ display: 'grid', gap: 14 }}>
           <label>Reference ID<input value={referenceId} onChange={(event) => setReferenceId(event.target.value.toUpperCase())} placeholder="REG-202605290012-D74FC5" /></label>
@@ -47,7 +47,7 @@ export default function CheckRegistrationStatusPage() {
               {row('School ID', status.schoolId || 'Pending')}
               {row('Registration Date', status.registrationDate || status.submittedAt)}
               {row('Current Status', onboardingStatusLabel(status.status))}
-              {row('Login Access', status.loginEnabled ? 'Enabled after credentials are issued' : 'Disabled')}
+              {row('Login Access', status.loginEnabled ? (status.credentialsIssuedAt ? 'Enabled — credentials issued' : 'Enabled — credentials pending') : 'Disabled until Active + Credentials Issued')}
               {row('Next Step', normalizeOnboardingText(status.nextStep))}
             </div>
 
@@ -64,7 +64,7 @@ export default function CheckRegistrationStatusPage() {
             </div>
 
             <div className="notice-card">
-              <strong>Audit Trail</strong>
+              <strong>Audit History</strong>
               <div style={{ marginTop: 8, display: 'grid', gap: 4 }}>
                 {row('Submitted By', status.submittedBy || 'School Registration Portal')}
                 {row('Submitted Date', status.submittedAt)}
@@ -74,6 +74,9 @@ export default function CheckRegistrationStatusPage() {
                 {row('Pilot Date', status.pilotActivatedAt)}
                 {row('Activated By', status.activatedBy)}
                 {row('Activated Date', status.activatedAt)}
+                {row('Credentials Issued By', status.credentialsIssuedBy)}
+                {row('Credentials Issued Date', status.credentialsIssuedAt)}
+                {status.statusHistory ? <pre style={{ whiteSpace: 'pre-wrap', margin: '10px 0 0', color: '#233044', fontWeight: 700 }}>{normalizeOnboardingText(status.statusHistory)}</pre> : null}
               </div>
             </div>
           </div>
