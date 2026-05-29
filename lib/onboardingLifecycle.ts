@@ -1,4 +1,10 @@
-export type OnboardingStatus = 'RESERVED' | 'PENDING' | 'APPROVED' | 'PILOT' | 'ACTIVE' | 'REJECTED';
+export type OnboardingStatus =
+  | 'RESERVED'
+  | 'PENDING'
+  | 'APPROVED'
+  | 'PILOT'
+  | 'ACTIVE'
+  | 'REJECTED';
 
 export type OnboardingStatusResponse = {
   referenceId: string;
@@ -35,6 +41,20 @@ export type OnboardingReviewItem = {
   statusHistory?: string | null;
 };
 
+export type OnboardingAction = {
+  label: string;
+  endpoint: 'approve' | 'reject' | 'mark-pilot' | 'activate';
+  tone?: 'primary' | 'danger' | 'success';
+};
+
+export const ONBOARDING_STATUS_OPTIONS: OnboardingStatus[] = [
+  'PENDING',
+  'APPROVED',
+  'PILOT',
+  'ACTIVE',
+  'REJECTED',
+];
+
 export const ONBOARDING_ACTIONS = [
   { status: 'APPROVED' as OnboardingStatus, label: 'Approve', endpoint: 'approve' },
   { status: 'REJECTED' as OnboardingStatus, label: 'Reject', endpoint: 'reject' },
@@ -42,10 +62,30 @@ export const ONBOARDING_ACTIONS = [
   { status: 'ACTIVE' as OnboardingStatus, label: 'Activate Tenant', endpoint: 'activate' },
 ];
 
-export const ONBOARDING_STATUS_OPTIONS: OnboardingStatus[] = ['PENDING', 'APPROVED', 'PILOT', 'ACTIVE', 'REJECTED'];
+export function getAvailableOnboardingActions(status: OnboardingStatus): OnboardingAction[] {
+  if (status === 'PENDING') {
+    return [
+      { label: 'Approve', endpoint: 'approve', tone: 'primary' },
+      { label: 'Reject', endpoint: 'reject', tone: 'danger' },
+    ];
+  }
+
+  if (status === 'APPROVED') {
+    return [{ label: 'Mark Pilot', endpoint: 'mark-pilot', tone: 'primary' }];
+  }
+
+  if (status === 'PILOT') {
+    return [{ label: 'Activate Tenant', endpoint: 'activate', tone: 'success' }];
+  }
+
+  return [];
+}
 
 export function onboardingStatusLabel(status: string) {
-  return status.replaceAll('_', ' ').toLowerCase().replace(/\b\w/g, (value) => value.toUpperCase());
+  return status
+    .replaceAll('_', ' ')
+    .toLowerCase()
+    .replace(/\b\w/g, (value) => value.toUpperCase());
 }
 
 export function onboardingStatusTone(status: string) {
@@ -54,5 +94,18 @@ export function onboardingStatusTone(status: string) {
   if (status === 'APPROVED') return 'Approved';
   if (status === 'PENDING') return 'Pending review';
   if (status === 'RESERVED') return 'Reserved';
+  if (status === 'REJECTED') return 'Rejected';
   return 'Review needed';
+}
+
+export function normalizeOnboardingText(value?: string | null) {
+  return String(value || '').replace(/\\n/g, '\n');
+}
+
+export function isLoginEnabledForStatus(status?: string | null) {
+  return status === 'ACTIVE';
+}
+
+export function isImportEnabledForStatus(_status?: string | null) {
+  return false;
 }

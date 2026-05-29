@@ -23,26 +23,61 @@ export default function LoginCard() {
         setIsLoading(true);
         setMessage('');
 
+        const normalizedSchoolId = schoolId.trim().toUpperCase();
+
+        if (!normalizedSchoolId) {
+            setMessage('School ID is required.');
+            setIsLoading(false);
+            return;
+        }
+
         const request: LoginRequest = {
             username,
             password,
             role,
-            schoolId: schoolId.trim().toUpperCase(),
+            schoolId: normalizedSchoolId,
         };
 
         try {
-            const response = await webApi.login<LoginApiResponse>(request);
-            const user = mapLoginResponseToUser(response, role);
-            storeUser(user);
-            router.push(homeRouteForRole(user.role));
-        } catch (error) {
-            const allowDevFallback = process.env.NEXT_PUBLIC_ENABLE_DEV_AUTH_FALLBACK !== 'false';
-            if (!allowDevFallback) {
-                setMessage(error instanceof Error ? error.message : 'Login failed. Please verify backend API is running.');
+            const status = await webApi.onboardingStatusBySchoolId<{
+                status: string;
+                loginEnabled: boolean;
+                message?: string;
+                nextStep?: string;
+            }>(normalizedSchoolId);
+
+            if (!status.loginEnabled) {
+                setMessage(
+                    `${status.message || 'School registration is not active yet.'} ${
+                        status.nextStep || 'Please check registration status using your reference ID.'
+                    }`
+                );
                 setIsLoading(false);
                 return;
             }
+
+            const response = await webApi.login<LoginApiResponse>(request);
+            const user = mapLoginResponseToUser(response, role);
+
+            storeUser(user);
+            router.push(homeRouteForRole(user.role));
+        } catch (error) {
+            const allowDevFallback =
+                process.env.NEXT_PUBLIC_ENABLE_DEV_AUTH_FALLBACK !== 'false' &&
+                ['BRK1', 'DEMO'].includes(normalizedSchoolId);
+
+            if (!allowDevFallback) {
+                setMessage(
+                    error instanceof Error
+                        ? error.message
+                        : 'Login failed. Please verify backend API is running.'
+                );
+                setIsLoading(false);
+                return;
+            }
+
             const user = createDevUser(request);
+
             storeUser(user);
             setMessage('Backend login unavailable, opened safe local dev session.');
             router.push(homeRouteForRole(role));
@@ -80,14 +115,16 @@ export default function LoginCard() {
                     <button
                         key={item}
                         type="button"
-                        className={
-                            role === item
-                                ? 'role-pill role-pill--active'
-                                : 'role-pill'
-                        }
+                        className={role === item ? 'role-pill role-pill--active' : 'role-pill'}
                         onClick={() => setRole(item)}
                     >
-                        {item === 'ADMIN' ? 'Admin' : item === 'PRINCIPAL' ? 'Principal' : item === 'TEACHER' ? 'Teacher' : 'Student'}
+                        {item === 'ADMIN'
+                            ? 'Admin'
+                            : item === 'PRINCIPAL'
+                                ? 'Principal'
+                                : item === 'TEACHER'
+                                    ? 'Teacher'
+                                    : 'Student'}
                     </button>
                 ))}
             </div>
@@ -105,7 +142,9 @@ export default function LoginCard() {
                 School ID
                 <input
                     value={schoolId}
-                    onChange={(event) => setSchoolId(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4))}
+                    onChange={(event) =>
+                        setSchoolId(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4))
+                    }
                     placeholder="BRK1"
                     maxLength={4}
                 />
@@ -122,22 +161,42 @@ export default function LoginCard() {
             </label>
 
             <button className="primary-button" type="submit" disabled={isLoading}>
-                {isLoading ? 'Checking API...' : `Open ${role === 'ADMIN' ? 'Admin' : role === 'PRINCIPAL' ? 'Principal' : role === 'TEACHER' ? 'Teacher' : 'Student'} Portal`}
+                {isLoading
+                    ? 'Checking API...'
+                    : `Open ${
+                        role === 'ADMIN'
+                            ? 'Admin'
+                            : role === 'PRINCIPAL'
+                                ? 'Principal'
+                                : role === 'TEACHER'
+                                    ? 'Teacher'
+                                    : 'Student'
+                    } Portal`}
             </button>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
                 <Link className="secondary-button" href="/register-school" style={{ textAlign: 'center' }}>
                     Register School
                 </Link>
+
                 <Link className="secondary-button" href="/request-pilot-demo" style={{ textAlign: 'center' }}>
                     Request Pilot Demo
+                </Link>
+
+                <Link
+                    className="secondary-button"
+                    href="/check-registration-status"
+                    style={{ textAlign: 'center', gridColumn: '1 / -1' }}
+                >
+                    Check Registration Status
                 </Link>
             </div>
 
             {message ? <small className="dev-note">{message}</small> : null}
 
             <small className="dev-note">
-                Use the real 4-character School Access ID issued during onboarding, for example BRK1 or AB12. Teacher identity and teacherId are bound from the login session.
+                Use the real 4-character School Access ID issued during onboarding, for example BRK1 or AB12.
+                Teacher identity and teacherId are bound from the login session.
             </small>
         </form>
     );

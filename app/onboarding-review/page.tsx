@@ -89,7 +89,7 @@ export default function OnboardingReviewPage() {
         {message ? <div className="notice-card" style={{ marginBottom: 16 }}>{message}</div> : null}
 
         <div style={{ display: 'grid', gap: 14 }}>
-          {items.length === 0 && !isLoading ? <div className="notice-card">No pending onboarding items found.</div> : null}
+          {items.length === 0 && !isLoading ? <div className="notice-card">No onboarding items found.</div> : null}
           {items.map((item) => (
             <article key={item.referenceId} className="notice-card" style={{ display: 'grid', gap: 10 }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', gap: 12, flexWrap: 'wrap' }}>
@@ -105,12 +105,13 @@ export default function OnboardingReviewPage() {
               </div>
               <div className="button-row">
                 <button className="secondary-button" type="button" onClick={() => setSelected(item)}>View Details</button>
-                {ONBOARDING_ACTIONS.map((action) => (
+                {item.status === 'ACTIVE' ? <span className="secondary-button" style={{ pointerEvents: 'none', opacity: 0.82 }}>Activated ✓</span> : null}
+                {ONBOARDING_ACTIONS.filter((action) => canRunAction(item.status, action.status)).map((action) => (
                   <button
                     key={action.endpoint}
                     className={action.status === 'ACTIVE' ? 'primary-button' : 'secondary-button'}
                     type="button"
-                    disabled={activeReference === item.referenceId || !canRunAction(item.status, action.status)}
+                    disabled={activeReference === item.referenceId}
                     onClick={() => runAction(item, action.endpoint as 'approve' | 'reject' | 'mark-pilot' | 'activate', action.label)}
                   >
                     {action.label}
