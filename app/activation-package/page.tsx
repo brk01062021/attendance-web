@@ -28,6 +28,20 @@ export default function ActivationPackagePage() {
     finally { setLoading(false); }
   }
 
+  async function regenerateCredentials() {
+    const clean = referenceId.trim().toUpperCase();
+    if (!clean) { setMessage('Enter an ACTIVE tenant Reference ID.'); return; }
+    setLoading(true); setMessage('');
+    try {
+      setPkg(await webApi.regenerateActivationCredentials<ActivationPackage>(clean));
+      setMessage('Credentials regenerated. Old temporary passwords are now invalid.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Unable to regenerate credentials.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   return (
     <main className="page-dark" style={{ minHeight: '100vh', padding: 24 }}>
       <ShellStyles />
@@ -37,7 +51,7 @@ export default function ActivationPackagePage() {
         <p className="erp-workspace-subtitle erp-workspace-context-title" style={{ marginTop: 0 }}>Generate the first Admin and Principal accounts after Active status, then use this package as the school workspace handover checklist.</p>
         <form onSubmit={generate} style={{ display: 'grid', gap: 14 }}>
           <label>Reference ID<input value={referenceId} onChange={(event) => setReferenceId(event.target.value.toUpperCase())} placeholder="Enter Reference ID" /></label>
-          <div className="button-row"><button className="primary-button" type="submit" disabled={loading}>{loading ? 'Generating...' : 'Generate Activation Package'}</button><Link className="secondary-button" href="/onboarding-review">Review Queue</Link></div>
+          <div className="button-row"><button className="primary-button" type="submit" disabled={loading}>{loading ? 'Working...' : 'Generate Activation Package'}</button><button className="secondary-button" type="button" disabled={loading} onClick={regenerateCredentials}>Regenerate Credentials</button><Link className="secondary-button" href="/onboarding-review">Review Queue</Link></div>
         </form>
         {message ? <div className="notice-card" style={{ marginTop: 16 }}>{message}</div> : null}
         {pkg ? (

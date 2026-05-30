@@ -2,12 +2,14 @@ export type WebUserRole = 'ADMIN' | 'PRINCIPAL' | 'TEACHER' | 'STUDENT';
 
 export type WebPortalUser = {
   userId: number;
+  username?: string;
   schoolId: string;
   internalSchoolId?: number;
   role: WebUserRole;
   displayName: string;
   schoolName: string;
   token?: string;
+  forcePasswordChange?: boolean;
   teacherId?: number | null;
   studentId?: number | null;
 };
@@ -32,4 +34,5 @@ export type LoginApiResponse = {
   displayName?: string | null;
   schoolName?: string | null;
   role: WebUserRole | string;
+  forcePasswordChange?: boolean;
 };

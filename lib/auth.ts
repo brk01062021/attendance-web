@@ -66,6 +66,7 @@ function normalizeUser(user: WebPortalUser): WebPortalUser {
     displayName,
     teacherId: role === 'TEACHER' ? Number(user.teacherId || user.userId || 1) : null,
     studentId: role === 'STUDENT' ? Number(user.studentId || user.userId || 201) : null,
+    forcePasswordChange: Boolean(user.forcePasswordChange),
   };
 }
 
@@ -126,6 +127,7 @@ export function createDevUser(login: LoginRequest): WebPortalUser {
     token: 'dev-web-token',
     teacherId: role === 'TEACHER' ? 1 : null,
     studentId: role === 'STUDENT' ? 201 : null,
+    forcePasswordChange: false,
   });
 }
 
@@ -142,5 +144,6 @@ export function mapLoginResponseToUser(response: LoginApiResponse, requestedRole
     token: response?.token || 'demo-token',
     teacherId: response?.teacherId ?? (role === 'TEACHER' ? Number(response?.userId || 1) : null),
     studentId: response?.studentId ?? (role === 'STUDENT' ? Number(response?.userId || 201) : null),
+    forcePasswordChange: Boolean(response?.forcePasswordChange),
   });
 }

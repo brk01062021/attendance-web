@@ -51,6 +51,7 @@ export async function apiClient<T>(path: string, options: ApiOptions = {}): Prom
 
 export const webApi = {
   login: <T>(body: unknown) => apiClient<T>('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
+  changePassword: <T>(body: unknown) => apiClient<T>('/auth/change-password', { method: 'POST', body: JSON.stringify(body) }),
   health: <T>() => apiClient<T>('/pilot-onboarding/health'),
   checkSchoolId: <T>(schoolId: string) =>
     apiClient<T>('/school-registration/school-id/check', { query: { schoolId } }),
@@ -75,6 +76,8 @@ export const webApi = {
     apiClient<T>(`/school-registration/activation-package/${referenceId}`),
   generateActivationPackage: <T>(referenceId: string) =>
     apiClient<T>(`/school-registration/activation-package/${referenceId}/generate`, { method: 'POST' }),
+  regenerateActivationCredentials: <T>(referenceId: string) =>
+    apiClient<T>(`/school-registration/activation-package/${referenceId}/regenerate-credentials`, { method: 'POST' }),
   pilotOnboardingSummary: <T>(schoolId: string, token?: string) => apiClient<T>('/pilot-onboarding/summary', { token, schoolId, query: { schoolId } }),
   adminSummary: <T>(date: string, token?: string, schoolId?: string) => apiClient<T>('/attendance/dashboard/admin', { token, schoolId, query: { date } }),
   principalSummary: <T>(date: string, token?: string, schoolId?: string) => apiClient<T>('/principal/dashboard/summary', { token, schoolId, query: { date } }),

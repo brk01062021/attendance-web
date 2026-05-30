@@ -57,10 +57,14 @@ export default function LoginCard() {
             }
 
             const response = await webApi.login<LoginApiResponse>(request);
-            const user = mapLoginResponseToUser(response, role);
+            const user = { ...mapLoginResponseToUser(response, role), username: username.trim() };
 
             storeUser(user);
-            router.push(homeRouteForRole(user.role));
+            if (user.forcePasswordChange) {
+                router.push('/change-password');
+            } else {
+                router.push(homeRouteForRole(user.role));
+            }
         } catch (error) {
             const allowDevFallback =
                 process.env.NEXT_PUBLIC_ENABLE_DEV_AUTH_FALLBACK !== 'false' &&
