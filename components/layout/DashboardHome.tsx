@@ -9,7 +9,8 @@ const roleCopy = {
     overviewTitle: 'Admin Operations',
     focus: 'Run daily school operations, monitor approvals, and manage school workflows from one calm workspace.',
     primaryActions: [
-      ['/import-school-data', '📥', 'Import School Data', 'Validate school profile, users, classes, sections, subjects, holidays, and teacher pools.'],
+      ['/workspace-setup', '🧭', 'Workspace Initialization', 'Complete setup progress and unlock Import School Data.'],
+      ['/import-school-data', '📥', 'Import School Data', 'Locked until workspace setup is completed.'],
       ['/teacher-leave', '🗓️', 'Leave Approvals', 'Review teacher leave enquiries and begin replacement coverage after approval.'],
       ['/reports/attendance', '📊', 'Attendance Reports', 'Open school, class, section, and student attendance reports.'],
       ['/reports/teachers', '👨‍🏫', 'Teacher Reports', 'Review teacher workload, leave, submissions, and replacement records.'],
@@ -31,6 +32,7 @@ const roleCopy = {
     overviewTitle: 'Principal Operations',
     focus: 'Monitor school-wide attendance, teacher availability, leave approvals, replacement coverage, and notices.',
     primaryActions: [
+      ['/workspace-setup', '🧭', 'Workspace Initialization', 'Complete setup progress and unlock Import School Data.'],
       ['/principal/intelligence', '🧠', 'School Intelligence', 'View school-level attendance, workload, and operational insights.'],
       ['/teacher-leave', '🗓️', 'Leave Approvals', 'Approve or reject teacher leave enquiries.'],
       ['/reports/attendance', '📊', 'Attendance Reports', 'Open class, section, and student attendance views.'],

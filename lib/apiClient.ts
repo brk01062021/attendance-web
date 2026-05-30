@@ -79,6 +79,12 @@ export const webApi = {
   regenerateActivationCredentials: <T>(referenceId: string) =>
     apiClient<T>(`/school-registration/activation-package/${referenceId}/regenerate-credentials`, { method: 'POST' }),
   pilotOnboardingSummary: <T>(schoolId: string, token?: string) => apiClient<T>('/pilot-onboarding/summary', { token, schoolId, query: { schoolId } }),
+  workspaceSetupStatus: <T>(schoolId: string, token?: string) =>
+    apiClient<T>('/workspace-setup/status', { token, schoolId, query: { schoolId } }),
+  updateWorkspaceStep: <T>(schoolId: string, stepKey: string, body: unknown, token?: string) =>
+    apiClient<T>(`/workspace-setup/${stepKey}`, { method: 'POST', token, schoolId, query: { schoolId }, body: JSON.stringify(body) }),
+  workspaceImportLock: <T>(schoolId: string, token?: string) =>
+    apiClient<T>('/workspace-setup/import-lock', { token, schoolId, query: { schoolId } }),
   adminSummary: <T>(date: string, token?: string, schoolId?: string) => apiClient<T>('/attendance/dashboard/admin', { token, schoolId, query: { date } }),
   principalSummary: <T>(date: string, token?: string, schoolId?: string) => apiClient<T>('/principal/dashboard/summary', { token, schoolId, query: { date } }),
   rolloutReadiness: <T>(batchId: string, token?: string, schoolId?: string) => apiClient<T>(`/timetable/operations/rollout-readiness/${batchId}`, { token, schoolId }),
