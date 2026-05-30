@@ -31,7 +31,7 @@ export default function ActivationPackagePage() {
         <h1 className="erp-page-title erp-school-name-title" style={{ margin: '8px 0' }}>Activation Package</h1>
         <p className="erp-workspace-subtitle erp-workspace-context-title" style={{ marginTop: 0 }}>Generate the first Admin and Principal accounts after a tenant reaches Active status.</p>
         <form onSubmit={generate} style={{ display: 'grid', gap: 14 }}>
-          <label>Reference ID<input value={referenceId} onChange={(event) => setReferenceId(event.target.value.toUpperCase())} placeholder="REG-202605290012-D74FC5" /></label>
+          <label>Reference ID<input value={referenceId} onChange={(event) => setReferenceId(event.target.value.toUpperCase())} placeholder="Enter Reference ID" /></label>
           <div className="button-row"><button className="primary-button" type="submit" disabled={loading}>{loading ? 'Generating...' : 'Generate Activation Package'}</button><Link className="secondary-button" href="/onboarding-review">Review Queue</Link></div>
         </form>
         {message ? <div className="notice-card" style={{ marginTop: 16 }}>{message}</div> : null}

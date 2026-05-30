@@ -24,7 +24,7 @@ const roleCopy = {
     ],
     updates: [
       { title: 'Daily close check', message: 'Review pending attendance, leave approvals, and replacement coverage before day close.', tone: 'warning' },
-      { title: 'Notice control', message: 'Holiday and academic notices stay under Admin and Principal approval.', tone: 'success' },
+      { title: 'Notice control', message: 'Holiday and academic notices stay controlled after school-level validation.', tone: 'success' },
     ],
   },
   PRINCIPAL: {

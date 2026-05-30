@@ -70,16 +70,15 @@ export default function OnboardingReviewPage() {
     <main className="page-dark" style={{ minHeight: '100vh', padding: 24 }}>
       <ShellStyles />
       <section className="premium-panel" style={{ position: 'relative', zIndex: 1, maxWidth: 1180, margin: '0 auto', borderRadius: 30, padding: 28 }}>
-        <p className="eyebrow">TENANT ACTIVATION</p>
+        <p className="eyebrow">PUBLIC ONBOARDING</p>
         <h1 className="erp-page-title erp-school-name-title" style={{ margin: '8px 0' }}>VidyaSetu Onboarding Review Queue</h1>
-        <p className="erp-workspace-subtitle erp-workspace-context-title" style={{ marginTop: 0 }}>
-          VidyaSetu onboarding team reviews school registrations through Pending → Approved → Pilot → Active. Login and credentials are enabled only after Active. Final Excel import remains disabled.
+        <p className="erp-workspace-subtitle erp-workspace-context-title" style={{ marginTop: 0, fontSize: 14, lineHeight: 1.65 }}>
+          VidyaSetu Onboarding Team reviews school registrations through Registration Submitted → Approved → Pilot → Active. Login and credentials are enabled only after Active.
         </p>
 
         <div className="button-row" style={{ marginBottom: 18 }}>
           <button className="secondary-button" type="button" onClick={loadQueue}>{isLoading ? 'Loading...' : 'Refresh Queue'}</button>
-          <Link className="secondary-button" href="/admin">Admin Home</Link>
-          <Link className="secondary-button" href="/principal">Principal Home</Link>
+          <Link className="secondary-button" href="/login">Back to Login</Link>
         </div>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(170px, 1fr))', gap: 12, marginBottom: 16 }}>
