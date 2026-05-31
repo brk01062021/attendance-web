@@ -41,7 +41,15 @@ export async function apiClient<T>(path: string, options: ApiOptions = {}): Prom
     if (response.status === 401 && typeof window !== 'undefined') {
       window.dispatchEvent(new CustomEvent('vidyasetu:session-expired'));
     }
-    const message = body?.message || body?.data?.message || body?.errorCode || rawText || `VidyaSetu API ${response.status}: ${response.statusText}`;
+    let message = body?.message || body?.data?.message || body?.errorCode || rawText || `VidyaSetu API ${response.status}: ${response.statusText}`;
+
+    // Do not expose raw SQL/database errors in the ERP UI.
+    if (message.toLowerCase().includes('duplicate key value') && message.toLowerCase().includes('idx_workspace_setup_school_id')) {
+      message = 'Workspace setup is already being initialized. Loading the existing setup status.';
+    } else if (message.toLowerCase().includes('could not execute statement')) {
+      message = 'The requested operation could not be completed. Please refresh and try again.';
+    }
+
     throw new Error(message);
   }
 
