@@ -84,6 +84,7 @@ export const day28SampleSheets: ImportSheetPreview[] = [
   { sheetName: 'Subjects', totalRows: 20, headers: ['subject_name', 'subject_type', 'weekly_periods'] },
   { sheetName: 'ClassSections', totalRows: 20, headers: ['class_name', 'section'] },
   { sheetName: 'TeacherPools', totalRows: 10, headers: ['class_name', 'teacher_pool'] },
+  { sheetName: 'AcademicRules', totalRows: 20, headers: ['subject_name', 'subject_type', 'weekly_periods', 'distribution_rule'] },
   { sheetName: 'Schedules', totalRows: 40, headers: ['day', 'period', 'start_time', 'end_time'] },
 ];
 

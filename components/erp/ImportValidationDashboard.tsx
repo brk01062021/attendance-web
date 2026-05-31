@@ -29,6 +29,10 @@ function normalizeImportType(value: string) {
   return value.toUpperCase().replaceAll(' ', '_').replaceAll('+', 'AND');
 }
 
+function isCommitReadyStatus(status?: string | null) {
+  return status === 'READY_TO_IMPORT' || status === 'READY_WITH_WARNINGS';
+}
+
 export default function ImportValidationDashboard() {
   const storedUser = typeof window !== 'undefined' ? getStoredUser() : null;
   const schoolId = storedUser?.schoolId || 'BRK1';
@@ -161,7 +165,14 @@ export default function ImportValidationDashboard() {
   }
 
   const activeHistoryRow = upload?.uploadId ? uploadHistory.find((item) => item.uploadId === upload.uploadId) : null;
-  const canCommitActiveUpload = Boolean(upload?.uploadId && preview?.valid && !activeHistoryRow?.committed && !activeHistoryRow?.rolledBack);
+  const activeStatus = activeHistoryRow?.status || upload?.status || preview?.status;
+  const canCommitActiveUpload = Boolean(
+    upload?.uploadId
+    && preview?.valid
+    && isCommitReadyStatus(activeStatus)
+    && !activeHistoryRow?.committed
+    && !activeHistoryRow?.rolledBack
+  );
 
   return (
     <section className="space-y-6">
@@ -300,7 +311,7 @@ export default function ImportValidationDashboard() {
       <section className="rounded-[2rem] border border-amber-100/60 bg-white/82 p-6 shadow-lg shadow-amber-900/5">
         <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">Upload History</p>
         <h3 className="mt-2 text-xl font-black text-slate-950">Pilot School Workbook Activity</h3>
-        {historyError ? <p className="mt-3 rounded-2xl bg-amber-50 p-3 text-sm font-bold text-amber-800">{historyError}</p> : null}
+        {historyError && uploadHistory.length === 0 ? <p className="mt-3 rounded-2xl bg-amber-50 p-3 text-sm font-bold text-amber-800">{historyError}</p> : null}
         <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200/70">
           <table className="w-full text-left text-sm">
             <thead className="bg-slate-950 text-xs uppercase tracking-[0.16em] text-amber-100"><tr><th className="px-4 py-3">Workbook</th><th className="px-4 py-3">Date</th><th className="px-4 py-3">Rows</th><th className="px-4 py-3">Issues</th><th className="px-4 py-3">Status</th><th className="px-4 py-3">Staged</th><th className="px-4 py-3">Actions</th></tr></thead>
@@ -316,7 +327,7 @@ export default function ImportValidationDashboard() {
                   <td className="px-4 py-3">
                     <div className="flex flex-wrap items-center gap-2">
                       <button type="button" onClick={() => openHistoryReport(item.uploadId)} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">View Report</button>
-                      {!item.committed && !item.rolledBack && item.errorCount === 0 ? <button type="button" onClick={() => commitUpload(item.uploadId)} className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">Commit</button> : null}
+                      {isCommitReadyStatus(item.status) && !item.committed && !item.rolledBack && item.errorCount === 0 ? <button type="button" onClick={() => commitUpload(item.uploadId)} className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">Commit</button> : null}
                       {!item.rolledBack ? <button type="button" onClick={() => rollbackUpload(item.uploadId)} className="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-800">Rollback</button> : null}
                     </div>
                   </td>
