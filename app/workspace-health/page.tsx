@@ -37,10 +37,11 @@ type ActivationSummary = {
   readinessPercent: number;
   committedWorkbookCount: number;
   lastWorkbookCommittedAt?: string;
-  activatedAt?: string;
-  activatedBy?: string;
+  tenantActive?: boolean;
   goLiveStatus?: string;
-  nextStep?: string;
+  activationButtonLabel?: string;
+  activatedBy?: string;
+  activatedAt?: string;
   healthItems: HealthItem[];
   auditTrail: AuditItem[];
 };
@@ -63,6 +64,18 @@ function formatDate(value?: string) {
 
 function statusLabel(status?: string) {
   return String(status || 'PENDING').replaceAll('_', ' ');
+}
+
+function isActive(summary?: ActivationSummary | null) {
+  return summary?.activationStatus === 'ACTIVE' || summary?.tenantActive === true;
+}
+
+function activatedByLabel(summary?: ActivationSummary | null) {
+  return isActive(summary) && summary?.activatedBy ? summary.activatedBy : 'Not activated';
+}
+
+function activatedAtLabel(summary?: ActivationSummary | null) {
+  return isActive(summary) && summary?.activatedAt ? formatDate(summary.activatedAt) : 'Not activated';
 }
 
 export default function WorkspaceHealthPage() {
@@ -107,7 +120,7 @@ export default function WorkspaceHealthPage() {
       { label: 'Academic Year', ready: summary.academicYearReady },
       { label: 'Workspace Setup', ready: summary.workspaceSetupReady },
       { label: 'Workbook Commit', ready: summary.importCommitted },
-      { label: 'Go-Live Status', ready: summary.activationStatus === 'ACTIVE' },
+      { label: 'Go-Live Status', ready: summary.activationStatus === 'ACTIVE' || summary.tenantActive },
     ];
   }, [summary]);
 
@@ -122,21 +135,13 @@ export default function WorkspaceHealthPage() {
         remarks: 'Activated from Workspace Health Center',
       }, user.token);
       setSummary(unwrap(response));
-      setNotice('Activation completed successfully. Tenant status is ACTIVE and the school is ready for live ERP operations.');
+      setNotice('Workspace activation completed. School is now live ready for Admin/Principal operational monitoring.');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Workspace activation could not be completed.');
     } finally {
       setActivating(false);
     }
   }
-
-  const buttonLabel = summary?.activationStatus === 'ACTIVE'
-    ? 'Activation Completed'
-    : summary?.readyForActivation
-      ? 'Activate Workspace'
-      : summary?.importCommitted
-        ? 'Activation Pending'
-        : 'Commit Workbook First';
 
   return (
     <PortalShell
@@ -151,7 +156,7 @@ export default function WorkspaceHealthPage() {
         .panel { padding: 24px; border-radius: 26px; }
         .readiness { font-size: 56px; line-height: 1; color: #f6d36f; font-weight: 900; }
         .status-pill { display: inline-flex; border-radius: 999px; padding: 8px 12px; background: rgba(82, 61, 19, .52); color: #ffe5a3; font-weight: 800; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; }
-        .grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
+        .grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
         .gate { padding: 16px; border-radius: 20px; background: rgba(255,255,255,.48); border: 1px solid rgba(124, 90, 32, .18); }
         .gate strong, .health-card strong { display: block; color: #3a270b; }
         .gate small, .health-card p, .audit p { color: rgba(58,39,11,.72); }
@@ -161,6 +166,7 @@ export default function WorkspaceHealthPage() {
         .actions { display:flex; gap: 12px; flex-wrap: wrap; align-items:center; }
         .primary { border:0; border-radius: 999px; padding: 12px 18px; background: linear-gradient(135deg,#8a5a13,#d49b28); color: #fff8db; font-weight: 900; cursor:pointer; }
         .primary:disabled { opacity:.58; cursor:not-allowed; }
+        .primary.pending { background: rgba(255,255,255,.42); color: #66420d; border: 1px solid rgba(124,90,32,.24); }
         @media (max-width: 900px) { .health-hero, .health-grid { grid-template-columns: 1fr; } .grid { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
       `}</style>
 
@@ -175,7 +181,6 @@ export default function WorkspaceHealthPage() {
               <span className="status-pill">{statusLabel(summary.activationStatus)}</span>
               <h2>{summary.schoolName}</h2>
               <p>{summary.activationMessage}</p>
-              {summary.nextStep && <p><strong>Next Step:</strong> {summary.nextStep}</p>}
               <div className="grid">
                 {gates.map((gate) => (
                   <div className="gate" key={gate.label}>
@@ -190,10 +195,11 @@ export default function WorkspaceHealthPage() {
               <div className="readiness">{summary.readinessPercent}%</div>
               <p>Committed workbooks: {summary.committedWorkbookCount}</p>
               <p>Last commit: {formatDate(summary.lastWorkbookCommittedAt)}</p>
-              <p>Activated at: {formatDate(summary.activatedAt)}</p>
+              <p>Activated by: {activatedByLabel(summary)}</p>
+              <p>Activated at: {activatedAtLabel(summary)}</p>
               <div className="actions">
-                <button className="primary" disabled={!summary.readyForActivation || summary.activationStatus === 'ACTIVE' || activating} onClick={handleActivate}>
-                  {activating ? 'Activating...' : buttonLabel}
+                <button className={`primary ${!summary.readyForActivation ? 'pending' : ''}`} disabled={!summary.readyForActivation || activating} onClick={handleActivate}>
+                  {activating ? 'Checking...' : (summary.activationButtonLabel || (summary.readyForActivation ? 'Activate Workspace' : 'Activation Pending'))}
                 </button>
               </div>
             </div>
@@ -203,9 +209,9 @@ export default function WorkspaceHealthPage() {
             <p className="section-eyebrow">Admin/Principal Activation Summary</p>
             <div className="health-grid" style={{ marginBottom: 14 }}>
               <div className="health-card"><strong>Activation Status</strong><p>{statusLabel(summary.activationStatus)}</p></div>
-              <div className="health-card"><strong>Go-Live Readiness</strong><p>{statusLabel(summary.goLiveStatus)}</p></div>
-              <div className="health-card"><strong>Activated By</strong><p>{summary.activatedBy || 'Not activated yet'}</p></div>
-              <div className="health-card"><strong>Operational Summary</strong><p>{summary.nextStep}</p></div>
+              <div className="health-card"><strong>Go-Live Readiness</strong><p>{statusLabel(summary.goLiveStatus || 'NOT_READY')}</p></div>
+              <div className="health-card"><strong>Activated By</strong><p>{activatedByLabel(summary)}</p></div>
+              <div className="health-card"><strong>Operational Summary</strong><p>{summary.activationMessage}</p></div>
             </div>
             <p className="section-eyebrow">School Configuration Summary</p>
             <div className="health-grid">
