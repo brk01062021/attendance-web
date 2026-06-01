@@ -37,6 +37,10 @@ type ActivationSummary = {
   readinessPercent: number;
   committedWorkbookCount: number;
   lastWorkbookCommittedAt?: string;
+  activatedAt?: string;
+  activatedBy?: string;
+  goLiveStatus?: string;
+  nextStep?: string;
   healthItems: HealthItem[];
   auditTrail: AuditItem[];
 };
@@ -103,6 +107,7 @@ export default function WorkspaceHealthPage() {
       { label: 'Academic Year', ready: summary.academicYearReady },
       { label: 'Workspace Setup', ready: summary.workspaceSetupReady },
       { label: 'Workbook Commit', ready: summary.importCommitted },
+      { label: 'Go-Live Status', ready: summary.activationStatus === 'ACTIVE' },
     ];
   }, [summary]);
 
@@ -117,13 +122,21 @@ export default function WorkspaceHealthPage() {
         remarks: 'Activated from Workspace Health Center',
       }, user.token);
       setSummary(unwrap(response));
-      setNotice('Workspace activation checks passed. Continue with Admin/Principal operational monitoring.');
+      setNotice('Activation completed successfully. Tenant status is ACTIVE and the school is ready for live ERP operations.');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Workspace activation could not be completed.');
     } finally {
       setActivating(false);
     }
   }
+
+  const buttonLabel = summary?.activationStatus === 'ACTIVE'
+    ? 'Activation Completed'
+    : summary?.readyForActivation
+      ? 'Activate Workspace'
+      : summary?.importCommitted
+        ? 'Activation Pending'
+        : 'Commit Workbook First';
 
   return (
     <PortalShell
@@ -162,6 +175,7 @@ export default function WorkspaceHealthPage() {
               <span className="status-pill">{statusLabel(summary.activationStatus)}</span>
               <h2>{summary.schoolName}</h2>
               <p>{summary.activationMessage}</p>
+              {summary.nextStep && <p><strong>Next Step:</strong> {summary.nextStep}</p>}
               <div className="grid">
                 {gates.map((gate) => (
                   <div className="gate" key={gate.label}>
@@ -176,15 +190,23 @@ export default function WorkspaceHealthPage() {
               <div className="readiness">{summary.readinessPercent}%</div>
               <p>Committed workbooks: {summary.committedWorkbookCount}</p>
               <p>Last commit: {formatDate(summary.lastWorkbookCommittedAt)}</p>
+              <p>Activated at: {formatDate(summary.activatedAt)}</p>
               <div className="actions">
-                <button className="primary" disabled={!summary.readyForActivation || activating} onClick={handleActivate}>
-                  {activating ? 'Checking...' : 'Activate Workspace'}
+                <button className="primary" disabled={!summary.readyForActivation || summary.activationStatus === 'ACTIVE' || activating} onClick={handleActivate}>
+                  {activating ? 'Activating...' : buttonLabel}
                 </button>
               </div>
             </div>
           </section>
 
           <section className="glass-panel premium-panel erp-section panel">
+            <p className="section-eyebrow">Admin/Principal Activation Summary</p>
+            <div className="health-grid" style={{ marginBottom: 14 }}>
+              <div className="health-card"><strong>Activation Status</strong><p>{statusLabel(summary.activationStatus)}</p></div>
+              <div className="health-card"><strong>Go-Live Readiness</strong><p>{statusLabel(summary.goLiveStatus)}</p></div>
+              <div className="health-card"><strong>Activated By</strong><p>{summary.activatedBy || 'Not activated yet'}</p></div>
+              <div className="health-card"><strong>Operational Summary</strong><p>{summary.nextStep}</p></div>
+            </div>
             <p className="section-eyebrow">School Configuration Summary</p>
             <div className="health-grid">
               {summary.healthItems.map((item) => (
