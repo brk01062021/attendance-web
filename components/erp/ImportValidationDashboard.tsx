@@ -139,7 +139,7 @@ export default function ImportValidationDashboard() {
     try {
       const result = await commitImportWorkbook(uploadId);
       setUploadHistory((current) => current.map((item) => item.uploadId === uploadId ? { ...item, status: result.status, committed: result.committed, rolledBack: result.rolledBack, stagedRowCount: result.stagedRowCount ?? item.stagedRowCount, lifecycleMessage: result.lifecycleMessage || item.lifecycleMessage, importBatchId: result.importBatchId || item.importBatchId } : item));
-      setMessage(result.message || 'Workbook import committed for onboarding approval.');
+      setMessage(result.message || 'Workbook commit executed successfully. Staged rows are ready for School Activation.');
       await loadHistory();
       if (activeReportId === uploadId) await openHistoryReport(uploadId);
     } catch (error) {
@@ -155,7 +155,7 @@ export default function ImportValidationDashboard() {
     try {
       const result = await rollbackImportWorkbook(uploadId);
       setUploadHistory((current) => current.map((item) => item.uploadId === uploadId ? { ...item, status: result.status, committed: result.committed, rolledBack: result.rolledBack, stagedRowCount: result.stagedRowCount ?? item.stagedRowCount, lifecycleMessage: result.lifecycleMessage || item.lifecycleMessage, importBatchId: result.importBatchId || item.importBatchId } : item));
-      setMessage(result.message || 'Workbook import rolled back.');
+      setMessage(result.message || 'Workbook rollback completed. Staged rows were removed and audit history is preserved.');
       await loadHistory();
     } catch (error) {
       setMessage(toSafeImportMessage(error, 'Workbook import could not be rolled back.'));
@@ -187,7 +187,7 @@ export default function ImportValidationDashboard() {
           <Badge label={`school_id isolation: ${schoolId}`} />
           <Badge label={`Role access: ${role}`} />
           <Badge label="Backend XLSX preview" />
-          <Badge label="Real commit staging" />
+          <Badge label="Real commit execution" />
           <Badge label="Rollback-safe lifecycle" />
         </div>
 
@@ -247,6 +247,26 @@ export default function ImportValidationDashboard() {
         <Metric label="Teachers" value={totals.teachers || 0} />
         <Metric label="Issues" value={totals.errors + totals.warnings} />
       </div>
+
+
+      {uploadHistory.some((item) => item.committed && !item.rolledBack) ? (
+        <section className="rounded-[2rem] border border-emerald-100/70 bg-emerald-50/80 p-6 shadow-lg shadow-emerald-900/5">
+          <p className="text-xs font-black uppercase tracking-[0.25em] text-emerald-700">Commit Success Dashboard</p>
+          <h3 className="mt-2 text-xl font-black text-slate-950">Workbook Commit Execution Completed</h3>
+          <p className="mt-2 max-w-4xl text-sm font-semibold leading-6 text-slate-700">
+            A validated workbook has been committed into tenant-safe staging. Open Workspace Health Center to complete School Activation when all readiness gates are passing.
+          </p>
+          <div className="mt-4 grid gap-3 md:grid-cols-3">
+            {uploadHistory.filter((item) => item.committed && !item.rolledBack).slice(0, 3).map((item) => (
+              <div key={item.uploadId} className="rounded-2xl border border-emerald-200/70 bg-white/80 p-4">
+                <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-700">{item.status}</p>
+                <h4 className="mt-2 font-black text-slate-950">{item.importBatchId || `Upload #${item.uploadId}`}</h4>
+                <p className="mt-1 text-sm font-semibold text-slate-600">{item.stagedRowCount || 0} staged rows • {item.totalSheets} sheets</p>
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : null}
 
       {preview ? (
         <>
