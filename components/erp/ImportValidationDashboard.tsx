@@ -84,6 +84,10 @@ export default function ImportValidationDashboard() {
     };
   }, [preview]);
 
+  const intelligence = preview?.errorIntelligence;
+  const issueGroups = intelligence?.groups || [];
+  const activationBlockers = intelligence?.activationBlockers || [];
+
   async function runPreview() {
     setLoading(true);
     setMessage(null);
@@ -284,6 +288,61 @@ export default function ImportValidationDashboard() {
               </div>
             </div>
           </div>
+
+          {intelligence ? (
+            <section className="rounded-[2rem] border border-red-100/70 bg-white/85 p-6 shadow-lg shadow-red-900/5">
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-red-700">Workbook Error Intelligence</p>
+              <div className="mt-2 flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
+                <div>
+                  <h3 className="text-xl font-black text-slate-950">{intelligence.headline}</h3>
+                  <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
+                    Errors are grouped for school onboarding review before commit, activation, and Admin/Principal go-live reporting.
+                  </p>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <span className="rounded-full bg-red-50 px-4 py-2 text-xs font-black text-red-700">{intelligence.totalErrors} errors</span>
+                  <span className="rounded-full bg-amber-50 px-4 py-2 text-xs font-black text-amber-700">{intelligence.totalWarnings} warnings</span>
+                  <span className={`rounded-full px-4 py-2 text-xs font-black ${intelligence.activationBlocked ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'}`}>{intelligence.activationBlocked ? 'Activation Blocked' : 'Activation Clear'}</span>
+                </div>
+              </div>
+
+              {activationBlockers.length ? (
+                <div className="mt-5 rounded-2xl border border-red-100 bg-red-50/70 p-4">
+                  <p className="text-sm font-black text-red-800">Activation Blockers / Notes</p>
+                  <ul className="mt-2 space-y-1 text-sm font-semibold text-red-700">
+                    {activationBlockers.map((item, index) => <li key={`${item}-${index}`}>• {item}</li>)}
+                  </ul>
+                </div>
+              ) : null}
+
+              <div className="mt-5 grid gap-4 lg:grid-cols-2">
+                {issueGroups.length === 0 ? (
+                  <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
+                    <p className="font-black text-emerald-800">No grouped workbook issues detected.</p>
+                    <p className="mt-1 text-sm font-semibold text-emerald-700">Workbook validation is clear for the current preview.</p>
+                  </div>
+                ) : issueGroups.map((group) => (
+                  <div key={group.category} className="rounded-2xl border border-slate-200/70 bg-white/75 p-4">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">{group.category.replaceAll('_', ' ')}</span>
+                      <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-black text-red-700">{group.errorCount} error</span>
+                      <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-700">{group.warningCount} warning</span>
+                    </div>
+                    <h4 className="mt-3 font-black text-slate-950">{group.title}</h4>
+                    <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{group.explanation}</p>
+                    <p className="mt-2 text-sm font-bold leading-6 text-amber-800">Action: {group.recommendedAction}</p>
+                    <div className="mt-3 space-y-2">
+                      {group.issues.slice(0, 4).map((issue, index) => (
+                        <p key={`${group.category}-${index}`} className="rounded-xl bg-slate-50 p-3 text-xs font-semibold leading-5 text-slate-600">
+                          {issue.sheetName} row {issue.rowNumber || '-'} • {issue.fieldName}: {issue.message}
+                        </p>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </section>
+          ) : null}
 
           <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
             <section className="rounded-[2rem] border border-amber-100/60 bg-white/82 p-6 shadow-lg shadow-amber-900/5">

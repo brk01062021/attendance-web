@@ -15,6 +15,31 @@ export type ImportValidationIssue = {
   message: string;
 };
 
+export type WorkbookErrorGroup = {
+  category: string;
+  title: string;
+  explanation: string;
+  recommendedAction: string;
+  errorCount: number;
+  warningCount: number;
+  issues: ImportValidationIssue[];
+};
+
+export type WorkbookErrorIntelligence = {
+  schoolId: string;
+  fileName: string;
+  status: string;
+  headline: string;
+  totalErrors: number;
+  totalWarnings: number;
+  activationBlocked: boolean;
+  missingSheets: string[];
+  schoolIdMismatchExplanations: string[];
+  groups: WorkbookErrorGroup[];
+  activationBlockers: string[];
+  generatedAt: string;
+};
+
 export type ImportPreviewResponse = {
   schoolId: string;
   importType: string;
@@ -26,6 +51,7 @@ export type ImportPreviewResponse = {
   rowCounts: Record<string, number>;
   previewSheets: ImportSheetPreview[];
   issues: ImportValidationIssue[];
+  errorIntelligence?: WorkbookErrorIntelligence;
   previewedAt: string;
 };
 
@@ -138,6 +164,13 @@ export async function getImportHistory() {
   const schoolId = user?.schoolId || 'BRK1';
   const result = await webApi.importWorkbookHistory<{ data?: ImportUploadHistoryRow[] } | ImportUploadHistoryRow[]>(schoolId, user?.token);
   return unwrap<ImportUploadHistoryRow[]>(result);
+}
+
+export async function getWorkbookErrorIntelligence(uploadId: number) {
+  const user = getStoredUser();
+  const schoolId = user?.schoolId || 'BRK1';
+  const result = await apiClient<{ data?: WorkbookErrorIntelligence } | WorkbookErrorIntelligence>(`/imports/workbooks/${uploadId}/error-intelligence`, { token: user?.token, schoolId, query: { schoolId } });
+  return unwrap<WorkbookErrorIntelligence>(result);
 }
 
 export async function getImportPreview(uploadId: number) {
