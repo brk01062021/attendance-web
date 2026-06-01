@@ -93,6 +93,10 @@ export const webApi = {
     apiClient<T>(`/workspace-setup/${stepKey}`, { method: 'POST', token, schoolId, query: { schoolId }, body: JSON.stringify(body) }),
   workspaceImportLock: <T>(schoolId: string, token?: string) =>
     apiClient<T>('/workspace-setup/import-lock', { token, schoolId, query: { schoolId } }),
+  workspaceActivationSummary: <T>(schoolId: string, token?: string) =>
+    apiClient<T>('/workspace-activation/summary', { token, schoolId, query: { schoolId } }),
+  activateWorkspace: <T>(schoolId: string, body: unknown, token?: string) =>
+    apiClient<T>('/workspace-activation/activate', { method: 'POST', token, schoolId, query: { schoolId }, body: JSON.stringify(body) }),
   adminSummary: <T>(date: string, token?: string, schoolId?: string) => apiClient<T>('/attendance/dashboard/admin', { token, schoolId, query: { date } }),
   principalSummary: <T>(date: string, token?: string, schoolId?: string) => apiClient<T>('/principal/dashboard/summary', { token, schoolId, query: { date } }),
   rolloutReadiness: <T>(batchId: string, token?: string, schoolId?: string) => apiClient<T>(`/timetable/operations/rollout-readiness/${batchId}`, { token, schoolId }),

@@ -33,6 +33,7 @@ export const portalRoutes: PortalRoute[] = [
   { icon: '🗓️', label: 'Leave Approvals', href: '/teacher-leave', description: 'Approve enquiries', roles: ['ADMIN', 'PRINCIPAL'], group: 'Daily Work' },
   { icon: '🕒', label: 'Generate Timetable', href: '/timetable/generate', description: 'Auto timetable', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
   { icon: '🗂️', label: 'Timetable Operations', href: '/timetable/operations', description: 'Publish and export', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
+  { icon: '🏥', label: 'Workspace Health', href: '/workspace-health', description: 'Activation readiness', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
   { icon: '📥', label: 'Import School Data', href: '/import-school-data', description: 'Excel onboarding', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
   { icon: '🧩', label: 'Teacher Assignments', href: '/teacher-assignments', description: 'Class mapping', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
   { icon: '🎌', label: 'Holiday Calendar', href: '/holiday-calendar', description: 'Calendar overrides', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
