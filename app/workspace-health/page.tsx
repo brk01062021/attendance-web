@@ -92,6 +92,12 @@ type ActivationSummary = {
   tenantActive?: boolean;
   goLiveStatus?: string;
   activationButtonLabel?: string;
+  activationStage?: string;
+  tenantLifecycleStatus?: string;
+  credentialProvisioningStatus?: string;
+  activationSuccessTitle?: string;
+  activationSuccessMessage?: string;
+  activationNotifications?: string[];
   activatedBy?: string;
   activatedAt?: string;
   healthItems: HealthItem[];
@@ -156,21 +162,21 @@ function isCompactValidationGroup(group: WorkbookErrorGroup) {
 }
 
 function compactValidationMessage(group: WorkbookErrorGroup) {
-  const total = (group.errorCount || 0) + (group.warningCount || 0);
   if (isTeacherAssignmentGroup(group)) {
-    return `${total} ${total === 1 ? 'issue' : 'issues'} found. Review the Web ERP Workbook Validation screen for teacher assignment row-level details and correction guidance.`;
+    return 'Review workbook validation results in Web ERP. Verify Teachers, TeacherAssignments, TeacherPools, Subjects, and ClassSections before activation.';
   }
   if (isScheduleGroup(group)) {
-    return `${total} ${total === 1 ? 'issue' : 'issues'} found. Review the Web ERP Workbook Validation screen for timetable row-level details and correction guidance.`;
+    return 'Review workbook validation results in Web ERP. Complete Schedules, AcademicRules, Subjects, TeacherPools, and ClassSections before activation.';
   }
   if (isMissingSheetsGroup(group)) {
-    return `${group.errorCount || total} required workbook ${group.errorCount === 1 ? 'sheet is' : 'sheets are'} missing. Download the latest VidyaSetu workbook template, add the missing tabs, and upload again.`;
+    return 'Add the missing workbook tabs using the VidyaSetu master workbook template and upload again.';
   }
   if (isSchoolIdMismatchGroup(group)) {
-    return 'Workbook School ID does not match the active school workspace. Update the SchoolProfile sheet to use the logged-in school workspace ID and upload again.';
+    return 'Workbook school ID does not match the active workspace. Use the same 4-character school_id in SchoolProfile as the logged-in school workspace.';
   }
-  return `${total} ${total === 1 ? 'issue' : 'issues'} found. Review the Web ERP Workbook Validation screen for full details and correction guidance.`;
+  return 'Review workbook validation results in Web ERP for correction guidance.';
 }
+
 
 function groupWorkbookUploadAttempts(timeline: ActivationTimelineItem[]) {
   const uploads = timeline.filter((item) => item.stepKey === 'WORKBOOK_IMPORT' && item.title.toLowerCase().includes('workbook uploaded'));
@@ -335,11 +341,22 @@ export default function WorkspaceHealthPage() {
               <p>Last commit: {formatDate(summary.lastWorkbookCommittedAt)}</p>
               <p>Activated by: {activatedByLabel(summary)}</p>
               <p>Activated at: {activatedAtLabel(summary)}</p>
+              <p>Lifecycle: {statusLabel(summary.tenantLifecycleStatus || summary.activationStatus)}</p>
               <div className="actions">
                 <button className={`primary ${!summary.readyForActivation ? 'pending' : ''}`} disabled={!summary.readyForActivation || activating} onClick={handleActivate}>
                   {activating ? 'Checking...' : (summary.readyForActivation ? (summary.activationButtonLabel || 'Activate Workspace') : (errorIntel?.activationBlocked ? 'Resolve Workbook Errors First' : 'Workbook Commit Pending'))}
                 </button>
               </div>
+            </div>
+          </section>
+
+          <section className="glass-panel premium-panel erp-section panel">
+            <p className="section-eyebrow">Activation Success Dashboard</p>
+            <div className="health-grid">
+              <div className="health-card"><strong>{summary.activationSuccessTitle || 'Activation Readiness'}</strong><p>{summary.activationSuccessMessage || summary.activationMessage}</p></div>
+              <div className="health-card"><strong>Tenant Lifecycle</strong><p>{statusLabel(summary.tenantLifecycleStatus || summary.activationStatus)}</p><strong style={{ marginTop: 10 }}>Activation Stage</strong><p>{statusLabel(summary.activationStage || summary.activationStatus)}</p></div>
+              <div className="health-card"><strong>Credential Provisioning</strong><p>{statusLabel(summary.credentialProvisioningStatus || (summary.tenantActive ? 'READY_TO_ISSUE' : 'LOCKED_UNTIL_ACTIVE'))}</p></div>
+              <div className="health-card"><strong>Activation Notifications</strong>{(summary.activationNotifications || []).slice(0, 4).map((item) => <p key={item}>• {item}</p>)}</div>
             </div>
           </section>
 
@@ -384,7 +401,7 @@ export default function WorkspaceHealthPage() {
                     <p><strong>Recommended action</strong>{group.recommendedAction}</p>
                     <div className="issue-list">
                       {isCompactValidationGroup(group) ? (
-                        <div className="issue-item"><strong>Validation reference</strong><br />{compactValidationMessage(group)}</div>
+                        <div className="issue-item"><strong>Validation guidance</strong><br />{compactValidationMessage(group)}</div>
                       ) : (
                         <>
                           {group.issues.slice(0, 5).map((issue, index) => (
@@ -408,6 +425,7 @@ export default function WorkspaceHealthPage() {
             <div className="health-grid" style={{ marginBottom: 14 }}>
               <div className="health-card"><strong>Activation Status</strong><p>{statusLabel(summary.activationStatus)}</p></div>
               <div className="health-card"><strong>Go-Live Readiness</strong><p>{statusLabel(summary.goLiveStatus || 'NOT_READY')}</p></div>
+              <div className="health-card"><strong>Tenant Lifecycle</strong><p>{statusLabel(summary.tenantLifecycleStatus || summary.activationStatus)}</p></div>
               <div className="health-card"><strong>Activated By</strong><p>{activatedByLabel(summary)}</p></div>
               <div className="health-card"><strong>Operational Summary</strong><p>{blockerMessage}</p></div>
             </div>
