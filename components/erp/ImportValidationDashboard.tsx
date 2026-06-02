@@ -321,25 +321,64 @@ export default function ImportValidationDashboard() {
                     <p className="font-black text-emerald-800">No grouped workbook issues detected.</p>
                     <p className="mt-1 text-sm font-semibold text-emerald-700">Workbook validation is clear for the current preview.</p>
                   </div>
-                ) : issueGroups.map((group) => (
-                  <div key={group.category} className="rounded-2xl border border-slate-200/70 bg-white/75 p-4">
-                    <div className="flex flex-wrap items-center gap-2">
-                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">{group.category.replaceAll('_', ' ')}</span>
-                      <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-black text-red-700">{group.errorCount} error</span>
-                      <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-700">{group.warningCount} warning</span>
+                ) : issueGroups.map((group) => {
+                  const issueTotal = group.errorCount + group.warningCount;
+                  const isTeacherAssignment = group.category === 'TEACHER_ASSIGNMENT';
+                  const isSchedule = group.category === 'SCHEDULE';
+                  const isMissingSheets = group.category === 'MISSING_SHEET';
+                  const isSchoolIdMismatch = group.category === 'SCHOOL_ID_MISMATCH';
+                  const missingSheetNames = group.issues.map((issue) => issue.sheetName).filter(Boolean);
+                  const uniqueMissingSheets = Array.from(new Set(missingSheetNames));
+
+                  return (
+                    <div key={group.category} className="rounded-2xl border border-slate-200/70 bg-white/75 p-4">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">{group.category.replaceAll('_', ' ')}</span>
+                        <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-black text-red-700">{group.errorCount} {group.errorCount === 1 ? 'error' : 'errors'}</span>
+                        <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-700">{group.warningCount} {group.warningCount === 1 ? 'warning' : 'warnings'}</span>
+                      </div>
+                      <h4 className="mt-3 font-black text-slate-950">{group.title}</h4>
+
+                      {isTeacherAssignment ? (
+                        <>
+                          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{issueTotal} issue{issueTotal === 1 ? '' : 's'} found across teacher assignment validation.</p>
+                          <p className="mt-2 text-sm font-bold leading-6 text-amber-800">Action: Verify Teachers, TeacherAssignments, TeacherPools, Subjects, and ClassSections tabs together.</p>
+                          <p className="mt-3 rounded-xl bg-slate-50 p-3 text-xs font-semibold leading-5 text-slate-600">Review the Workbook Issues table below for row-level details and correction guidance.</p>
+                        </>
+                      ) : isSchedule ? (
+                        <>
+                          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{issueTotal} issue{issueTotal === 1 ? '' : 's'} found across timetable and schedule readiness validation.</p>
+                          <p className="mt-2 text-sm font-bold leading-6 text-amber-800">Action: Complete Schedules, AcademicRules, Subjects, TeacherPools, and ClassSections before activation.</p>
+                          <p className="mt-3 rounded-xl bg-slate-50 p-3 text-xs font-semibold leading-5 text-slate-600">Review the Workbook Issues table below for row-level details and correction guidance.</p>
+                        </>
+                      ) : isMissingSheets ? (
+                        <>
+                          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{uniqueMissingSheets.length || group.errorCount} required workbook sheet{(uniqueMissingSheets.length || group.errorCount) === 1 ? ' is' : 's are'} missing.</p>
+                          <div className="mt-3 flex flex-wrap gap-2">
+                            {uniqueMissingSheets.map((sheet) => (
+                              <span key={sheet} className="rounded-full bg-red-50 px-3 py-1 text-xs font-black text-red-700">{sheet}</span>
+                            ))}
+                          </div>
+                          <p className="mt-3 text-sm font-bold leading-6 text-amber-800">Action: Add the missing tabs using the VidyaSetu master workbook template and upload again.</p>
+                        </>
+                      ) : isSchoolIdMismatch ? (
+                        <>
+                          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">Workbook School ID does not match the active school workspace.</p>
+                          <div className="mt-3 grid gap-2 sm:grid-cols-2">
+                            <p className="rounded-xl bg-slate-50 p-3 text-xs font-semibold leading-5 text-slate-600"><strong>Current Workspace:</strong><br />{preview.schoolId}</p>
+                            <p className="rounded-xl bg-slate-50 p-3 text-xs font-semibold leading-5 text-slate-600"><strong>Action:</strong><br />Update the SchoolProfile sheet to use the same 4-character School ID, then upload again.</p>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{group.explanation}</p>
+                          <p className="mt-2 text-sm font-bold leading-6 text-amber-800">Action: {group.recommendedAction}</p>
+                          <p className="mt-3 rounded-xl bg-slate-50 p-3 text-xs font-semibold leading-5 text-slate-600">{issueTotal} issue{issueTotal === 1 ? '' : 's'} found. Review the Workbook Issues table below for row-level details.</p>
+                        </>
+                      )}
                     </div>
-                    <h4 className="mt-3 font-black text-slate-950">{group.title}</h4>
-                    <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{group.explanation}</p>
-                    <p className="mt-2 text-sm font-bold leading-6 text-amber-800">Action: {group.recommendedAction}</p>
-                    <div className="mt-3 space-y-2">
-                      {group.issues.slice(0, 4).map((issue, index) => (
-                        <p key={`${group.category}-${index}`} className="rounded-xl bg-slate-50 p-3 text-xs font-semibold leading-5 text-slate-600">
-                          {issue.sheetName} row {issue.rowNumber || '-'} • {issue.fieldName}: {issue.message}
-                        </p>
-                      ))}
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
           ) : null}
