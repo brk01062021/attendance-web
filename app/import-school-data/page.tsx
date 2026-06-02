@@ -81,8 +81,8 @@ export default function Page() {
       {!loading && !locked && !error && (
         <>
           <section className="glass-panel premium-panel erp-section" style={{ padding: 24 }}>
-            <p className="eyebrow">Import unlocked</p>
-            <h2>Excel School Data Import Ready</h2>
+            <p className="eyebrow">Workspace Ready</p>
+            <h2>School Workbook Upload Ready</h2>
             <p>
               School Profile, Academic Year, Working Days, and School Timings are complete. Upload the Excel workbook to import and validate Classes, Sections, Teachers, Subjects, Teacher Assignments, Students, Parents, Holiday Calendar, and Academic Rules.
             </p>

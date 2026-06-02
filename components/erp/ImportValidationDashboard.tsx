@@ -291,7 +291,7 @@ export default function ImportValidationDashboard() {
 
           {intelligence ? (
             <section className="rounded-[2rem] border border-red-100/70 bg-white/85 p-6 shadow-lg shadow-red-900/5">
-              <p className="text-xs font-black uppercase tracking-[0.25em] text-red-700">Workbook Error Intelligence</p>
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-red-700">Workbook Validation Summary</p>
               <div className="mt-2 flex flex-col justify-between gap-4 lg:flex-row lg:items-start">
                 <div>
                   <h3 className="text-xl font-black text-slate-950">{intelligence.headline}</h3>
@@ -308,7 +308,7 @@ export default function ImportValidationDashboard() {
 
               {activationBlockers.length ? (
                 <div className="mt-5 rounded-2xl border border-red-100 bg-red-50/70 p-4">
-                  <p className="text-sm font-black text-red-800">Activation Blockers / Notes</p>
+                  <p className="text-sm font-black text-red-800">Activation Requirements</p>
                   <ul className="mt-2 space-y-1 text-sm font-semibold text-red-700">
                     {activationBlockers.map((item, index) => <li key={`${item}-${index}`}>• {item}</li>)}
                   </ul>
@@ -428,7 +428,7 @@ export default function ImportValidationDashboard() {
 
       <section className="rounded-[2rem] border border-amber-100/60 bg-white/82 p-6 shadow-lg shadow-amber-900/5">
         <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">Upload History</p>
-        <h3 className="mt-2 text-xl font-black text-slate-950">Pilot School Workbook Activity</h3>
+        <h3 className="mt-2 text-xl font-black text-slate-950">Workbook Import History</h3>
         {historyError && uploadHistory.length === 0 ? <p className="mt-3 rounded-2xl bg-amber-50 p-3 text-sm font-bold text-amber-800">{historyError}</p> : null}
         <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200/70">
           <table className="w-full text-left text-sm">
