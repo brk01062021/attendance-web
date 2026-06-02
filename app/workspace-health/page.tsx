@@ -130,6 +130,48 @@ function activatedAtLabel(summary?: ActivationSummary | null) {
   return isActive(summary) && summary?.activatedAt ? formatDate(summary.activatedAt) : 'Not activated';
 }
 
+
+function normalizedGroupText(group: WorkbookErrorGroup) {
+  return `${group.category || ''} ${group.title || ''}`.toUpperCase();
+}
+
+function isTeacherAssignmentGroup(group: WorkbookErrorGroup) {
+  return normalizedGroupText(group).includes('TEACHER_ASSIGNMENT');
+}
+
+function isScheduleGroup(group: WorkbookErrorGroup) {
+  return normalizedGroupText(group).includes('SCHEDULE');
+}
+
+function isMissingSheetsGroup(group: WorkbookErrorGroup) {
+  return normalizedGroupText(group).includes('MISSING') && normalizedGroupText(group).includes('SHEET');
+}
+
+function isSchoolIdMismatchGroup(group: WorkbookErrorGroup) {
+  return normalizedGroupText(group).includes('SCHOOL') && normalizedGroupText(group).includes('MISMATCH');
+}
+
+function isCompactValidationGroup(group: WorkbookErrorGroup) {
+  return isTeacherAssignmentGroup(group) || isScheduleGroup(group) || isMissingSheetsGroup(group) || isSchoolIdMismatchGroup(group);
+}
+
+function compactValidationMessage(group: WorkbookErrorGroup) {
+  const total = (group.errorCount || 0) + (group.warningCount || 0);
+  if (isTeacherAssignmentGroup(group)) {
+    return `${total} ${total === 1 ? 'issue' : 'issues'} found. Review the Web ERP Workbook Validation screen for teacher assignment row-level details and correction guidance.`;
+  }
+  if (isScheduleGroup(group)) {
+    return `${total} ${total === 1 ? 'issue' : 'issues'} found. Review the Web ERP Workbook Validation screen for timetable row-level details and correction guidance.`;
+  }
+  if (isMissingSheetsGroup(group)) {
+    return `${group.errorCount || total} required workbook ${group.errorCount === 1 ? 'sheet is' : 'sheets are'} missing. Download the latest VidyaSetu workbook template, add the missing tabs, and upload again.`;
+  }
+  if (isSchoolIdMismatchGroup(group)) {
+    return 'Workbook School ID does not match the active school workspace. Update the SchoolProfile sheet to use the logged-in school workspace ID and upload again.';
+  }
+  return `${total} ${total === 1 ? 'issue' : 'issues'} found. Review the Web ERP Workbook Validation screen for full details and correction guidance.`;
+}
+
 function groupWorkbookUploadAttempts(timeline: ActivationTimelineItem[]) {
   const uploads = timeline.filter((item) => item.stepKey === 'WORKBOOK_IMPORT' && item.title.toLowerCase().includes('workbook uploaded'));
   const others = timeline.filter((item) => !(item.stepKey === 'WORKBOOK_IMPORT' && item.title.toLowerCase().includes('workbook uploaded')));
@@ -313,17 +355,22 @@ export default function WorkspaceHealthPage() {
               <div className="health-grid" style={{ marginBottom: 14 }}>
                 <div className="health-card">
                   <strong>Missing Sheets Summary</strong>
-                  <p>{errorIntel.missingSheets.length ? 'These workbook tabs are required before activation.' : 'No missing required sheets found.'}</p>
+                  <p>{errorIntel.missingSheets.length ? `${errorIntel.missingSheets.length} required workbook ${errorIntel.missingSheets.length === 1 ? 'sheet is' : 'sheets are'} missing before activation.` : 'No missing required sheets found.'}</p>
                   <div className="sheet-list">
                     {errorIntel.missingSheets.map((sheet) => <span className="sheet-chip" key={sheet}>{sheet}</span>)}
                   </div>
                 </div>
                 <div className="health-card">
-                  <strong>School ID / Upload Explanation</strong>
+                  <strong>School ID Mismatch Summary</strong>
                   <div className="issue-list">
-                    {(errorIntel.schoolIdMismatchExplanations.length ? errorIntel.schoolIdMismatchExplanations : ['No school_id mismatch explanation reported.']).map((message, index) => (
-                      <div className="issue-item" key={index}>{message}</div>
-                    ))}
+                    {errorIntel.schoolIdMismatchExplanations.length ? (
+                      <>
+                        <div className="issue-item"><strong>Current Workspace</strong><br />{errorIntel.schoolId || summary.schoolId}</div>
+                        <div className="issue-item"><strong>Action</strong><br />Update the SchoolProfile sheet to use the same 4-character School ID as this workspace, then upload again.</div>
+                      </>
+                    ) : (
+                      <div className="issue-item">No School ID mismatch found for this workbook.</div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -336,13 +383,19 @@ export default function WorkspaceHealthPage() {
                     <p>{group.explanation}</p>
                     <p><strong>Recommended action</strong>{group.recommendedAction}</p>
                     <div className="issue-list">
-                      {group.issues.slice(0, 5).map((issue, index) => (
-                        <div className="issue-item" key={`${group.category}-${index}`}>
-                          <strong>{issue.sheetName || 'Workbook'}{issue.rowNumber ? ` • Row ${issue.rowNumber}` : ''}</strong><br />
-                          {issue.fieldName ? `${issue.fieldName}: ` : ''}{issue.message || 'Review this workbook row.'}
-                        </div>
-                      ))}
-                      {group.issues.length > 5 ? <div className="issue-item">+ {group.issues.length - 5} more issues in this category. Review the workbook validation screen for full details.</div> : null}
+                      {isCompactValidationGroup(group) ? (
+                        <div className="issue-item"><strong>Validation reference</strong><br />{compactValidationMessage(group)}</div>
+                      ) : (
+                        <>
+                          {group.issues.slice(0, 5).map((issue, index) => (
+                            <div className="issue-item" key={`${group.category}-${index}`}>
+                              <strong>{issue.sheetName || 'Workbook'}{issue.rowNumber ? ` • Row ${issue.rowNumber}` : ''}</strong><br />
+                              {issue.fieldName ? `${issue.fieldName}: ` : ''}{issue.message || 'Review this workbook row.'}
+                            </div>
+                          ))}
+                          {group.issues.length > 5 ? <div className="issue-item">+ {group.issues.length - 5} more issues in this category. Review the workbook validation screen for full details.</div> : null}
+                        </>
+                      )}
                     </div>
                   </div>
                 ))}

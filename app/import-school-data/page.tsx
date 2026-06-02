@@ -62,7 +62,7 @@ export default function Page() {
     <PortalShell
       role={user?.role === 'PRINCIPAL' ? 'PRINCIPAL' : 'ADMIN'}
       title="Import School Data"
-      subtitle="Excel-first onboarding workspace for real workbook commit execution, rollback, audit trail, and school activation readiness."
+      subtitle="Excel-first onboarding workspace for workbook validation, commit, import history, and school activation readiness."
       variant="gold"
     >
       <ShellStyles />

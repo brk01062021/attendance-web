@@ -102,7 +102,7 @@ export default function ImportValidationDashboard() {
           const withoutDuplicate = current.filter((item) => item.uploadId !== optimistic.uploadId);
           return [optimistic, ...withoutDuplicate].slice(0, 20);
         });
-        setMessage(result.duplicateFile ? 'Workbook validated by backend. Duplicate file warning found; review history before committing.' : 'Workbook uploaded and validated through backend multipart XLSX parsing.');
+        setMessage(result.duplicateFile ? 'Workbook validation completed. Duplicate file warning found; review import history before committing.' : 'Workbook uploaded and validated successfully.');
         await loadHistory();
         return;
       }
@@ -111,7 +111,7 @@ export default function ImportValidationDashboard() {
       setPreview(result);
       setUpload(null);
       setActiveReportId(null);
-      setMessage('No workbook selected. Backend schema validation completed against the standard onboarding workbook structure.');
+      setMessage('No workbook selected. Workbook structure validation completed against the standard onboarding template.');
     } catch (error) {
       setMessage(toSafeImportMessage(error));
       if (selectedFile) return;
@@ -128,7 +128,7 @@ export default function ImportValidationDashboard() {
       const result = await getImportPreview(uploadId);
       setPreview(result);
       setActiveReportId(uploadId);
-      setMessage('Validation report loaded from backend upload history.');
+      setMessage('Validation report loaded from import history.');
     } catch (error) {
       setMessage(toSafeImportMessage(error, 'Validation report could not be loaded from upload history.'));
     } finally {
@@ -190,9 +190,9 @@ export default function ImportValidationDashboard() {
         <div className="mt-5 flex flex-wrap gap-2">
           <Badge label={`school_id isolation: ${schoolId}`} />
           <Badge label={`Role access: ${role}`} />
-          <Badge label="Backend XLSX preview" />
-          <Badge label="Real commit execution" />
-          <Badge label="Rollback-safe lifecycle" />
+          <Badge label="Workbook Preview" />
+          <Badge label="Workbook Commit" />
+          <Badge label="Import History" />
         </div>
 
         <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4">
@@ -363,7 +363,7 @@ export default function ImportValidationDashboard() {
               <h3 className="mt-2 text-xl font-black text-slate-950">Onboarding Checks</h3>
               <div className="mt-5 space-y-3">
                 <StatusRow title="school_id isolation" body={`${preview.schoolId} validation applied before import activation.`} />
-                <StatusRow title="Validation hydration" body={`${totals.errors} error(s) and ${totals.warnings} warning(s) mapped from backend workbook inspection.`} />
+                <StatusRow title="Validation Summary" body={`${totals.errors} error(s) and ${totals.warnings} warning(s) mapped from workbook inspection.`} />
                 <StatusRow title="Parent/student linking" body="Parent rows are checked against student admission numbers before commit." />
                 <StatusRow title="Teacher assignment validation" body="Teacher, subject, class, and section mappings are reviewed before save activation." />
               </div>
@@ -377,7 +377,7 @@ export default function ImportValidationDashboard() {
               <table className="w-full text-left text-sm">
                 <thead className="bg-slate-950 text-xs uppercase tracking-[0.16em] text-amber-100"><tr><th className="px-4 py-3">Sheet</th><th className="px-4 py-3">Row</th><th className="px-4 py-3">Field</th><th className="px-4 py-3">Severity</th><th className="px-4 py-3">Message</th></tr></thead>
                 <tbody className="divide-y divide-slate-200/70 bg-white/70">
-                  {preview.issues.length === 0 ? <tr><td className="px-4 py-5 font-semibold text-slate-600" colSpan={5}>No validation issues returned by backend.</td></tr> : preview.issues.map((issue, index) => (
+                  {preview.issues.length === 0 ? <tr><td className="px-4 py-5 font-semibold text-slate-600" colSpan={5}>No validation issues found.</td></tr> : preview.issues.map((issue, index) => (
                     <tr key={`${issue.sheetName}-${issue.rowNumber}-${issue.fieldName}-${index}`}><td className="px-4 py-3 font-black text-slate-950">{issue.sheetName}</td><td className="px-4 py-3 font-bold text-slate-700">{issue.rowNumber}</td><td className="px-4 py-3 font-bold text-slate-700">{issue.fieldName}</td><td className="px-4 py-3"><span className={`rounded-full px-3 py-1 text-xs font-black ${issue.severity === 'ERROR' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>{issue.severity}</span></td><td className="px-4 py-3 font-semibold text-slate-600">{issue.message}</td></tr>
                   ))}
                 </tbody>

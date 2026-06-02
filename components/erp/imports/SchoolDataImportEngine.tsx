@@ -1,22 +1,12 @@
-
 import ERPDatePicker from "../controls/ERPDatePicker";
 import ERPSelect from "../controls/ERPSelect";
 import ImportSummaryDashboard from "./ImportSummaryDashboard";
 import UploadHistoryTable from "./UploadHistoryTable";
 
-const validationRows = [
-  {
-    row: "Student Row 14",
-    issue: "Duplicate admission number detected",
-  },
-  {
-    row: "Parent Row 42",
-    issue: "Missing student-parent relationship",
-  },
-  {
-    row: "Teacher Assignment Row 6",
-    issue: "Mathematics teacher already mapped to another section",
-  },
+const validationSummaryCards = [
+  { label: "Validation Gate", value: "Workbook schema, tenant, and relationship checks" },
+  { label: "Issue Details", value: "Open Workbook Validation for row-level correction details" },
+  { label: "Commit Rule", value: "Commit is enabled only after blocking errors are resolved" },
 ];
 
 export default function SchoolDataImportEngine() {
@@ -78,30 +68,18 @@ export default function SchoolDataImportEngine() {
         <div className="overflow-hidden rounded-3xl border border-yellow-500/15 bg-[#091522]/95">
           <div className="border-b border-yellow-500/10 px-6 py-5">
             <h2 className="text-lg font-semibold text-yellow-50">
-              Import Validation & Failed Rows
+              Import Validation Summary
             </h2>
           </div>
 
-          <table className="w-full">
-            <thead className="bg-yellow-500/5 text-left text-xs uppercase tracking-[0.18em] text-yellow-200/70">
-              <tr>
-                <th className="px-6 py-4">Validation Row</th>
-                <th className="px-6 py-4">Issue</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              {validationRows.map((row) => (
-                <tr
-                  key={row.row}
-                  className="border-t border-yellow-500/5 text-sm text-yellow-50/90"
-                >
-                  <td className="px-6 py-4">{row.row}</td>
-                  <td className="px-6 py-4">{row.issue}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+          <div className="grid gap-4 p-6 md:grid-cols-3">
+            {validationSummaryCards.map((item) => (
+              <div key={item.label} className="rounded-2xl border border-yellow-500/10 bg-[#07111b] p-4">
+                <p className="text-xs uppercase tracking-[0.18em] text-yellow-200/70">{item.label}</p>
+                <p className="mt-3 text-sm leading-6 text-yellow-50/85">{item.value}</p>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="rounded-3xl border border-yellow-500/15 bg-[#091522]/95 p-6">
@@ -111,7 +89,7 @@ export default function SchoolDataImportEngine() {
 
           <div className="mt-6 space-y-4 text-sm text-yellow-50/80">
             <div className="rounded-2xl border border-yellow-500/10 bg-[#07111b] p-4">
-              school_id isolation validation completed for BRK1.
+              Requests are securely bound to the selected School ID during upload, validation, commit, and activation.
             </div>
 
             <div className="rounded-2xl border border-yellow-500/10 bg-[#07111b] p-4">
