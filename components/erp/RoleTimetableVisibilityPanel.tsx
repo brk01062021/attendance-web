@@ -1,0 +1,97 @@
+'use client';
+
+import { useEffect, useMemo, useState } from 'react';
+import { webApi } from '@/lib/apiClient';
+import { getStoredUser } from '@/lib/auth';
+
+type TimetableEntry = { id: string; className: string; section: string; dayOfWeek: string; periodNumber: number; subjectName: string; teacherName: string; startTime: string; endTime: string; roomNumber?: string };
+type LiveResponse = { batchId: string; role: string; visibilityScope: string; published: boolean; locked: boolean; message: string; entries: TimetableEntry[] };
+type Notification = { notificationId: string; audience: string; title: string; message: string; createdAt: string };
+
+const dayOrder = ['MONDAY', 'TUESDAY', 'WEDNESDAY', 'THURSDAY', 'FRIDAY', 'SATURDAY'];
+
+export default function RoleTimetableVisibilityPanel({ role }: { role: 'TEACHER' | 'STUDENT' | 'PARENT' }) {
+  const user = getStoredUser();
+  const [live, setLive] = useState<LiveResponse | null>(null);
+  const [notifications, setNotifications] = useState<Notification[]>([]);
+  const [selectedDay, setSelectedDay] = useState('MONDAY');
+  const [error, setError] = useState('');
+
+  useEffect(() => {
+    async function load() {
+      try {
+        setError('');
+        const className = role === 'TEACHER' ? undefined : '10';
+        const section = role === 'TEACHER' ? undefined : 'A';
+        const [liveResult, notificationResult] = await Promise.all([
+          webApi.liveTimetable<LiveResponse>(role, user?.token, user?.schoolId, role === 'TEACHER' ? user?.teacherId || 1 : undefined, className, section),
+          webApi.timetableRoleNotifications<Notification[]>(role, user?.token, user?.schoolId),
+        ]);
+        setLive(liveResult);
+        setNotifications(notificationResult || []);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : 'Unable to load published timetable.');
+      }
+    }
+    load();
+  }, [role, user?.schoolId, user?.teacherId, user?.token]);
+
+  const entries = useMemo(() => live?.entries || [], [live]);
+  const daily = entries.filter((entry) => entry.dayOfWeek === selectedDay).sort((a, b) => a.periodNumber - b.periodNumber);
+  const weekly = dayOrder.map((day) => ({ day, count: entries.filter((entry) => entry.dayOfWeek === day).length }));
+
+  return (
+    <div className="space-y-5">
+      <section className="page-card gold-panel">
+        <div className="section-heading-row">
+          <div>
+            <p className="eyebrow">Published timetable only</p>
+            <h2>{role === 'TEACHER' ? 'My Timetable' : role === 'PARENT' ? 'Child Timetable' : 'Student Timetable'}</h2>
+            <p className="page-subtitle mt-2">{live?.message || 'Loading latest published timetable visibility.'}</p>
+          </div>
+          <span className="status-pill">{live?.published ? 'Published visible' : 'Hidden until publish'}</span>
+        </div>
+        {error ? <p className="rounded-2xl border border-red-300/40 bg-red-950/40 p-3 text-sm font-bold text-red-100">{error}</p> : null}
+        <div className="grid gap-3 md:grid-cols-4">
+          <div className="metric-card"><p className="metric-label">Batch</p><p className="metric-value text-base">{live?.batchId || '--'}</p></div>
+          <div className="metric-card"><p className="metric-label">Status</p><p className="metric-value">{live?.published ? 'LIVE' : 'HIDDEN'}</p></div>
+          <div className="metric-card"><p className="metric-label">Entries</p><p className="metric-value">{entries.length}</p></div>
+          <div className="metric-card"><p className="metric-label">Scope</p><p className="metric-value text-base">{live?.visibilityScope || role}</p></div>
+        </div>
+      </section>
+
+      <section className="page-card gold-panel">
+        <div className="section-heading-row">
+          <div><p className="eyebrow">Daily view</p><h2>{selectedDay.charAt(0) + selectedDay.slice(1).toLowerCase()} Schedule</h2></div>
+          <select className="rounded-2xl border border-amber-200/50 bg-white px-4 py-2 text-sm font-black text-slate-900" value={selectedDay} onChange={(event) => setSelectedDay(event.target.value)}>
+            {dayOrder.map((day) => <option key={day} value={day}>{day}</option>)}
+          </select>
+        </div>
+        <div className="status-list">
+          {daily.length ? daily.map((entry) => (
+            <div className="status-row" key={entry.id}>
+              <strong>P{entry.periodNumber} • {entry.subjectName}</strong>
+              <span>{entry.className}-{entry.section} • {entry.teacherName} • {entry.startTime}-{entry.endTime}</span>
+            </div>
+          )) : <div className="status-row"><strong>No periods visible</strong><span>Only latest published timetable entries are shown here.</span></div>}
+        </div>
+      </section>
+
+      <section className="page-card gold-panel">
+        <div className="section-heading-row"><div><p className="eyebrow">Weekly view</p><h2>Published Weekly Timetable</h2></div></div>
+        <div className="grid gap-3 md:grid-cols-3">
+          {weekly.map((item) => <div className="metric-card" key={item.day}><p className="metric-label">{item.day}</p><p className="metric-value">{item.count}</p><p className="metric-helper">visible periods</p></div>)}
+        </div>
+      </section>
+
+      <section className="page-card gold-panel">
+        <div className="section-heading-row"><div><p className="eyebrow">Timetable notification center</p><h2>Schedule Alerts</h2></div></div>
+        <div className="status-list">
+          {notifications.length ? notifications.slice(0, 6).map((notice) => (
+            <div className="status-row" key={notice.notificationId}><strong>{notice.title}</strong><span>{notice.message}</span></div>
+          )) : <div className="status-row"><strong>No timetable alerts</strong><span>Published or updated timetable alerts will appear here.</span></div>}
+        </div>
+      </section>
+    </div>
+  );
+}

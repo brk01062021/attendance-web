@@ -104,6 +104,14 @@ export const webApi = {
   adminSummary: <T>(date: string, token?: string, schoolId?: string) => apiClient<T>('/attendance/dashboard/admin', { token, schoolId, query: { date } }),
   principalSummary: <T>(date: string, token?: string, schoolId?: string) => apiClient<T>('/principal/dashboard/summary', { token, schoolId, query: { date } }),
   rolloutReadiness: <T>(batchId: string, token?: string, schoolId?: string) => apiClient<T>(`/timetable/operations/rollout-readiness/${batchId}`, { token, schoolId }),
+  importExistingTimetable: <T>(formData: FormData, token?: string, schoolId?: string, uploadedBy?: string) =>
+    apiClient<T>('/timetable/import-existing/preview', { method: 'POST', token, schoolId, query: { uploadedBy }, body: formData }),
+  publishImportedTimetable: <T>(importBatchId: string, role: string, approvedBy?: string, token?: string, schoolId?: string) =>
+    apiClient<T>(`/timetable/import-existing/publish/${importBatchId}`, { method: 'POST', token, schoolId, query: { role, approvedBy } }),
+  liveTimetable: <T>(role: string, token?: string, schoolId?: string, teacherId?: number | null, className?: string, section?: string) =>
+    apiClient<T>('/timetable/operations/live', { token, schoolId, query: { role, teacherId: teacherId || undefined, className, section } }),
+  timetableRoleNotifications: <T>(role: string, token?: string, schoolId?: string) =>
+    apiClient<T>('/timetable/role-notifications', { token, schoolId, query: { role } }),
   teacherLeaveEnquiries: <T>(fromDate: string, toDate: string, token?: string, schoolId?: string) =>
     apiClient<T>('/teacher-leave/admin/enquiries', { token, schoolId, query: { fromDate, toDate } }),
   approveTeacherLeaveEnquiry: <T>(enquiryId: number, adminRemarks: string, token?: string, schoolId?: string) =>

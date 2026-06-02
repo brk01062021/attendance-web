@@ -33,6 +33,7 @@ export const portalRoutes: PortalRoute[] = [
   { icon: '🗓️', label: 'Leave Approvals', href: '/teacher-leave', description: 'Approve enquiries', roles: ['ADMIN', 'PRINCIPAL'], group: 'Daily Work' },
   { icon: '🕒', label: 'Generate Timetable', href: '/timetable/generate', description: 'Auto timetable', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
   { icon: '🗂️', label: 'Timetable Operations', href: '/timetable/operations', description: 'Publish and export', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
+  { icon: '📥', label: 'Import Existing Timetable', href: '/timetable/import-existing', description: 'Upload and publish active school timetable', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
   { icon: '🎯', label: 'Workspace Setup', href: '/workspace-setup', description: 'School profile and setup unlock', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
   { icon: '🏥', label: 'Workspace Health', href: '/workspace-health', description: 'Activation and Go-Live readiness', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
   { icon: '📥', label: 'Import School Data', href: '/import-school-data', description: 'Excel onboarding and workbook commit', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
