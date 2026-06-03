@@ -11,7 +11,11 @@ export type WebPortalUser = {
   token?: string;
   forcePasswordChange?: boolean;
   teacherId?: number | null;
+  teacherName?: string | null;
   studentId?: number | null;
+  studentName?: string | null;
+  className?: string | null;
+  section?: string | null;
 };
 
 export type LoginRequest = {

@@ -67,7 +67,11 @@ function normalizeUser(user: WebPortalUser): WebPortalUser {
     schoolName,
     displayName,
     teacherId: role === 'TEACHER' ? Number(user.teacherId || user.userId || 1) : null,
+    teacherName: user.teacherName || (role === 'TEACHER' ? displayName : null),
     studentId: role === 'STUDENT' || role === 'PARENT' ? Number(user.studentId || user.userId || 201) : null,
+    studentName: user.studentName || (role === 'STUDENT' || role === 'PARENT' ? displayName : null),
+    className: user.className || (role === 'STUDENT' || role === 'PARENT' ? '10' : null),
+    section: user.section || (role === 'STUDENT' || role === 'PARENT' ? 'A' : null),
     forcePasswordChange: Boolean(user.forcePasswordChange),
   };
 }
@@ -128,7 +132,11 @@ export function createDevUser(login: LoginRequest): WebPortalUser {
     schoolName: `${schoolId} School`,
     token: 'dev-web-token',
     teacherId: role === 'TEACHER' ? 1 : null,
+    teacherName: role === 'TEACHER' ? defaultDisplayName(role, login.username) : null,
     studentId: role === 'STUDENT' || role === 'PARENT' ? 201 : null,
+    studentName: role === 'STUDENT' || role === 'PARENT' ? defaultDisplayName(role, login.username) : null,
+    className: role === 'STUDENT' || role === 'PARENT' ? '10' : null,
+    section: role === 'STUDENT' || role === 'PARENT' ? 'A' : null,
     forcePasswordChange: false,
   });
 }
@@ -145,7 +153,11 @@ export function mapLoginResponseToUser(response: LoginApiResponse, requestedRole
     schoolName: response?.schoolName || `${schoolId} School`,
     token: response?.token || 'demo-token',
     teacherId: response?.teacherId ?? (role === 'TEACHER' ? Number(response?.userId || 1) : null),
+    teacherName: response?.teacherName || (role === 'TEACHER' ? (response?.displayName || defaultDisplayName(role)) : null),
     studentId: response?.studentId ?? (role === 'STUDENT' || role === 'PARENT' ? Number(response?.userId || 201) : null),
+    studentName: response?.studentName || (role === 'STUDENT' || role === 'PARENT' ? (response?.displayName || defaultDisplayName(role)) : null),
+    className: role === 'STUDENT' || role === 'PARENT' ? '10' : null,
+    section: role === 'STUDENT' || role === 'PARENT' ? 'A' : null,
     forcePasswordChange: Boolean(response?.forcePasswordChange),
   });
 }

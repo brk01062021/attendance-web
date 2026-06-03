@@ -128,7 +128,9 @@ export default function LoginCard() {
                                 ? 'Principal'
                                 : item === 'TEACHER'
                                     ? 'Teacher'
-                                    : 'Student'}
+                                    : item === 'PARENT'
+                                        ? 'Parent'
+                                        : 'Student'}
                     </button>
                 ))}
             </div>
@@ -174,7 +176,9 @@ export default function LoginCard() {
                                 ? 'Principal'
                                 : role === 'TEACHER'
                                     ? 'Teacher'
-                                    : 'Student'
+                                    : role === 'PARENT'
+                                        ? 'Parent'
+                                        : 'Student'
                     } Portal`}
             </button>
 

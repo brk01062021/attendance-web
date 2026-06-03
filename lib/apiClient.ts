@@ -108,8 +108,18 @@ export const webApi = {
     apiClient<T>('/timetable/import-existing/preview', { method: 'POST', token, schoolId, query: { uploadedBy }, body: formData }),
   publishImportedTimetable: <T>(importBatchId: string, role: string, approvedBy?: string, token?: string, schoolId?: string) =>
     apiClient<T>(`/timetable/import-existing/publish/${importBatchId}`, { method: 'POST', token, schoolId, query: { role, approvedBy } }),
-  liveTimetable: <T>(role: string, token?: string, schoolId?: string, teacherId?: number | null, className?: string, section?: string) =>
-    apiClient<T>('/timetable/operations/live', { token, schoolId, query: { role, teacherId: teacherId || undefined, className, section } }),
+  liveTimetable: <T>(role: string, token?: string, schoolId?: string, teacherId?: number | null, className?: string, section?: string, teacherName?: string | null) => {
+    if (role === 'TEACHER') {
+      return apiClient<T>('/timetable/live/teacher', { token, schoolId, query: { teacherName: teacherName || undefined, teacherId: teacherName ? undefined : teacherId || undefined } });
+    }
+    if (role === 'PARENT') {
+      return apiClient<T>('/timetable/live/parent', { token, schoolId, query: { className, section } });
+    }
+    if (role === 'STUDENT') {
+      return apiClient<T>('/timetable/live/student', { token, schoolId, query: { className, section } });
+    }
+    return apiClient<T>('/timetable/operations/live', { token, schoolId, query: { role, teacherId: teacherId || undefined, className, section } });
+  },
   timetableRoleNotifications: <T>(role: string, token?: string, schoolId?: string) =>
     apiClient<T>('/timetable/role-notifications', { token, schoolId, query: { role } }),
   teacherLeaveEnquiries: <T>(fromDate: string, toDate: string, token?: string, schoolId?: string) =>

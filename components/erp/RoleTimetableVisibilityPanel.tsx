@@ -38,10 +38,11 @@ export default function RoleTimetableVisibilityPanel({ role }: { role: Role }) {
       try {
         setLoading(true);
         setError('');
-        const className = role === 'TEACHER' ? undefined : '10';
-        const section = role === 'TEACHER' ? undefined : 'A';
+        const className = role === 'TEACHER' ? undefined : (user?.className || '10');
+        const section = role === 'TEACHER' ? undefined : (user?.section || 'A');
+        const teacherName = role === 'TEACHER' ? (user?.teacherName || user?.displayName || undefined) : undefined;
         const [liveResult, notificationResult] = await Promise.all([
-          webApi.liveTimetable<LiveResponse>(role, user?.token, user?.schoolId, role === 'TEACHER' ? user?.teacherId || user?.userId || 1 : undefined, className, section),
+          webApi.liveTimetable<LiveResponse>(role, user?.token, user?.schoolId, role === 'TEACHER' ? user?.teacherId || user?.userId || 1 : undefined, className, section, teacherName),
           webApi.timetableRoleNotifications<Notification[]>(role, user?.token, user?.schoolId),
         ]);
         setLive(liveResult);
@@ -54,7 +55,7 @@ export default function RoleTimetableVisibilityPanel({ role }: { role: Role }) {
       }
     }
     load();
-  }, [role, user?.schoolId, user?.teacherId, user?.token, user?.userId]);
+  }, [role, user?.schoolId, user?.teacherId, user?.teacherName, user?.displayName, user?.token, user?.userId, user?.className, user?.section]);
 
   const entries = useMemo(() => live?.entries || [], [live]);
   const daily = entries.filter((entry) => entry.dayOfWeek === selectedDay).sort((a, b) => a.periodNumber - b.periodNumber);
