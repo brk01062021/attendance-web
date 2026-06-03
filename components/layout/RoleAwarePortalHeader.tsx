@@ -30,6 +30,7 @@ const roleWorkspaceLabel: Record<string, string> = {
   PRINCIPAL: 'Principal School Intelligence',
   TEACHER: 'Teacher Daily Workspace',
   STUDENT: 'Student Learning Workspace',
+  PARENT: 'Parent Child Progress Workspace',
 };
 
 function formatRole(role: PortalRole) {
@@ -84,7 +85,7 @@ export default function RoleAwarePortalHeader({
     'Attendance • Reports • Leave Approvals • Timetable • School Operations';
 
   const schoolId = resolveSchoolId(user);
-  const showNotificationBell = ['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT'].includes(effectiveRole);
+  const showNotificationBell = ['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT', 'PARENT'].includes(effectiveRole);
 
   return (
     <header className="rounded-[26px] border border-amber-300/20 bg-slate-950/70 px-5 py-4 shadow-2xl shadow-black/30 backdrop-blur md:px-6">

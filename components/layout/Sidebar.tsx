@@ -14,7 +14,7 @@ const groupOrder = ['Home', 'Daily Work', 'Reports', 'Setup'] as const;
 export default function Sidebar({ role }: SidebarProps) {
   const pathname = usePathname();
   const items = portalRoutes.filter((item) => item.roles.includes(role));
-  const homeHref = role === 'ADMIN' ? '/admin' : role === 'PRINCIPAL' ? '/principal' : role === 'TEACHER' ? '/teacher' : '/student';
+  const homeHref = role === 'ADMIN' ? '/admin' : role === 'PRINCIPAL' ? '/principal' : role === 'TEACHER' ? '/teacher' : role === 'PARENT' ? '/parent' : '/student';
 
   return (
     <aside className="sidebar">

@@ -88,6 +88,25 @@ const roleCopy = {
       { title: 'Academic progress', message: 'Use results and timetable together for daily study planning.', tone: 'success' },
     ],
   },
+  PARENT: {
+    overviewTitle: 'Parent Workspace',
+    focus: 'View child timetable, attendance, results, notices, and school updates in one simple portal.',
+    primaryActions: [
+      ['/parent/timetable', '🕒', 'Child Timetable', 'View today schedule and weekly timetable from the latest published timetable.'],
+      ['/student/attendance', '📊', 'Child Attendance', 'Check attendance percentage and recent attendance updates.'],
+      ['/student/results', '📘', 'Exam Results', 'Review subject marks, grades, and academic progress.'],
+      ['/student/notices', '📣', 'School Notices', 'Read announcements, holidays, and academic calendar updates.'],
+    ],
+    secondaryActions: [
+      ['/parent', '📅', 'Today Schedule', "Open the child timetable and check today's periods."],
+      ['/parent', '🏫', 'School Updates', 'View school updates when enabled.'],
+    ],
+    updates: [
+      { title: 'Published timetable only', message: 'Draft timetables are hidden until Admin or Principal publishes the final schedule.', tone: 'success' },
+      { title: 'Child schedule', message: 'Today and weekly timetable views use the active school timetable.', tone: 'info' },
+      { title: 'School notice', message: 'Holiday and academic notices appear after publishing.', tone: 'gold' },
+    ],
+  },
 } satisfies Record<PortalRole, { overviewTitle: string; focus: string; primaryActions: Action[]; secondaryActions: Action[]; updates: UpdateItem[] }>;
 
 function ActionCard({ href, icon, title, description, compact = false }: { href: string; icon: string; title: string; description: string; compact?: boolean }) {
@@ -117,7 +136,7 @@ export default function DashboardHome({ role }: { role: PortalRole }) {
         <div className="section-heading-row">
           <div>
             <p className="eyebrow">Primary workflows</p>
-            <h2>{role === 'STUDENT' ? 'Student actions' : role === 'TEACHER' ? 'Teacher actions' : 'School operations'}</h2>
+            <h2>{role === 'STUDENT' ? 'Student actions' : role === 'TEACHER' ? 'Teacher actions' : role === 'PARENT' ? 'Parent actions' : 'School operations'}</h2>
           </div>
           <span className="section-count">{copy.primaryActions.length} workflows</span>
         </div>
@@ -147,7 +166,7 @@ export default function DashboardHome({ role }: { role: PortalRole }) {
           <div className="section-heading-row section-heading-row--compact">
             <div>
               <p className="eyebrow">Updates</p>
-              <h2>{role === 'TEACHER' ? 'Teacher updates' : role === 'STUDENT' ? 'Student alerts' : 'School alerts'}</h2>
+              <h2>{role === 'TEACHER' ? 'Teacher updates' : role === 'STUDENT' ? 'Student alerts' : role === 'PARENT' ? 'Parent alerts' : 'School alerts'}</h2>
             </div>
           </div>
           <div className="notification-list">

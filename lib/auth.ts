@@ -6,7 +6,7 @@ const SESSION_COOKIE = 'vidyasetu_session';
 
 function normalizeRole(role?: string, fallback: WebUserRole = 'ADMIN'): WebUserRole {
   const normalized = role?.toUpperCase();
-  if (normalized === 'PRINCIPAL' || normalized === 'TEACHER' || normalized === 'STUDENT') return normalized;
+  if (normalized === 'PRINCIPAL' || normalized === 'TEACHER' || normalized === 'STUDENT' || normalized === 'PARENT') return normalized;
   return fallback;
 }
 
@@ -14,6 +14,7 @@ export function homeRouteForRole(role: WebUserRole) {
   if (role === 'PRINCIPAL') return '/principal';
   if (role === 'TEACHER') return '/teacher';
   if (role === 'STUDENT') return '/student';
+  if (role === 'PARENT') return '/parent';
   return '/admin';
 }
 
@@ -29,6 +30,7 @@ function defaultDisplayName(role: WebUserRole, username?: string) {
   if (role === 'ADMIN') return 'School Admin';
   if (role === 'PRINCIPAL') return 'School Principal';
   if (role === 'TEACHER') return 'Teacher';
+  if (role === 'PARENT') return 'Parent';
   return 'Student';
 }
 
@@ -65,7 +67,7 @@ function normalizeUser(user: WebPortalUser): WebPortalUser {
     schoolName,
     displayName,
     teacherId: role === 'TEACHER' ? Number(user.teacherId || user.userId || 1) : null,
-    studentId: role === 'STUDENT' ? Number(user.studentId || user.userId || 201) : null,
+    studentId: role === 'STUDENT' || role === 'PARENT' ? Number(user.studentId || user.userId || 201) : null,
     forcePasswordChange: Boolean(user.forcePasswordChange),
   };
 }
@@ -96,7 +98,7 @@ export function clearStoredUser() {
 }
 
 export function isValidTenantUser(user: WebPortalUser | null): user is WebPortalUser {
-  return Boolean(user?.userId && user?.schoolId && user.schoolId !== 'DEMO' && /^[A-Z0-9]{4}$/.test(user.schoolId) && user?.role && ['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT'].includes(user.role));
+  return Boolean(user?.userId && user?.schoolId && user.schoolId !== 'DEMO' && /^[A-Z0-9]{4}$/.test(user.schoolId) && user?.role && ['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT', 'PARENT'].includes(user.role));
 }
 
 const hiddenRoleRoutes: Record<string, PortalRole[]> = {
@@ -118,7 +120,7 @@ export function createDevUser(login: LoginRequest): WebPortalUser {
   const role = login.role;
   const schoolId = normalizeSchoolId(login.schoolId);
   return normalizeUser({
-    userId: role === 'ADMIN' ? 1 : role === 'PRINCIPAL' ? 2 : role === 'TEACHER' ? 1 : 201,
+    userId: role === 'ADMIN' ? 1 : role === 'PRINCIPAL' ? 2 : role === 'TEACHER' ? 1 : role === 'PARENT' ? 101 : 201,
     schoolId,
     internalSchoolId: 1,
     role,
@@ -126,7 +128,7 @@ export function createDevUser(login: LoginRequest): WebPortalUser {
     schoolName: `${schoolId} School`,
     token: 'dev-web-token',
     teacherId: role === 'TEACHER' ? 1 : null,
-    studentId: role === 'STUDENT' ? 201 : null,
+    studentId: role === 'STUDENT' || role === 'PARENT' ? 201 : null,
     forcePasswordChange: false,
   });
 }
@@ -135,7 +137,7 @@ export function mapLoginResponseToUser(response: LoginApiResponse, requestedRole
   const role = normalizeRole(String(response?.role || requestedRole), requestedRole);
   const schoolId = normalizeSchoolId(response?.externalSchoolId || response?.schoolCode || response?.schoolId);
   return normalizeUser({
-    userId: Number(response?.userId || (role === 'TEACHER' ? 1 : role === 'STUDENT' ? 201 : 1)),
+    userId: Number(response?.userId || (role === 'TEACHER' ? 1 : role === 'STUDENT' ? 201 : role === 'PARENT' ? 101 : 1)),
     internalSchoolId: typeof response?.schoolId === 'number' ? response.schoolId : 1,
     schoolId,
     role,
@@ -143,7 +145,7 @@ export function mapLoginResponseToUser(response: LoginApiResponse, requestedRole
     schoolName: response?.schoolName || `${schoolId} School`,
     token: response?.token || 'demo-token',
     teacherId: response?.teacherId ?? (role === 'TEACHER' ? Number(response?.userId || 1) : null),
-    studentId: response?.studentId ?? (role === 'STUDENT' ? Number(response?.userId || 201) : null),
+    studentId: response?.studentId ?? (role === 'STUDENT' || role === 'PARENT' ? Number(response?.userId || 201) : null),
     forcePasswordChange: Boolean(response?.forcePasswordChange),
   });
 }

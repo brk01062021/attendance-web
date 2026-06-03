@@ -115,7 +115,7 @@ export default function LoginCard() {
             </p>
 
             <div className="role-switch" aria-label="Choose role">
-                {(['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT'] as WebUserRole[]).map((item) => (
+                {(['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT', 'PARENT'] as WebUserRole[]).map((item) => (
                     <button
                         key={item}
                         type="button"

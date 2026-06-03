@@ -10,6 +10,7 @@ type NotificationBellProps = {
 function notificationHref(role: string) {
   if (role === 'TEACHER') return '/teacher/notifications';
   if (role === 'STUDENT') return '/student/notices';
+  if (role === 'PARENT') return '/parent/timetable';
   return '/school-notices';
 }
 
@@ -18,6 +19,7 @@ function notificationLabel(role: string) {
   if (role === 'PRINCIPAL') return 'Principal notifications';
   if (role === 'TEACHER') return 'Teacher notifications';
   if (role === 'STUDENT') return 'Student notifications';
+  if (role === 'PARENT') return 'Parent notifications';
   return 'School notifications';
 }
 

@@ -1,4 +1,4 @@
-export type WebUserRole = 'ADMIN' | 'PRINCIPAL' | 'TEACHER' | 'STUDENT';
+export type WebUserRole = 'ADMIN' | 'PRINCIPAL' | 'TEACHER' | 'STUDENT' | 'PARENT';
 
 export type WebPortalUser = {
   userId: number;

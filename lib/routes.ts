@@ -1,4 +1,4 @@
-export type PortalRole = 'ADMIN' | 'PRINCIPAL' | 'TEACHER' | 'STUDENT';
+export type PortalRole = 'ADMIN' | 'PRINCIPAL' | 'TEACHER' | 'STUDENT' | 'PARENT';
 
 export type PortalRoute = {
   label: string;
@@ -14,6 +14,7 @@ export const portalRoutes: PortalRoute[] = [
   { icon: '🏠', label: 'Home', href: '/principal', description: 'Principal operations', roles: ['PRINCIPAL'], group: 'Home' },
   { icon: '🏠', label: 'Home', href: '/teacher', description: 'Teacher workspace', roles: ['TEACHER'], group: 'Home' },
   { icon: '🏠', label: 'Home', href: '/student', description: 'Student portal', roles: ['STUDENT'], group: 'Home' },
+  { icon: '🏠', label: 'Home', href: '/parent', description: 'Parent workspace', roles: ['PARENT'], group: 'Home' },
 
   { icon: '📝', label: 'Leave Enquiry', href: '/teacher/leave-enquiry', description: 'Request and track status', roles: ['TEACHER'], group: 'Daily Work' },
   { icon: '✅', label: 'Take Attendance', href: '/teacher/attendance', description: 'Daily attendance shortcut', roles: ['TEACHER'], group: 'Daily Work' },
@@ -25,6 +26,7 @@ export const portalRoutes: PortalRoute[] = [
   { icon: '🕒', label: 'My Timetable', href: '/student/timetable', description: 'Published timetable', roles: ['STUDENT'], group: 'Daily Work' },
   { icon: '📘', label: 'Exam Results', href: '/student/results', description: 'Academic results', roles: ['STUDENT'], group: 'Reports' },
   { icon: '📣', label: 'School Notices', href: '/student/notices', description: 'Notices and holidays', roles: ['STUDENT'], group: 'Daily Work' },
+  { icon: '🕒', label: 'Child Timetable', href: '/parent/timetable', description: 'Published child timetable', roles: ['PARENT'], group: 'Daily Work' },
 
   { icon: '🧠', label: 'School Intelligence', href: '/school-intelligence', description: 'Executive insights', roles: ['ADMIN', 'PRINCIPAL'], group: 'Daily Work' },
   { icon: '📊', label: 'Attendance Reports', href: '/reports/attendance', description: 'Attendance records', roles: ['ADMIN', 'PRINCIPAL'], group: 'Reports' },
