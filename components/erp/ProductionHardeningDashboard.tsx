@@ -13,7 +13,7 @@ const timeline = [
     ['Days 6–8', 'Finish timetable Active Academic Dates, Timetable Activation Flow, and auto notice draft.'],
     ['Days 9–10', 'Add holiday calendar overrides and dashboard holiday/timetable alerts.'],
     ['Days 11–12', 'Pilot rehearsal with 700-student sample import and teacher/principal flows.'],
-    ['Days 13–14', 'Deployment readiness, demo script, backup/export checks, and school handoff.'],
+    ['Days 13–14', 'Deployment readiness, backup/export checks, and school handoff.'],
 ];
 
 export default function ProductionHardeningDashboard() {
@@ -38,7 +38,7 @@ export default function ProductionHardeningDashboard() {
                     <span>vidyasetu.co → public website</span>
                     <span>portal.vidyasetu.co/login → ERP login</span>
                     <span>app.vidyasetu.co → mobile app/deep links</span>
-                    <span>api.vidyasetu.co → backend APIs</span>
+                    <span>api.vidyasetu.co → VidyaSetu services</span>
                 </div>
             </section>
 
@@ -85,7 +85,7 @@ export default function ProductionHardeningDashboard() {
 
             <section className="day25-split">
                 <div className="day25-panel gold-panel">
-                    <p className="eyebrow">14-DAY PILOT PATH</p>
+                    <p className="eyebrow">SCHOOL ROLLOUT PATH</p>
                     <h3>Build only what improves launch confidence</h3>
                     <div className="day25-timeline">
                         {timeline.map(([days, body]) => (

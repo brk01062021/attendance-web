@@ -71,7 +71,7 @@ export default function TeacherBulkAttendancePanel() {
     <section className="work-panel gold-panel">
       <p className="eyebrow">7-WORKING-DAYS RECOVERY</p>
       <h2>Missed Attendance Bulk Submission</h2>
-      <p>Use this web-only teacher workflow when attendance was missed for up to 7 working days. Weekends are skipped automatically; future holiday/timetable locks can be added to backend validation.</p>
+      <p>Use this web-only teacher workflow when attendance was missed for up to 7 working days. Weekends are skipped automatically; holiday and timetable locks will be checked before save.</p>
       <form className="form-grid" onSubmit={submit}>
         <label>Class<input value={className} onChange={(e) => setClassName(e.target.value)} required /></label>
         <label>Section<input value={section} onChange={(e) => setSection(e.target.value)} required /></label>

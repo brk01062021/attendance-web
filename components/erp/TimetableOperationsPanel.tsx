@@ -43,7 +43,7 @@ export default function TimetableOperationsPanel() {
   const [batchId, setBatchId] = useState('');
   const cleanBatchId = useMemo(() => batchId.trim().toUpperCase(), [batchId]);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState('Enter a generated timetable batch ID, then load Day 16 operations.');
+  const [message, setMessage] = useState('Enter a timetable batch ID, then load operations.');
   const [status, setStatus] = useState<TimetableOperationsStatus | null>(null);
   const [readiness, setReadiness] = useState<TimetableRolloutReadiness | null>(null);
   const [intelligence, setIntelligence] = useState<PrincipalTimetableIntelligence | null>(null);
@@ -73,9 +73,9 @@ export default function TimetableOperationsPanel() {
       setVersions(nextVersions || []);
       setNotifications(nextNotifications || []);
       setArchives(nextArchives || []);
-      setMessage('Timetable operations loaded from backend.');
+      setMessage('Timetable operations loaded.');
     } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Unable to load timetable operations. Confirm backend and batch ID.');
+      setMessage(error instanceof Error ? error.message : 'Unable to load timetable operations. Confirm the batch ID and try again.');
     } finally {
       setLoading(false);
     }
@@ -151,7 +151,7 @@ export default function TimetableOperationsPanel() {
   return (
     <section className="space-y-5">
       <div className="rounded-[28px] border border-amber-300/40 bg-slate-950/90 p-6 text-white shadow-xl">
-        <p className="text-[11px] font-black uppercase tracking-[0.28em] text-amber-200">Day 16 Timetable Operations</p>
+        <p className="text-[11px] font-black uppercase tracking-[0.28em] text-amber-200">Timetable Operations</p>
         <h2 className="mt-2 text-2xl font-black">Repair, Manual Review, Publish Lock, Export, and Principal Intelligence</h2>
         <p className="mt-2 max-w-4xl text-sm font-semibold leading-6 text-white/70">{message}</p>
       </div>
@@ -182,7 +182,7 @@ export default function TimetableOperationsPanel() {
 
       <div className="grid gap-3 md:grid-cols-4">
         <Action title="Auto Conflict Repair" body="Repair teacher overlaps and lab-heavy advisories." onClick={runAutoRepair} />
-        <Action title="Manual Editor Foundation" body="Open review/edit flow after repair. Existing manual-edit API remains locked after publish." onClick={() => setMessage('Manual Editor foundation is active through /timetable/manual-edit/{batchId} and the mobile review/edit flow.')} />
+        <Action title="Manual Edit" body="Open review/edit flow after repair. Manual edits are locked after publish." onClick={() => setMessage('Manual edit is available from the timetable review flow.')} />
         <Action title="Publish Timetable" body="Admin/Principal publish lock after zero blocking conflicts." onClick={runPublishLock} />
         <Action title="Rollback / Unlock" body="Create rollback audit marker and return to review mode." onClick={runRollback} />
         <Action title="Download PDF" body="Generate PDF timetable export payload." onClick={() => runExport('PDF')} />

@@ -66,7 +66,7 @@ export default function ImportValidationDashboard() {
       setUploadHistory(rows);
       setHistoryError(null);
     } catch (error) {
-      setHistoryError(toSafeImportMessage(error, 'Upload history is unavailable. Backend may not be running.'));
+      setHistoryError(toSafeImportMessage(error, 'Upload history is unavailable. Please try again.'));
     } finally {
       setHistoryLoading(false);
     }
@@ -190,7 +190,7 @@ export default function ImportValidationDashboard() {
         <div className="mt-5 flex flex-wrap gap-2">
           <Badge label={`school_id isolation: ${schoolId}`} />
           <Badge label={`Role access: ${role}`} />
-          <Badge label="Workbook Preview" />
+          <Badge label="Workbook Review" />
           <Badge label="Workbook Commit" />
           <Badge label="Import History" />
         </div>
@@ -385,7 +385,7 @@ export default function ImportValidationDashboard() {
 
           <div className="grid gap-6 xl:grid-cols-[1.15fr_0.85fr]">
             <section className="rounded-[2rem] border border-amber-100/60 bg-white/82 p-6 shadow-lg shadow-amber-900/5">
-              <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">Import Preview</p>
+              <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">Import Review</p>
               <h3 className="mt-2 text-xl font-black text-slate-950">Workbook Sheets</h3>
               <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200/70">
                 <table className="w-full text-left text-sm">

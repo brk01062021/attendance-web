@@ -13,12 +13,12 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         eyebrow: 'SCHOOL INTELLIGENCE',
         title: 'School Intelligence Command Center',
         description:
-            'Principal/Admin executive web view for attendance pulse, timetable readiness, teacher load, risk alerts, and rollout decisions before pilot school onboarding.',
+            'Principal/Admin web view for attendance pulse, timetable readiness, teacher load, risk alerts, and school operations.',
         metrics: [
             { label: 'Attendance Pulse', value: '94.2%', helper: 'Current operational average', tone: 'success' },
             { label: 'Risk Alerts', value: '12', helper: 'Students/teachers needing review', tone: 'warning' },
             { label: 'Timetable Batch', value: 'Latest', helper: 'Use latest generated/published batch' },
-            { label: 'Rollout', value: 'Operational', helper: 'Pilot readiness layer' },
+            { label: 'Rollout', value: 'Operational', helper: 'School readiness layer' },
         ],
         filters: [
             { label: 'Academic Year', value: '2026-2027' },
@@ -31,7 +31,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { icon: '🕒', title: 'Validate timetable readiness', body: 'Confirm latest batch, conflicts, publish status, and export readiness.', status: 'Ready' },
         ],
         tableTitle: 'Operations snapshot',
-        tableDescription: 'Operational web ERP gives principals a clean decision table before live data is available.',
+        tableDescription: 'Operational web ERP gives principals a clean decision table for school-level review.',
         columns: [
             { key: 'area', label: 'Area' },
             { key: 'signal', label: 'Signal' },
@@ -47,19 +47,19 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'Dark dashboard theme aligned', status: 'Done', tone: 'success' },
             { label: 'Role-aware navigation kept', status: 'Done', tone: 'success' },
-            { label: 'Chart integration', status: 'Pending configuration', tone: 'warning' },
+            { label: 'Chart data connection', status: 'Pending setup', tone: 'warning' },
         ],
-        nextSteps: ['Connect principal summary service', 'Add risk alert drilldowns', 'Add timetable readiness chart'],
+        nextSteps: ['Connect principal summary data', 'Add risk alert details', 'Add timetable readiness trend'],
     },
     attendanceReports: {
         eyebrow: 'Reporting workflow',
         title: 'Attendance Reports Center',
         description:
-            'Premium gold workflow for whole-school attendance summary, class/section reports, student drilldown, date filters, and PDF/Workbook export support.',
+            'Premium gold workflow for whole-school attendance summary, class/section reports, student drilldown, date filters, and PDF and Excel export support.',
         metrics: [
-            { label: 'School Summary', value: 'Ready', helper: 'Cards and table prepared', tone: 'success' },
+            { label: 'School Summary', value: 'Ready', helper: 'Cards and table available', tone: 'success' },
             { label: 'Class Reports', value: 'Ready', helper: 'Class/section view shell', tone: 'success' },
-            { label: 'Student Drilldown', value: 'Pending', helper: 'Selector connection' },
+            { label: 'Student Drilldown', value: 'Pending', helper: 'Student selector setup' },
             { label: 'Exports', value: 'Pending', helper: 'PDF/Workbook actions' },
         ],
         filters: [
@@ -73,7 +73,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { icon: '🔎', title: 'Find student record', body: 'Search by student name, admission number, or roll number.', status: 'Connected' },
         ],
         tableTitle: 'Attendance report summary',
-        tableDescription: 'Static summary matching the attendance operations already available in current operational workflows.',
+        tableDescription: 'Summary matching the attendance operations available in current workflows.',
         columns: attendanceColumns,
         rows: [
             { scope: 'Whole School', present: '1,118', absent: '64', coverage: '96%', action: 'Review summary' },
@@ -84,9 +84,9 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'Gold workflow theme', status: 'Done', tone: 'success' },
             { label: 'Filters represented clearly', status: 'Done', tone: 'success' },
-            { label: 'Live table data', status: 'Pending configuration', tone: 'warning' },
+            { label: 'Live table data', status: 'Pending setup', tone: 'warning' },
         ],
-        nextSteps: ['Connect analytics and attendance report services', 'Add export buttons', 'Add student search result panel'],
+        nextSteps: ['Connect attendance report data', 'Add export buttons', 'Add student search result panel'],
     },
     teacherReports: {
         eyebrow: 'TEACHER REPORTS',
@@ -94,10 +94,10 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         description:
             'Single-teacher lookup foundation for classes, sections, subjects, leave history, replacement load, exam result actions, and attendance submission audit.',
         metrics: [
-            { label: 'Teacher Lookup', value: 'Ready', helper: 'Search panel prepared', tone: 'success' },
+            { label: 'Teacher Lookup', value: 'Ready', helper: 'Search panel available', tone: 'success' },
             { label: 'Workload', value: 'Watch', helper: 'Replacement fairness focus', tone: 'warning' },
-            { label: 'Leave History', value: 'Pending', helper: 'Operational drilldown' },
-            { label: 'Submissions', value: 'Pending', helper: 'Attendance/exam actions' },
+            { label: 'Leave History', value: 'Pending', helper: 'Leave details' },
+            { label: 'Submissions', value: 'Pending', helper: 'Attendance and exam actions' },
         ],
         filters: [
             { label: 'Teacher', value: 'Search/select' },
@@ -126,7 +126,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'Teacher report spec represented', status: 'Done', tone: 'success' },
             { label: 'Replacement-load visibility', status: 'Done', tone: 'success' },
-            { label: 'Detail workflow', status: 'Pending configuration', tone: 'warning' },
+            { label: 'Detail workflow', status: 'Pending setup', tone: 'warning' },
         ],
         nextSteps: ['Connect teacher search service', 'Add teacher detail route', 'Add leave/replacement drilldowns'],
     },
@@ -134,7 +134,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         eyebrow: 'LEAVE OPERATIONS',
         title: 'Teacher Leave Planning',
         description:
-            'Web workflow foundation for one-day/multi-day leave, replacement summary, approval decisions, smart assignment, and workload protection.',
+            'Web workflow for one-day/multi-day leave, replacement summary, approval decisions, smart assignment, and workload protection.',
         metrics: [
             { label: 'Pending Leaves', value: 'Service', helper: 'Operational flow' },
             { label: 'Smart Match', value: 'Ready', helper: 'Best Match / Same Class / Others', tone: 'success' },
@@ -168,7 +168,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'Multi-day workflow represented', status: 'Done', tone: 'success' },
             { label: 'Replacement grouping captured', status: 'Done', tone: 'success' },
-            { label: 'Approval workflow', status: 'Pending configuration', tone: 'warning' },
+            { label: 'Approval workflow', status: 'Pending setup', tone: 'warning' },
         ],
         nextSteps: ['Add leave form', 'Connect replacement summary service', 'Add approval + audit log'],
     },
@@ -210,7 +210,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'Class-wise pool model', status: 'Done', tone: 'success' },
             { label: 'Auto timetable dependency captured', status: 'Done', tone: 'success' },
-            { label: 'Validation service', status: 'Pending configuration', tone: 'warning' },
+            { label: 'Validation service', status: 'Pending setup', tone: 'warning' },
         ],
         nextSteps: ['Add teacher pool CRUD', 'Connect Workbook import review', 'Add mapping validation'],
     },
@@ -252,7 +252,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'No manual teacher ID dependency', status: 'Done', tone: 'success' },
             { label: 'Class checklist represented', status: 'Done', tone: 'success' },
-            { label: 'Generation service', status: 'Pending configuration', tone: 'warning' },
+            { label: 'Generation service', status: 'Pending setup', tone: 'warning' },
         ],
         nextSteps: ['Add generation form controls', 'Connect smart generation service', 'Redirect to operations latest batch'],
     },
@@ -294,7 +294,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'Latest batch requirement captured', status: 'Done', tone: 'success' },
             { label: 'Publish/export workflow represented', status: 'Done', tone: 'success' },
-            { label: 'Operations service', status: 'Pending configuration', tone: 'warning' },
+            { label: 'Operations service', status: 'Pending setup', tone: 'warning' },
         ],
         nextSteps: ['Connect latest-batch service', 'Add publish locking', 'Add PDF/Workbook export buttons'],
     },
@@ -336,7 +336,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'Holidays-first flow enforced in plan', status: 'Done', tone: 'success' },
             { label: 'Teacher pool tabs represented', status: 'Done', tone: 'success' },
-            { label: 'Workbook parser', status: 'Pending configuration', tone: 'warning' },
+            { label: 'Workbook parser', status: 'Pending setup', tone: 'warning' },
         ],
         nextSteps: ['Add workbook upload UI', 'Add validation summary screen', 'Add tenant creation workflow'],
     },
@@ -378,7 +378,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'Achievement categories captured', status: 'Done', tone: 'success' },
             { label: 'Parent notification plan captured', status: 'Done', tone: 'success' },
-            { label: 'Notice publishing service', status: 'Pending configuration', tone: 'warning' },
+            { label: 'Notice publishing service', status: 'Pending setup', tone: 'warning' },
         ],
         nextSteps: ['Add notice create form', 'Add image upload option', 'Connect notification service'],
     },
@@ -421,7 +421,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'Web analytics module route added', status: 'Done', tone: 'success' },
             { label: 'Principal/Admin navigation added', status: 'Done', tone: 'success' },
-            { label: 'Chart service', status: 'Pending configuration', tone: 'warning' },
+            { label: 'Chart service', status: 'Pending setup', tone: 'warning' },
         ],
         nextSteps: ['Connect analytics services', 'Add chart components', 'Add export/share snapshot'],
     },
@@ -446,7 +446,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
             { icon: '📥', title: 'Validate workbook import', body: 'School profile, holidays, students, parents, teachers, pools, subjects, and schedules.', status: 'Ready' },
             { icon: '✅', title: 'Approve pilot launch', body: 'Confirm timetable, reports, notices, RBAC, exports, and rollout flow before school access.', status: 'Approval Gate' },
         ],
-        tableTitle: 'Pilot readiness gate',
+        tableTitle: 'School readiness gate',
         tableDescription: 'A simple non-technical checklist for the first institutional pilot before enabling broad access.',
         columns: [
             { key: 'gate', label: 'Gate' },
@@ -465,7 +465,7 @@ export const day24Modules: Record<string, Day23ModuleConfig> = {
         validations: [
             { label: 'One-school-first SaaS rollout captured', status: 'Done', tone: 'success' },
             { label: 'Principal/Admin first access captured', status: 'Done', tone: 'success' },
-            { label: 'Access validation hardening', status: 'Pending configuration', tone: 'warning' },
+            { label: 'Access validation hardening', status: 'Pending setup', tone: 'warning' },
         ],
         nextSteps: ['Add tenant creation flow', 'Connect workbook upload parser', 'Add final production QA checklist'],
     },

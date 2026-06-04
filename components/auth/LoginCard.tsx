@@ -74,7 +74,7 @@ export default function LoginCard() {
                 setMessage(
                     error instanceof Error
                         ? error.message
-                        : 'Login failed. Please verify backend API is running.'
+                        : 'Login failed. Please verify the School ID, username, and password.'
                 );
                 setIsLoading(false);
                 return;
@@ -83,7 +83,7 @@ export default function LoginCard() {
             const user = createDevUser(request);
 
             storeUser(user);
-            setMessage('Backend login unavailable, opened safe local dev session.');
+            setMessage('Login service is unavailable. Please try again after the service is restored.');
             router.push(homeRouteForRole(role));
         } finally {
             setIsLoading(false);
@@ -168,7 +168,7 @@ export default function LoginCard() {
 
             <button className="primary-button" type="submit" disabled={isLoading}>
                 {isLoading
-                    ? 'Checking API...'
+                    ? 'Signing in...'
                     : `Open ${
                         role === 'ADMIN'
                             ? 'Admin'

@@ -28,7 +28,7 @@ export default function Day24ModulePage({ config }: Props) {
                 <div className="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
                     <div>
                         <p className="text-xs font-semibold tracking-[0.24em] text-[#d4af37]/70">
-                            OPERATIONAL FILTERS
+                            WORKSPACE FILTERS
                         </p>
 
                         <h2 className="mt-2 text-2xl font-semibold text-[#f8f3df]">
@@ -43,7 +43,7 @@ export default function Day24ModulePage({ config }: Props) {
                     <input
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
-                        placeholder="Search available after live data sync"
+                        placeholder="Search records"
                         className="w-full rounded-2xl border border-[#d4af37]/20 bg-[#08131f] px-4 py-3 text-sm text-[#f8f3df] outline-none lg:max-w-sm"
                     />
                 </div>
@@ -127,15 +127,14 @@ export default function Day24ModulePage({ config }: Props) {
             {config.actions.length > 0 ? (
                 <section className="rounded-3xl border border-[#d4af37]/20 bg-[#0d1724] p-6">
                     <p className="text-xs font-semibold tracking-[0.24em] text-[#d4af37]/70">
-                        ACTION QUEUE
+                        NEXT ACTIONS
                     </p>
 
                     <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
                         {config.actions.map((action) => (
-                            <button
+                            <div
                                 key={action.title}
-                                type="button"
-                                className="rounded-2xl border border-[#d4af37]/15 bg-[#08131f] p-4 text-left transition hover:border-[#d4af37]/45"
+                                className="rounded-2xl border border-[#d4af37]/15 bg-[#08131f] p-4 text-left"
                             >
                                 <p className="text-sm font-semibold text-[#f8f3df]">
                                     {action.title}
@@ -146,7 +145,7 @@ export default function Day24ModulePage({ config }: Props) {
                                 <span className="mt-3 inline-flex rounded-full border border-[#d4af37]/20 px-3 py-1 text-xs font-semibold text-[#d4af37]">
                                     {action.status}
                                 </span>
-                            </button>
+                            </div>
                         ))}
                     </div>
                 </section>

@@ -30,6 +30,23 @@ const sampleRows = [
   ['10', 'A', 'Tuesday', '1', 'Science', 'John Paul'],
 ];
 
+
+function issueSummary(issues: ImportIssue[]) {
+  return issues.reduce<Record<string, { label: string; count: number; rows: number[] }>>((acc, issue) => {
+    const label = issue.fieldName || issue.severity || 'Timetable';
+    const current = acc[label] || { label, count: 0, rows: [] };
+    current.count += 1;
+    if (issue.rowNumber && !current.rows.includes(issue.rowNumber)) current.rows.push(issue.rowNumber);
+    acc[label] = current;
+    return acc;
+  }, {});
+}
+
+function rowRange(rows: number[]) {
+  const visibleRows = rows.slice(0, 6).join(', ');
+  return rows.length > 6 ? `${visibleRows} +${rows.length - 6} more` : visibleRows || 'See workbook';
+}
+
 function csvTemplate() {
   const csv = sampleRows.map((row) => row.join(',')).join('\n');
   const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
@@ -96,10 +113,10 @@ export default function ExistingTimetableImportPanel() {
       <section className="page-card gold-panel">
         <div className="section-heading-row items-start">
           <div className="max-w-3xl">
-            <p className="eyebrow">Timetable import</p>
+            <p className="eyebrow">Existing timetable</p>
             <h2>Import Existing Timetable</h2>
-            <p className="page-subtitle mt-2">Upload the school’s active academic-year timetable, validate it, and publish it as the live timetable.</p>
-            <p className="mt-4 text-sm font-black text-amber-100">Required columns: Class, Section, Day, Period, Subject, Teacher</p>
+            <p className="page-subtitle mt-2">Upload the school’s active academic-year timetable, review issues in one place, and publish only when it is ready.</p>
+            <p className="mt-4 text-sm font-black text-amber-100">Excel columns: Class, Section, Day, Period, Subject, Teacher</p>
           </div>
           <span className="status-pill status-pill--pending">Published timetable only</span>
         </div>
@@ -112,10 +129,10 @@ export default function ExistingTimetableImportPanel() {
               accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
               onChange={(event) => setFile(event.target.files?.[0] || null)}
             />
-            <button className="primary-button min-h-[46px] px-6" type="button" onClick={uploadAndValidate} disabled={loading}>{loading ? 'Validating…' : 'Validate Timetable'}</button>
-            <button className="secondary-button min-h-[46px] px-5" type="button" onClick={csvTemplate}>Download Template</button>
+            <button className="primary-button min-h-[46px] px-6" type="button" onClick={uploadAndValidate} disabled={loading}>{loading ? 'Validating…' : 'Validate Excel'}</button>
+            <button className="secondary-button min-h-[46px] px-5" type="button" onClick={csvTemplate}>Download Excel Template</button>
           </div>
-          <p className="mt-3 text-sm font-semibold text-slate-200/80">Upload one row per period. Validate first, review the result, then publish when the timetable is ready to go live.</p>
+          <p className="mt-3 text-sm font-semibold text-slate-200/80">Upload one row per period. Resolve errors and teacher conflicts before publishing.</p>
           {file ? <p className="mt-3 text-sm font-bold text-amber-100">Selected: {file.name}</p> : null}
           {error ? <p className="mt-3 rounded-2xl border border-red-300/40 bg-red-950/40 p-3 text-sm font-bold text-red-100">{error}</p> : null}
         </div>
@@ -125,7 +142,7 @@ export default function ExistingTimetableImportPanel() {
         <section className="page-card gold-panel">
           <div className="section-heading-row">
             <div>
-              <p className="eyebrow">Validation result</p>
+              <p className="eyebrow">Import result</p>
               <h2>{response.status}</h2>
               <p className="page-subtitle mt-2">{response.message}</p>
               {response.publishedBatchId ? <p className="mt-2 text-sm font-black text-emerald-200">Published Batch: {response.publishedBatchId}</p> : null}
@@ -137,14 +154,15 @@ export default function ExistingTimetableImportPanel() {
             <div className="metric-card"><p className="metric-label">Accepted</p><p className="metric-value">{response.acceptedRows || 0}</p></div>
             <div className="metric-card"><p className="metric-label">Errors</p><p className="metric-value">{response.errorCount || 0}</p></div>
             <div className="metric-card"><p className="metric-label">Conflicts</p><p className="metric-value">{response.conflictsDetected || 0}</p></div>
-            <div className="metric-card"><p className="metric-label">Can Publish</p><p className="metric-value">{response.canPublish ? 'YES' : 'NO'}</p></div>
+            <div className="metric-card"><p className="metric-label">Publish Status</p><p className="metric-value">{response.canPublish ? 'Ready' : 'Blocked'}</p></div>
           </div>
           {response.issues?.length ? (
             <div className="mt-5 status-list">
-              {response.issues.slice(0, 8).map((issue, index) => (
-                <div className="status-row" key={`${issue.rowNumber}-${issue.fieldName}-${index}`}>
-                  <strong>{issue.severity} • Row {issue.rowNumber}</strong>
-                  <span>{issue.fieldName}: {issue.message}</span>
+              <div className="status-row"><strong>Issues to fix</strong><span>Grouped by field so the school can correct the Excel file faster.</span></div>
+              {Object.values(issueSummary(response.issues)).slice(0, 8).map((group) => (
+                <div className="status-row" key={group.label}>
+                  <strong>{group.label} • {group.count} issue{group.count === 1 ? '' : 's'}</strong>
+                  <span>Rows: {rowRange(group.rows)}</span>
                 </div>
               ))}
             </div>

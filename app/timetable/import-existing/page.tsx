@@ -7,7 +7,7 @@ export default function Page() {
     <PortalShell
       role="ADMIN"
       title="Import Existing Timetable"
-      subtitle="Upload, validate, preview, and publish the school’s active timetable without forcing timetable regeneration."
+      subtitle="Upload, validate, review, and publish the school’s active timetable without forcing timetable regeneration."
       variant="gold"
     >
       <ShellStyles />
