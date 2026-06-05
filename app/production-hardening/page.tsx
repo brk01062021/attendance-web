@@ -6,8 +6,8 @@ export default function ProductionHardeningPage() {
     return (
         <PortalShell
             role="ADMIN"
-            title="System Operations & SaaS Preparation"
-            subtitle="Pilot readiness for one realistic school: 700 students, 30–40 teachers, one admin, and one principal."
+            title="System Operations"
+            subtitle="Operational controls, tenant validation, import health, and publish readiness for active school workspaces."
            
             variant="gold"
         >

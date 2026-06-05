@@ -111,11 +111,11 @@ export default function LoginCard() {
 
             <p className="login-copy">
                 Premium Admin, Principal, Teacher and Student web ERP for school onboarding,
-                timetable operations, reports, imports, and rollout readiness.
+                timetable operations, reports, imports, and operational readiness.
             </p>
 
             <div className="role-switch" aria-label="Choose role">
-                {(['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT', 'PARENT'] as WebUserRole[]).map((item) => (
+                {(['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT'] as WebUserRole[]).map((item) => (
                     <button
                         key={item}
                         type="button"
@@ -128,9 +128,7 @@ export default function LoginCard() {
                                 ? 'Principal'
                                 : item === 'TEACHER'
                                     ? 'Teacher'
-                                    : item === 'PARENT'
-                                        ? 'Parent'
-                                        : 'Student'}
+                                    : 'Student'}
                     </button>
                 ))}
             </div>
@@ -176,9 +174,7 @@ export default function LoginCard() {
                                 ? 'Principal'
                                 : role === 'TEACHER'
                                     ? 'Teacher'
-                                    : role === 'PARENT'
-                                        ? 'Parent'
-                                        : 'Student'
+                                    : 'Student'
                     } Portal`}
             </button>
 

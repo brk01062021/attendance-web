@@ -77,7 +77,7 @@ export default function RequestPilotDemoPage() {
           <label>Expected Students<input type="number" value={expectedStudents} onChange={(e) => setExpectedStudents(e.target.value)} placeholder="1000" min="0" /></label>
           <label>City<input value={city} onChange={(e) => setCity(e.target.value)} placeholder="City" /></label>
           <label>State<input value={state} onChange={(e) => setState(e.target.value)} placeholder="State" /></label>
-          <label className="form-grid--full">Demo Notes<textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Best time to contact, modules to show, pilot requirements" rows={4} /></label>
+          <label className="form-grid--full">Demo Notes<textarea value={notes} onChange={(e) => setNotes(e.target.value)} placeholder="Best time to contact and modules to review" rows={4} /></label>
 
           <div className="form-grid--full button-row">
             <button className="primary-button" type="submit" disabled={isLoading}>{isLoading ? 'Saving...' : 'Submit Pilot Demo Request'}</button>

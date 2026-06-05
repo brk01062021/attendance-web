@@ -207,6 +207,8 @@ export default function WorkspaceHealthPage() {
   const [activating, setActivating] = useState(false);
   const [error, setError] = useState('');
   const [notice, setNotice] = useState('');
+  const [showFullProgress, setShowFullProgress] = useState(false);
+  const [showFullHistory, setShowFullHistory] = useState(false);
 
   const role = user?.role === 'PRINCIPAL' ? 'PRINCIPAL' : 'ADMIN';
 
@@ -224,7 +226,7 @@ export default function WorkspaceHealthPage() {
       setOperations(unwrap(operationsResponse));
       setErrorIntel(unwrap(errorIntelResponse));
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Unable to load Workspace Health Center.');
+      setError(err instanceof Error ? err.message : 'Unable to load Workspace Health.');
     } finally {
       setLoading(false);
     }
@@ -233,7 +235,7 @@ export default function WorkspaceHealthPage() {
   useEffect(() => {
     const stored = getStoredUser();
     if (!isValidTenantUser(stored) || !['ADMIN', 'PRINCIPAL'].includes(stored.role)) {
-      setError('Workspace Health Center is available only for Admin and Principal users.');
+      setError('Workspace Health is available only for Admin and Principal users.');
       setLoading(false);
       return;
     }
@@ -283,8 +285,8 @@ export default function WorkspaceHealthPage() {
   return (
     <PortalShell
       role={role}
-      title="Workspace Health Center"
-      subtitle="Review real school activation readiness, tenant status, and workspace provisioning health."
+      title="Workspace Health"
+      subtitle="Review school activation readiness, tenant status, and workspace health."
       variant="gold"
     >
       <ShellStyles />
@@ -308,6 +310,8 @@ export default function WorkspaceHealthPage() {
         .sheet-chip { padding: 8px 11px; border-radius: 999px; background: rgba(100, 22, 22, .14); border: 1px solid rgba(100,22,22,.18); color: #6c271b; font-weight: 800; font-size: 12px; }
         .audit-list { display: grid; gap: 12px; }
         .actions { display:flex; gap: 12px; flex-wrap: wrap; align-items:center; }
+        .toggle { border:0; border-radius: 999px; padding: 10px 14px; background: rgba(255,255,255,.58); color:#66420d; font-weight:900; cursor:pointer; }
+        .scroll-history { max-height: 360px; overflow-y: auto; padding-right: 6px; }
         .primary { border:0; border-radius: 999px; padding: 12px 18px; background: linear-gradient(135deg,#8a5a13,#d49b28); color: #fff8db; font-weight: 900; cursor:pointer; }
         .primary:disabled { opacity:.58; cursor:not-allowed; }
         .primary.pending { background: rgba(255,255,255,.42); color: #66420d; border: 1px solid rgba(124,90,32,.24); }
@@ -316,7 +320,7 @@ export default function WorkspaceHealthPage() {
 
       {error && <section className="glass-panel premium-panel erp-section panel"><strong>{error}</strong></section>}
       {notice && <section className="glass-panel premium-panel erp-section panel"><strong>{notice}</strong></section>}
-      {loading && !error && <section className="glass-panel premium-panel erp-section panel">Loading Workspace Health Center...</section>}
+      {loading && !error && <section className="glass-panel premium-panel erp-section panel">Loading Workspace Health...</section>}
 
       {!loading && summary && (
         <>
@@ -351,7 +355,7 @@ export default function WorkspaceHealthPage() {
           </section>
 
           <section className="glass-panel premium-panel erp-section panel">
-            <p className="section-eyebrow">Activation Success Dashboard</p>
+            <p className="section-eyebrow">Activation Readiness</p>
             <div className="health-grid">
               <div className="health-card"><strong>{summary.activationSuccessTitle || 'Activation Readiness'}</strong><p>{summary.activationSuccessMessage || summary.activationMessage}</p></div>
               <div className="health-card"><strong>Tenant Lifecycle</strong><p>{statusLabel(summary.tenantLifecycleStatus || summary.activationStatus)}</p><strong style={{ marginTop: 10 }}>Activation Stage</strong><p>{statusLabel(summary.activationStage || summary.activationStatus)}</p></div>
@@ -362,7 +366,7 @@ export default function WorkspaceHealthPage() {
 
           {errorIntel ? (
             <section className="glass-panel premium-panel erp-section panel">
-              <p className="section-eyebrow">Workbook Error Intelligence</p>
+              <p className="section-eyebrow">Workbook Status</p>
               <div className="tri-grid" style={{ marginBottom: 14 }}>
                 <div className="health-card"><span className="status-pill error">{statusLabel(errorIntel.status)}</span><strong style={{ marginTop: 10 }}>Workbook Status</strong><p>{errorIntel.headline}</p></div>
                 <div className="health-card"><strong>Total Errors</strong><p>{errorIntel.totalErrors}</p><strong style={{ marginTop: 10 }}>Total Warnings</strong><p>{errorIntel.totalWarnings}</p></div>
@@ -421,7 +425,7 @@ export default function WorkspaceHealthPage() {
           ) : null}
 
           <section className="glass-panel premium-panel erp-section panel">
-            <p className="section-eyebrow">Admin/Principal Activation Summary</p>
+            <p className="section-eyebrow">School Activation Summary</p>
             <div className="health-grid" style={{ marginBottom: 14 }}>
               <div className="health-card"><strong>Activation Status</strong><p>{statusLabel(summary.activationStatus)}</p></div>
               <div className="health-card"><strong>Go-Live Readiness</strong><p>{statusLabel(summary.goLiveStatus || 'NOT_READY')}</p></div>
@@ -443,16 +447,19 @@ export default function WorkspaceHealthPage() {
 
           {operations ? (
             <section className="glass-panel premium-panel erp-section panel">
-              <p className="section-eyebrow">Activation Operations Center</p>
+              <p className="section-eyebrow">School Activation Status</p>
               <div className="health-grid" style={{ marginBottom: 14 }}>
                 <div className="health-card"><strong>Reporting Status</strong><p>{statusLabel(operations.reportingStatus)}</p></div>
                 <div className="health-card"><strong>Readiness</strong><p>{operations.readinessPercent}%</p></div>
                 <div className="health-card"><strong>Tenant Active</strong><p>{operations.tenantActive ? 'Yes' : 'No'}</p></div>
                 <div className="health-card"><strong>Operations Note</strong><p>{blockerMessage}</p></div>
               </div>
-              <p className="section-eyebrow">Activation Timeline</p>
-              <div className="audit-list">
-                {groupedTimeline.slice(0, 8).map((item, index) => (
+              <div className="actions" style={{ justifyContent: 'space-between', marginBottom: 12 }}>
+                <p className="section-eyebrow" style={{ margin: 0 }}>Activation Progress</p>
+                {groupedTimeline.length > 1 ? <button className="toggle" type="button" onClick={() => setShowFullProgress((value) => !value)}>{showFullProgress ? 'Hide full progress' : 'Show full progress'}</button> : null}
+              </div>
+              <div className={`audit-list ${showFullProgress ? 'scroll-history' : ''}`}>
+                {(showFullProgress ? groupedTimeline : groupedTimeline.slice(0, 1)).map((item, index) => (
                   <div className="audit" key={`${item.stepKey}-${index}`}>
                     <span className="status-pill">{statusLabel(item.status)}</span>
                     <strong style={{ display: 'block', marginTop: 10 }}>{item.title}</strong>
@@ -465,9 +472,13 @@ export default function WorkspaceHealthPage() {
           ) : null}
 
           <section className="glass-panel premium-panel erp-section panel">
-            <p className="section-eyebrow">Activation Audit Trail</p>
-            <div className="audit-list">
-              {summary.auditTrail.map((item, index) => (
+            <p className="section-eyebrow">Activation History</p>
+            <div className="actions" style={{ justifyContent: 'space-between', marginBottom: 12 }}>
+              <p style={{ margin: 0 }}>Latest activation event is shown by default.</p>
+              {summary.auditTrail.length > 1 ? <button className="toggle" type="button" onClick={() => setShowFullHistory((value) => !value)}>{showFullHistory ? 'Hide full history' : 'Show full history'}</button> : null}
+            </div>
+            <div className={`audit-list ${showFullHistory ? 'scroll-history' : ''}`}>
+              {(showFullHistory ? summary.auditTrail : summary.auditTrail.slice(0, 1)).map((item, index) => (
                 <div className="audit" key={`${item.eventType}-${index}`}>
                   <span className="status-pill">{statusLabel(item.status)}</span>
                   <strong style={{ display: 'block', marginTop: 10 }}>{item.title}</strong>

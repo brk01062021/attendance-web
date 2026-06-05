@@ -14,6 +14,7 @@ import {
   type ImportPreviewResponse,
   type ImportUploadHistoryRow,
   type ImportUploadResponse,
+  type WorkbookErrorGroup,
 } from '@/lib/importValidation';
 import { getStoredUser } from '@/lib/auth';
 
@@ -54,6 +55,7 @@ export default function ImportValidationDashboard() {
   const [historyLoading, setHistoryLoading] = useState(false);
   const [historyError, setHistoryError] = useState<string | null>(null);
   const [activeReportId, setActiveReportId] = useState<number | null>(null);
+  const [activeIssueCard, setActiveIssueCard] = useState<string | null>(null);
 
   useEffect(() => {
     loadHistory();
@@ -87,6 +89,8 @@ export default function ImportValidationDashboard() {
   const intelligence = preview?.errorIntelligence;
   const issueGroups = intelligence?.groups || [];
   const activationBlockers = intelligence?.activationBlockers || [];
+  const validationCards = useMemo(() => buildValidationCards(preview), [preview]);
+  const activeValidationCard = validationCards.find((card) => card.key === activeIssueCard) || validationCards.find((card) => card.count > 0) || validationCards[0];
 
   async function runPreview() {
     setLoading(true);
@@ -315,71 +319,40 @@ export default function ImportValidationDashboard() {
                 </div>
               ) : null}
 
-              <div className="mt-5 grid gap-4 lg:grid-cols-2">
-                {issueGroups.length === 0 ? (
-                  <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
-                    <p className="font-black text-emerald-800">No grouped workbook issues detected.</p>
-                    <p className="mt-1 text-sm font-semibold text-emerald-700">Workbook validation is clear for the current preview.</p>
-                  </div>
-                ) : issueGroups.map((group) => {
-                  const issueTotal = group.errorCount + group.warningCount;
-                  const isTeacherAssignment = group.category === 'TEACHER_ASSIGNMENT';
-                  const isSchedule = group.category === 'SCHEDULE';
-                  const isMissingSheets = group.category === 'MISSING_SHEET';
-                  const isSchoolIdMismatch = group.category === 'SCHOOL_ID_MISMATCH';
-                  const missingSheetNames = group.issues.map((issue) => issue.sheetName).filter(Boolean);
-                  const uniqueMissingSheets = Array.from(new Set(missingSheetNames));
-
-                  return (
-                    <div key={group.category} className="rounded-2xl border border-slate-200/70 bg-white/75 p-4">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">{group.category.replaceAll('_', ' ')}</span>
-                        <span className="rounded-full bg-red-50 px-3 py-1 text-xs font-black text-red-700">{group.errorCount} {group.errorCount === 1 ? 'error' : 'errors'}</span>
-                        <span className="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-700">{group.warningCount} {group.warningCount === 1 ? 'warning' : 'warnings'}</span>
-                      </div>
-                      <h4 className="mt-3 font-black text-slate-950">{group.title}</h4>
-
-                      {isTeacherAssignment ? (
-                        <>
-                          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{issueTotal} issue{issueTotal === 1 ? '' : 's'} found across teacher assignment validation.</p>
-                          <p className="mt-2 text-sm font-bold leading-6 text-amber-800">Action: Verify Teachers, TeacherAssignments, TeacherPools, Subjects, and ClassSections tabs together.</p>
-                          <p className="mt-3 rounded-xl bg-slate-50 p-3 text-xs font-semibold leading-5 text-slate-600">Review the Workbook Issues table below for row-level details and correction guidance.</p>
-                        </>
-                      ) : isSchedule ? (
-                        <>
-                          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{issueTotal} issue{issueTotal === 1 ? '' : 's'} found across timetable and schedule readiness validation.</p>
-                          <p className="mt-2 text-sm font-bold leading-6 text-amber-800">Action: Complete Schedules, AcademicRules, Subjects, TeacherPools, and ClassSections before activation.</p>
-                          <p className="mt-3 rounded-xl bg-slate-50 p-3 text-xs font-semibold leading-5 text-slate-600">Review the Workbook Issues table below for row-level details and correction guidance.</p>
-                        </>
-                      ) : isMissingSheets ? (
-                        <>
-                          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{uniqueMissingSheets.length || group.errorCount} required workbook sheet{(uniqueMissingSheets.length || group.errorCount) === 1 ? ' is' : 's are'} missing.</p>
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {uniqueMissingSheets.map((sheet) => (
-                              <span key={sheet} className="rounded-full bg-red-50 px-3 py-1 text-xs font-black text-red-700">{sheet}</span>
-                            ))}
-                          </div>
-                          <p className="mt-3 text-sm font-bold leading-6 text-amber-800">Action: Add the missing tabs using the VidyaSetu master workbook template and upload again.</p>
-                        </>
-                      ) : isSchoolIdMismatch ? (
-                        <>
-                          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">Workbook School ID does not match the active school workspace.</p>
-                          <div className="mt-3 grid gap-2 sm:grid-cols-2">
-                            <p className="rounded-xl bg-slate-50 p-3 text-xs font-semibold leading-5 text-slate-600"><strong>Current Workspace:</strong><br />{preview.schoolId}</p>
-                            <p className="rounded-xl bg-slate-50 p-3 text-xs font-semibold leading-5 text-slate-600"><strong>Action:</strong><br />Update the SchoolProfile sheet to use the same 4-character School ID, then upload again.</p>
-                          </div>
-                        </>
-                      ) : (
-                        <>
-                          <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{group.explanation}</p>
-                          <p className="mt-2 text-sm font-bold leading-6 text-amber-800">Action: {group.recommendedAction}</p>
-                          <p className="mt-3 rounded-xl bg-slate-50 p-3 text-xs font-semibold leading-5 text-slate-600">{issueTotal} issue{issueTotal === 1 ? '' : 's'} found. Review the Workbook Issues table below for row-level details.</p>
-                        </>
-                      )}
+              <div className="mt-5 grid gap-4 lg:grid-cols-3">
+                {validationCards.map((card) => (
+                  <button
+                    key={card.key}
+                    type="button"
+                    onClick={() => setActiveIssueCard((current) => current === card.key ? null : card.key)}
+                    className={`rounded-2xl border p-4 text-left shadow-sm transition ${activeIssueCard === card.key ? 'border-amber-400 bg-amber-50/90' : 'border-slate-200/70 bg-white/75 hover:border-amber-300'}`}
+                  >
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className={`rounded-full px-3 py-1 text-xs font-black ${card.tone === 'error' ? 'bg-red-50 text-red-700' : card.tone === 'warning' ? 'bg-amber-50 text-amber-700' : 'bg-emerald-50 text-emerald-700'}`}>{card.count}</span>
+                      <span className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">{card.label}</span>
                     </div>
-                  );
-                })}
+                    <h4 className="mt-3 font-black text-slate-950">{card.title}</h4>
+                    <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{card.summary}</p>
+                    <p className="mt-3 text-xs font-black uppercase tracking-[0.16em] text-amber-800">{activeIssueCard === card.key ? 'Hide details' : 'View details'}</p>
+                  </button>
+                ))}
               </div>
+
+              {activeValidationCard ? (
+                <div className="mt-5 rounded-2xl border border-amber-100 bg-amber-50/70 p-4">
+                  <p className="text-sm font-black text-amber-900">{activeValidationCard.title}</p>
+                  <p className="mt-1 text-sm font-semibold leading-6 text-slate-700">{activeValidationCard.action}</p>
+                  <div className="mt-3 max-h-72 space-y-2 overflow-y-auto pr-2">
+                    {activeValidationCard.details.length === 0 ? (
+                      <p className="rounded-xl bg-white/80 p-3 text-sm font-semibold text-slate-600">No detailed records for this category.</p>
+                    ) : activeValidationCard.details.map((detail, index) => (
+                      <div key={`${activeValidationCard.key}-${index}`} className="rounded-xl bg-white/85 p-3 text-sm font-semibold leading-6 text-slate-700">
+                        {detail}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : null}
             </section>
           ) : null}
 
@@ -410,18 +383,9 @@ export default function ImportValidationDashboard() {
           </div>
 
           <section className="rounded-[2rem] border border-amber-100/60 bg-white/82 p-6 shadow-lg shadow-amber-900/5">
-            <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">Validation Report</p>
-            <h3 className="mt-2 text-xl font-black text-slate-950">Workbook Issues</h3>
-            <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200/70">
-              <table className="w-full text-left text-sm">
-                <thead className="bg-slate-950 text-xs uppercase tracking-[0.16em] text-amber-100"><tr><th className="px-4 py-3">Sheet</th><th className="px-4 py-3">Row</th><th className="px-4 py-3">Field</th><th className="px-4 py-3">Severity</th><th className="px-4 py-3">Message</th></tr></thead>
-                <tbody className="divide-y divide-slate-200/70 bg-white/70">
-                  {preview.issues.length === 0 ? <tr><td className="px-4 py-5 font-semibold text-slate-600" colSpan={5}>No validation issues found.</td></tr> : preview.issues.map((issue, index) => (
-                    <tr key={`${issue.sheetName}-${issue.rowNumber}-${issue.fieldName}-${index}`}><td className="px-4 py-3 font-black text-slate-950">{issue.sheetName}</td><td className="px-4 py-3 font-bold text-slate-700">{issue.rowNumber}</td><td className="px-4 py-3 font-bold text-slate-700">{issue.fieldName}</td><td className="px-4 py-3"><span className={`rounded-full px-3 py-1 text-xs font-black ${issue.severity === 'ERROR' ? 'bg-red-50 text-red-700' : 'bg-amber-50 text-amber-700'}`}>{issue.severity}</span></td><td className="px-4 py-3 font-semibold text-slate-600">{issue.message}</td></tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">Detailed Validation Records</p>
+            <h3 className="mt-2 text-xl font-black text-slate-950">Open a Summary Card Above</h3>
+            <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">Row-level workbook records are hidden by default. Select Errors, Warnings, Missing Sheets, School ID Mismatch, Teacher Assignment Issues, Schedule Issues, or Other Workbook Issues to review the related details.</p>
           </section>
         </>
       ) : null}
@@ -458,6 +422,53 @@ export default function ImportValidationDashboard() {
     </section>
   );
 }
+
+type ValidationCard = {
+  key: string;
+  label: string;
+  title: string;
+  summary: string;
+  action: string;
+  count: number;
+  tone: 'error' | 'warning' | 'ok';
+  details: string[];
+};
+
+function issueLine(issue: { sheetName?: string; rowNumber?: number; fieldName?: string; message?: string; severity?: string }) {
+  const location = [issue.sheetName, issue.rowNumber ? `Row ${issue.rowNumber}` : '', issue.fieldName].filter(Boolean).join(' • ');
+  return `${location || 'Workbook'}: ${issue.message || 'Review this workbook record.'}`;
+}
+
+function findGroup(groups: WorkbookErrorGroup[], names: string[]) {
+  return groups.find((group) => names.some((name) => group.category.toUpperCase().includes(name)));
+}
+
+function buildValidationCards(preview: ImportPreviewResponse | null): ValidationCard[] {
+  const issues = preview?.issues || [];
+  const intelligence = preview?.errorIntelligence;
+  const groups = intelligence?.groups || [];
+  const errors = issues.filter((issue) => issue.severity === 'ERROR');
+  const warnings = issues.filter((issue) => issue.severity === 'WARNING');
+  const missingGroup = findGroup(groups, ['MISSING']);
+  const schoolGroup = findGroup(groups, ['SCHOOL_ID']);
+  const teacherGroup = findGroup(groups, ['TEACHER_ASSIGNMENT', 'TEACHER']);
+  const scheduleGroup = findGroup(groups, ['SCHEDULE']);
+  const known = new Set([missingGroup?.category, schoolGroup?.category, teacherGroup?.category, scheduleGroup?.category].filter(Boolean));
+  const otherGroups = groups.filter((group) => !known.has(group.category));
+  const missingSheets = intelligence?.missingSheets || missingGroup?.issues.map((issue) => issue.sheetName).filter(Boolean) || [];
+  const schoolMismatch = intelligence?.schoolIdMismatchExplanations || schoolGroup?.issues.map(issueLine) || [];
+
+  return [
+    { key: 'errors', label: 'Errors', title: 'Errors', count: errors.length, tone: errors.length ? 'error' : 'ok', summary: errors.length ? `${errors.length} blocking records need correction before commit.` : 'No blocking workbook errors found.', action: 'Correct these records in the workbook and upload again.', details: errors.map(issueLine) },
+    { key: 'warnings', label: 'Warnings', title: 'Warnings', count: warnings.length, tone: warnings.length ? 'warning' : 'ok', summary: warnings.length ? `${warnings.length} warning records should be reviewed.` : 'No workbook warnings found.', action: 'Review warnings before commit. Warnings may not always block activation, but they should be confirmed.', details: warnings.map(issueLine) },
+    { key: 'missingSheets', label: 'Missing Sheets', title: 'Missing Sheets', count: missingSheets.length, tone: missingSheets.length ? 'error' : 'ok', summary: missingSheets.length ? `${missingSheets.length} required workbook sheet(s) are missing.` : 'All required sheets are present.', action: 'Add the missing sheet tabs using the VidyaSetu master workbook template.', details: missingSheets.map((sheet) => `${sheet} sheet is required before workbook commit.`) },
+    { key: 'schoolId', label: 'School ID Mismatch', title: 'School ID Mismatch', count: schoolMismatch.length, tone: schoolMismatch.length ? 'error' : 'ok', summary: schoolMismatch.length ? 'Workbook School ID does not match this workspace.' : 'Workbook School ID matches this workspace.', action: 'Use the same 4-character School ID in the SchoolProfile sheet as the logged-in workspace.', details: schoolMismatch },
+    { key: 'teacher', label: 'Teacher Assignment Issues', title: 'Teacher Assignment Issues', count: (teacherGroup?.errorCount || 0) + (teacherGroup?.warningCount || 0), tone: (teacherGroup?.errorCount || 0) ? 'error' : (teacherGroup?.warningCount || 0) ? 'warning' : 'ok', summary: teacherGroup ? `${(teacherGroup.errorCount || 0) + (teacherGroup.warningCount || 0)} teacher mapping issue(s) found.` : 'No teacher assignment issues found.', action: 'Verify Teachers, TeacherAssignments, TeacherPools, Subjects, and ClassSections together.', details: teacherGroup?.issues.map(issueLine) || [] },
+    { key: 'schedule', label: 'Schedule Issues', title: 'Schedule Issues', count: (scheduleGroup?.errorCount || 0) + (scheduleGroup?.warningCount || 0), tone: (scheduleGroup?.errorCount || 0) ? 'error' : (scheduleGroup?.warningCount || 0) ? 'warning' : 'ok', summary: scheduleGroup ? `${(scheduleGroup.errorCount || 0) + (scheduleGroup.warningCount || 0)} schedule issue(s) found.` : 'No schedule issues found.', action: 'Complete Schedules, AcademicRules, Subjects, TeacherPools, and ClassSections before activation.', details: scheduleGroup?.issues.map(issueLine) || [] },
+    { key: 'other', label: 'Other Workbook Issues', title: 'Other Workbook Issues', count: otherGroups.reduce((sum, group) => sum + group.errorCount + group.warningCount, 0), tone: otherGroups.some((group) => group.errorCount > 0) ? 'error' : otherGroups.some((group) => group.warningCount > 0) ? 'warning' : 'ok', summary: otherGroups.length ? `${otherGroups.length} additional workbook category/categories need review.` : 'No other workbook issue categories found.', action: 'Review the listed workbook category details and correct the source workbook.', details: otherGroups.flatMap((group) => group.issues.length ? group.issues.map(issueLine) : [`${group.title}: ${group.explanation}`]) },
+  ];
+}
+
 
 function SelectField({ label, value, options, onChange }: SelectFieldProps) {
   return <div><label className="text-xs font-black uppercase tracking-[0.18em] text-slate-600">{label}</label><select value={value} onChange={(event) => onChange(event.target.value)} className="mt-2 w-full rounded-2xl border border-amber-200/80 bg-white/85 px-4 py-3 text-sm font-bold text-slate-800 outline-none transition focus:border-amber-500">{options.map((option) => <option key={option} value={option}>{option}</option>)}</select></div>;
