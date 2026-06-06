@@ -276,60 +276,88 @@ export default function Day24ModulePage({ config }: Props) {
                 </section>
             ) : null}
 
-            <section className="rounded-3xl border border-[#d4af37]/20 bg-[#0d1724] p-6">
-                <div className="mb-4">
-                    <p className="text-xs font-semibold tracking-[0.24em] text-[#d4af37]/70">
-                        RECORDS
-                    </p>
-                    <h3 className="mt-2 text-xl font-semibold text-[#f8f3df]">
-                        {config.tableTitle}
-                    </h3>
-                    <p className="mt-1 text-sm text-[#f8f3df]/65">
-                        {config.tableDescription}
-                    </p>
-                </div>
+            {pageTitle.includes('analytics') ? (
+                <section className="rounded-3xl border border-[#d4af37]/20 bg-[#0d1724] p-6">
+                    <div className="mb-4">
+                        <p className="text-xs font-semibold tracking-[0.24em] text-[#d4af37]/70">
+                            RECORDS
+                        </p>
+                        <h3 className="mt-2 text-xl font-semibold text-[#f8f3df]">
+                            Operational areas
+                        </h3>
+                        <p className="mt-1 text-sm text-[#f8f3df]/65">
+                            Each area remains empty until real school activity is available.
+                        </p>
+                    </div>
+                    <div className="grid gap-4 md:grid-cols-2 xl:grid-cols-3">
+                        {filteredRows.map((row, index) => (
+                            <div
+                                key={`${config.tableTitle}-${index}`}
+                                className="rounded-2xl border border-[#d4af37]/10 bg-[#08131f] p-5"
+                            >
+                                <h4 className="text-lg font-semibold text-[#f8f3df]">{row.area}</h4>
+                                <p className="mt-2 text-sm font-semibold text-[#d4af37]/80">No records available yet</p>
+                                <p className="mt-2 text-sm leading-6 text-[#f8f3df]/65">{row.message}</p>
+                            </div>
+                        ))}
+                    </div>
+                </section>
+            ) : (
+                <section className="rounded-3xl border border-[#d4af37]/20 bg-[#0d1724] p-6">
+                    <div className="mb-4">
+                        <p className="text-xs font-semibold tracking-[0.24em] text-[#d4af37]/70">
+                            RECORDS
+                        </p>
+                        <h3 className="mt-2 text-xl font-semibold text-[#f8f3df]">
+                            {config.tableTitle}
+                        </h3>
+                        <p className="mt-1 text-sm text-[#f8f3df]/65">
+                            {config.tableDescription}
+                        </p>
+                    </div>
 
-                <div className="overflow-x-auto">
-                    <table className="w-full border-collapse">
-                        <thead>
-                            <tr className="border-b border-[#d4af37]/10">
-                                {config.columns.map((column) => (
-                                    <th
-                                        key={column.key}
-                                        className="px-4 py-3 text-left text-xs font-semibold tracking-[0.18em] text-[#d4af37]/70"
-                                    >
-                                        {column.label}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            {filteredRows.map((row, index) => (
-                                <tr
-                                    key={`${config.tableTitle}-${index}`}
-                                    className="border-b border-[#d4af37]/5"
-                                >
+                    <div className="overflow-x-auto">
+                        <table className="w-full border-collapse">
+                            <thead>
+                                <tr className="border-b border-[#d4af37]/10">
                                     {config.columns.map((column) => (
-                                        <td
+                                        <th
                                             key={column.key}
-                                            className="px-4 py-4 text-sm text-[#f8f3df]"
+                                            className="px-4 py-3 text-left text-xs font-semibold tracking-[0.18em] text-[#d4af37]/70"
                                         >
-                                            {row[column.key] ?? '-'}
-                                        </td>
+                                            {column.label}
+                                        </th>
                                     ))}
                                 </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                            </thead>
 
-                {filteredRows.length === 0 ? (
-                    <div className="mt-6 rounded-2xl border border-[#d4af37]/10 bg-[#08131f] p-5 text-sm text-[#f8f3df]/70">
-                        No matching records found.
+                            <tbody>
+                                {filteredRows.map((row, index) => (
+                                    <tr
+                                        key={`${config.tableTitle}-${index}`}
+                                        className="border-b border-[#d4af37]/5"
+                                    >
+                                        {config.columns.map((column) => (
+                                            <td
+                                                key={column.key}
+                                                className="px-4 py-4 text-sm text-[#f8f3df]"
+                                            >
+                                                {row[column.key] ?? '-'}
+                                            </td>
+                                        ))}
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
                     </div>
-                ) : null}
-            </section>
+
+                    {filteredRows.length === 0 ? (
+                        <div className="mt-6 rounded-2xl border border-[#d4af37]/10 bg-[#08131f] p-5 text-sm text-[#f8f3df]/70">
+                            No matching records found.
+                        </div>
+                    ) : null}
+                </section>
+            )}
         </div>
     );
 }

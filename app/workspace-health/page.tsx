@@ -298,7 +298,9 @@ export default function WorkspaceHealthPage() {
         .status-pill.error { background: rgba(100, 22, 22, .56); color: #ffe2d8; }
         .status-pill.warn { background: rgba(104, 72, 15, .58); color: #ffeab0; }
         .grid { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 14px; margin-top: 18px; }
-        .gate { padding: 16px; border-radius: 20px; background: rgba(255,255,255,.48); border: 1px solid rgba(124, 90, 32, .18); }
+        .gate { padding: 16px; border-radius: 20px; background: rgba(255,255,255,.48); border: 2px solid rgba(124, 90, 32, .18); }
+        .gate.ready { border-color: rgba(28, 112, 63, .32); }
+        .gate.pending { border-color: rgba(154, 91, 10, .32); }
         .gate strong, .health-card strong { display: block; color: #3a270b; }
         .gate small, .health-card p, .audit p { color: rgba(58,39,11,.72); }
         .health-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
@@ -331,9 +333,8 @@ export default function WorkspaceHealthPage() {
               <p>{blockerMessage}</p>
               <div className="grid">
                 {gates.map((gate) => (
-                  <div className="gate" key={gate.label}>
-                    <strong>{gate.ready ? 'Ready' : 'Pending'}</strong>
-                    <small>{gate.label}</small>
+                  <div className={`gate ${gate.ready ? 'ready' : 'pending'}`} key={gate.label}>
+                    <strong>{gate.label}</strong>
                   </div>
                 ))}
               </div>
@@ -341,11 +342,9 @@ export default function WorkspaceHealthPage() {
             <div className="glass-panel premium-panel panel">
               <p className="section-eyebrow">Readiness</p>
               <div className="readiness">{summary.readinessPercent}%</div>
-              <p>Committed workbooks: {summary.committedWorkbookCount}</p>
-              <p>Last commit: {formatDate(summary.lastWorkbookCommittedAt)}</p>
-              <p>Activated by: {activatedByLabel(summary)}</p>
-              <p>Activated at: {activatedAtLabel(summary)}</p>
-              <p>Lifecycle: {statusLabel(summary.tenantLifecycleStatus || summary.activationStatus)}</p>
+              <p><strong>Workbook Commit</strong><br />{summary.importCommitted ? 'Complete' : 'Pending'}</p>
+              <p><strong>Activation</strong><br />{statusLabel(summary.activationStage || summary.activationStatus)}</p>
+              <p><strong>Lifecycle</strong><br />{statusLabel(summary.tenantLifecycleStatus || summary.activationStatus)}</p>
               <div className="actions">
                 <button className={`primary ${!summary.readyForActivation ? 'pending' : ''}`} disabled={!summary.readyForActivation || activating} onClick={handleActivate}>
                   {activating ? 'Checking...' : (summary.readyForActivation ? (summary.activationButtonLabel || 'Activate Workspace') : (errorIntel?.activationBlocked ? 'Resolve Workbook Errors First' : 'Workbook Commit Pending'))}
@@ -358,9 +357,9 @@ export default function WorkspaceHealthPage() {
             <section className="glass-panel premium-panel erp-section panel">
               <p className="section-eyebrow">Workbook Status</p>
               <div className="tri-grid" style={{ marginBottom: 14 }}>
-                <div className="health-card"><span className="status-pill error">{statusLabel(errorIntel.status)}</span><strong style={{ marginTop: 10 }}>Workbook Status</strong><p>{errorIntel.headline}</p></div>
+                <div className="health-card"><span className="status-pill error">{statusLabel(errorIntel.status)}</span><strong style={{ marginTop: 10 }}>Workbook Validation Required</strong><p>Resolve workbook validation issues before activation.</p></div>
                 <div className="health-card"><strong>Total Errors</strong><p>{errorIntel.totalErrors}</p><strong style={{ marginTop: 10 }}>Total Warnings</strong><p>{errorIntel.totalWarnings}</p></div>
-                <div className="health-card"><strong>Workbook File</strong><p>{errorIntel.fileName || 'Not available'}</p><strong style={{ marginTop: 10 }}>Activation Blocked</strong><p>{errorIntel.activationBlocked ? 'Yes' : 'No'}</p></div>
+                <div className="health-card"><strong>Workbook File</strong><p>{errorIntel.fileName ? 'Latest upload available' : 'Not available'}</p><strong style={{ marginTop: 10 }}>Activation Status</strong><p>{errorIntel.activationBlocked ? 'Blocked' : 'Ready'}</p></div>
               </div>
 
               <div className="health-grid" style={{ marginBottom: 14 }}>
@@ -393,53 +392,17 @@ export default function WorkspaceHealthPage() {
                     <strong style={{ marginTop: 10 }}>{group.title}</strong>
                     <p>{group.explanation}</p>
                     <p><strong>Recommended action</strong>{group.recommendedAction}</p>
-                    <div className="issue-list">
-                      {isCompactValidationGroup(group) ? (
-                        <div className="issue-item"><strong>Validation guidance</strong><br />{compactValidationMessage(group)}</div>
-                      ) : (
-                        <>
-                          {group.issues.slice(0, 5).map((issue, index) => (
-                            <div className="issue-item" key={`${group.category}-${index}`}>
-                              <strong>{issue.sheetName || 'Workbook'}{issue.rowNumber ? ` • Row ${issue.rowNumber}` : ''}</strong><br />
-                              {issue.fieldName ? `${issue.fieldName}: ` : ''}{issue.message || 'Review this workbook row.'}
-                            </div>
-                          ))}
-                          {group.issues.length > 5 ? <div className="issue-item">+ {group.issues.length - 5} more issues in this category. Review the workbook validation screen for full details.</div> : null}
-                        </>
-                      )}
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </section>
-          ) : null}
-
-          <section className="glass-panel premium-panel erp-section panel">
-            <p className="section-eyebrow">School Configuration Summary</p>
-            <div className="health-grid">
-              {summary.healthItems.map((item) => (
-                <div className="health-card" key={item.key}>
-                  <span className="status-pill">{statusLabel(item.status)}</span>
-                  <strong style={{ marginTop: 10 }}>{item.label}</strong>
-                  <p>{item.message}</p>
-                </div>
-              ))}
-            </div>
-          </section>
-
-          {operations ? (
-            <section className="glass-panel premium-panel erp-section panel">
-              <div className="actions" style={{ justifyContent: 'space-between', marginBottom: 12 }}>
-                <p className="section-eyebrow" style={{ margin: 0 }}>Activation Progress</p>
-                {groupedTimeline.length > 1 ? <button className="toggle" type="button" onClick={() => setShowFullProgress((value) => !value)}>{showFullProgress ? 'Hide full progress' : 'Show full progress'}</button> : null}
-              </div>
-              <div className={`audit-list ${showFullProgress ? 'scroll-history' : ''}`}>
-                {(showFullProgress ? groupedTimeline : groupedTimeline.slice(0, 1)).map((item, index) => (
-                  <div className="audit" key={`${item.stepKey}-${index}`}>
-                    <span className="status-pill">{statusLabel(item.status)}</span>
-                    <strong style={{ display: 'block', marginTop: 10 }}>{item.title}</strong>
-                    <p>{item.note}</p>
-                    <small>{formatDate(item.eventAt)}</small>
+                    {!isCompactValidationGroup(group) ? (
+                      <div className="issue-list">
+                        {group.issues.slice(0, 5).map((issue, index) => (
+                          <div className="issue-item" key={`${group.category}-${index}`}>
+                            <strong>{issue.sheetName || 'Workbook'}{issue.rowNumber ? ` • Row ${issue.rowNumber}` : ''}</strong><br />
+                            {issue.fieldName ? `${issue.fieldName}: ` : ''}{issue.message || 'Review this workbook row.'}
+                          </div>
+                        ))}
+                        {group.issues.length > 5 ? <div className="issue-item">+ {group.issues.length - 5} more issues in this category. Review the workbook validation screen for full details.</div> : null}
+                      </div>
+                    ) : null}
                   </div>
                 ))}
               </div>
@@ -450,7 +413,7 @@ export default function WorkspaceHealthPage() {
             <p className="section-eyebrow">Activation History</p>
             <div className="actions" style={{ justifyContent: 'space-between', marginBottom: 12 }}>
               <p style={{ margin: 0 }}>Latest activation event is shown by default.</p>
-              {summary.auditTrail.length > 1 ? <button className="toggle" type="button" onClick={() => setShowFullHistory((value) => !value)}>{showFullHistory ? 'Hide full history' : 'Show full history'}</button> : null}
+              {summary.auditTrail.length > 1 ? <button className="toggle" type="button" onClick={() => setShowFullHistory((value) => !value)}>{showFullHistory ? 'Hide History' : 'View History'}</button> : null}
             </div>
             <div className={`audit-list ${showFullHistory ? 'scroll-history' : ''}`}>
               {(showFullHistory ? summary.auditTrail : summary.auditTrail.slice(0, 1)).map((item, index) => (
