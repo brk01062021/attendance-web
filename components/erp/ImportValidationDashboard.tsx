@@ -90,7 +90,7 @@ export default function ImportValidationDashboard() {
   const issueGroups = intelligence?.groups || [];
   const activationBlockers = intelligence?.activationBlockers || [];
   const validationCards = useMemo(() => buildValidationCards(preview), [preview]);
-  const activeValidationCard = validationCards.find((card) => card.key === activeIssueCard) || validationCards.find((card) => card.count > 0) || validationCards[0];
+  const activeValidationCard = activeIssueCard ? validationCards.find((card) => card.key === activeIssueCard) : null;
 
   async function runPreview() {
     setLoading(true);
@@ -300,7 +300,7 @@ export default function ImportValidationDashboard() {
                 <div>
                   <h3 className="text-xl font-black text-slate-950">{intelligence.headline}</h3>
                   <p className="mt-2 text-sm font-semibold leading-6 text-slate-700">
-                    Errors are grouped for school onboarding review before commit, activation, and Admin/Principal go-live reporting.
+                    Errors and warnings are grouped by category first. Open a category card to view affected records and correction guidance.
                   </p>
                 </div>
                 <div className="flex flex-wrap gap-2">
@@ -333,7 +333,7 @@ export default function ImportValidationDashboard() {
                     </div>
                     <h4 className="mt-3 font-black text-slate-950">{card.title}</h4>
                     <p className="mt-1 text-sm font-semibold leading-6 text-slate-600">{card.summary}</p>
-                    <p className="mt-3 text-xs font-black uppercase tracking-[0.16em] text-amber-800">{activeIssueCard === card.key ? 'Hide details' : 'View details'}</p>
+                    <p className="mt-3 text-xs font-black uppercase tracking-[0.16em] text-amber-800">{activeIssueCard === card.key ? 'Hide categories' : 'View categories'}</p>
                   </button>
                 ))}
               </div>
@@ -344,7 +344,7 @@ export default function ImportValidationDashboard() {
                   <p className="mt-1 text-sm font-semibold leading-6 text-slate-700">{activeValidationCard.action}</p>
                   <div className="mt-3 max-h-72 space-y-2 overflow-y-auto pr-2">
                     {activeValidationCard.details.length === 0 ? (
-                      <p className="rounded-xl bg-white/80 p-3 text-sm font-semibold text-slate-600">No detailed records for this category.</p>
+                      <p className="rounded-xl bg-white/80 p-3 text-sm font-semibold text-slate-600">No affected records for this category.</p>
                     ) : activeValidationCard.details.map((detail, index) => (
                       <div key={`${activeValidationCard.key}-${index}`} className="rounded-xl bg-white/85 p-3 text-sm font-semibold leading-6 text-slate-700">
                         {detail}
@@ -435,8 +435,22 @@ type ValidationCard = {
 };
 
 function issueLine(issue: { sheetName?: string; rowNumber?: number; fieldName?: string; message?: string; severity?: string }) {
-  const location = [issue.sheetName, issue.rowNumber ? `Row ${issue.rowNumber}` : '', issue.fieldName].filter(Boolean).join(' • ');
+  const location = [issue.sheetName, issue.rowNumber ? `Record ${issue.rowNumber}` : '', issue.fieldName].filter(Boolean).join(' • ');
   return `${location || 'Workbook'}: ${issue.message || 'Review this workbook record.'}`;
+}
+
+function groupedIssueLines(issues: Array<{ sheetName?: string; rowNumber?: number; fieldName?: string; message?: string; severity?: string }>) {
+  const grouped = issues.reduce<Record<string, string[]>>((acc, issue) => {
+    const key = issue.sheetName || 'Workbook';
+    acc[key] = acc[key] || [];
+    acc[key].push(issueLine(issue));
+    return acc;
+  }, {});
+
+  return Object.entries(grouped).flatMap(([category, rows]) => [
+    `${category}: ${rows.length} affected record${rows.length === 1 ? '' : 's'}`,
+    ...rows,
+  ]);
 }
 
 function findGroup(groups: WorkbookErrorGroup[], names: string[]) {
@@ -459,8 +473,8 @@ function buildValidationCards(preview: ImportPreviewResponse | null): Validation
   const schoolMismatch = intelligence?.schoolIdMismatchExplanations || schoolGroup?.issues.map(issueLine) || [];
 
   return [
-    { key: 'errors', label: 'Errors', title: 'Errors', count: errors.length, tone: errors.length ? 'error' : 'ok', summary: errors.length ? `${errors.length} blocking records need correction before commit.` : 'No blocking workbook errors found.', action: 'Correct these records in the workbook and upload again.', details: errors.map(issueLine) },
-    { key: 'warnings', label: 'Warnings', title: 'Warnings', count: warnings.length, tone: warnings.length ? 'warning' : 'ok', summary: warnings.length ? `${warnings.length} warning records should be reviewed.` : 'No workbook warnings found.', action: 'Review warnings before commit. Warnings may not always block activation, but they should be confirmed.', details: warnings.map(issueLine) },
+    { key: 'errors', label: 'Errors', title: 'Errors', count: errors.length, tone: errors.length ? 'error' : 'ok', summary: errors.length ? `${errors.length} blocking records need correction before commit.` : 'No blocking workbook errors found.', action: 'Correct these records in the workbook and upload again.', details: groupedIssueLines(errors) },
+    { key: 'warnings', label: 'Warnings', title: 'Warnings', count: warnings.length, tone: warnings.length ? 'warning' : 'ok', summary: warnings.length ? `${warnings.length} warning records should be reviewed.` : 'No workbook warnings found.', action: 'Review warnings before commit. Warnings may not always block activation, but they should be confirmed.', details: groupedIssueLines(warnings) },
     { key: 'missingSheets', label: 'Missing Sheets', title: 'Missing Sheets', count: missingSheets.length, tone: missingSheets.length ? 'error' : 'ok', summary: missingSheets.length ? `${missingSheets.length} required workbook sheet(s) are missing.` : 'All required sheets are present.', action: 'Add the missing sheet tabs using the VidyaSetu master workbook template.', details: missingSheets.map((sheet) => `${sheet} sheet is required before workbook commit.`) },
     { key: 'schoolId', label: 'School ID Mismatch', title: 'School ID Mismatch', count: schoolMismatch.length, tone: schoolMismatch.length ? 'error' : 'ok', summary: schoolMismatch.length ? 'Workbook School ID does not match this workspace.' : 'Workbook School ID matches this workspace.', action: 'Use the same 4-character School ID in the SchoolProfile sheet as the logged-in workspace.', details: schoolMismatch },
     { key: 'teacher', label: 'Teacher Assignment Issues', title: 'Teacher Assignment Issues', count: (teacherGroup?.errorCount || 0) + (teacherGroup?.warningCount || 0), tone: (teacherGroup?.errorCount || 0) ? 'error' : (teacherGroup?.warningCount || 0) ? 'warning' : 'ok', summary: teacherGroup ? `${(teacherGroup.errorCount || 0) + (teacherGroup.warningCount || 0)} teacher mapping issue(s) found.` : 'No teacher assignment issues found.', action: 'Verify Teachers, TeacherAssignments, TeacherPools, Subjects, and ClassSections together.', details: teacherGroup?.issues.map(issueLine) || [] },

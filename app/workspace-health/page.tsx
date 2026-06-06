@@ -354,16 +354,6 @@ export default function WorkspaceHealthPage() {
             </div>
           </section>
 
-          <section className="glass-panel premium-panel erp-section panel">
-            <p className="section-eyebrow">Activation Readiness</p>
-            <div className="health-grid">
-              <div className="health-card"><strong>{summary.activationSuccessTitle || 'Activation Readiness'}</strong><p>{summary.activationSuccessMessage || summary.activationMessage}</p></div>
-              <div className="health-card"><strong>Tenant Lifecycle</strong><p>{statusLabel(summary.tenantLifecycleStatus || summary.activationStatus)}</p><strong style={{ marginTop: 10 }}>Activation Stage</strong><p>{statusLabel(summary.activationStage || summary.activationStatus)}</p></div>
-              <div className="health-card"><strong>Credential Provisioning</strong><p>{statusLabel(summary.credentialProvisioningStatus || (summary.tenantActive ? 'READY_TO_ISSUE' : 'LOCKED_UNTIL_ACTIVE'))}</p></div>
-              <div className="health-card"><strong>Activation Notifications</strong>{(summary.activationNotifications || []).slice(0, 4).map((item) => <p key={item}>• {item}</p>)}</div>
-            </div>
-          </section>
-
           {errorIntel ? (
             <section className="glass-panel premium-panel erp-section panel">
               <p className="section-eyebrow">Workbook Status</p>
@@ -425,14 +415,6 @@ export default function WorkspaceHealthPage() {
           ) : null}
 
           <section className="glass-panel premium-panel erp-section panel">
-            <p className="section-eyebrow">School Activation Summary</p>
-            <div className="health-grid" style={{ marginBottom: 14 }}>
-              <div className="health-card"><strong>Activation Status</strong><p>{statusLabel(summary.activationStatus)}</p></div>
-              <div className="health-card"><strong>Go-Live Readiness</strong><p>{statusLabel(summary.goLiveStatus || 'NOT_READY')}</p></div>
-              <div className="health-card"><strong>Tenant Lifecycle</strong><p>{statusLabel(summary.tenantLifecycleStatus || summary.activationStatus)}</p></div>
-              <div className="health-card"><strong>Activated By</strong><p>{activatedByLabel(summary)}</p></div>
-              <div className="health-card"><strong>Operational Summary</strong><p>{blockerMessage}</p></div>
-            </div>
             <p className="section-eyebrow">School Configuration Summary</p>
             <div className="health-grid">
               {summary.healthItems.map((item) => (
@@ -447,13 +429,6 @@ export default function WorkspaceHealthPage() {
 
           {operations ? (
             <section className="glass-panel premium-panel erp-section panel">
-              <p className="section-eyebrow">School Activation Status</p>
-              <div className="health-grid" style={{ marginBottom: 14 }}>
-                <div className="health-card"><strong>Reporting Status</strong><p>{statusLabel(operations.reportingStatus)}</p></div>
-                <div className="health-card"><strong>Readiness</strong><p>{operations.readinessPercent}%</p></div>
-                <div className="health-card"><strong>Tenant Active</strong><p>{operations.tenantActive ? 'Yes' : 'No'}</p></div>
-                <div className="health-card"><strong>Operations Note</strong><p>{blockerMessage}</p></div>
-              </div>
               <div className="actions" style={{ justifyContent: 'space-between', marginBottom: 12 }}>
                 <p className="section-eyebrow" style={{ margin: 0 }}>Activation Progress</p>
                 {groupedTimeline.length > 1 ? <button className="toggle" type="button" onClick={() => setShowFullProgress((value) => !value)}>{showFullProgress ? 'Hide full progress' : 'Show full progress'}</button> : null}

@@ -7,7 +7,7 @@ export default function ProductionHardeningPage() {
         <PortalShell
             role="ADMIN"
             title="System Operations"
-            subtitle="Operational controls, tenant validation, import health, and publish readiness for active school workspaces."
+            subtitle="School-facing operational status for authentication, tenant isolation, imports, timetable, notifications, attendance, backup, and workspace health."
            
             variant="gold"
         >

@@ -152,19 +152,21 @@ export default function Day24ModulePage({ config }: Props) {
         config.title.toLowerCase().includes('generate timetable') &&
         selectedGenerationMode?.toLowerCase().includes('custom');
 
+    const pageTitle = config.title.toLowerCase();
+    const showSearch = !pageTitle.includes('generate timetable') && !pageTitle.includes('teacher assignment') && !pageTitle.includes('analytics');
     const searchPlaceholder = getSearchPlaceholder(config.title);
 
     const filteredRows = useMemo(() => {
         const value = search.trim().toLowerCase();
 
-        if (!value) return config.rows;
+        if (!showSearch || !value) return config.rows;
 
         return config.rows.filter((row) =>
             Object.values(row).some((cell) =>
                 String(cell).toLowerCase().includes(value),
             ),
         );
-    }, [config.rows, search]);
+    }, [config.rows, search, showSearch]);
 
     return (
         <div className="space-y-6">
@@ -180,15 +182,17 @@ export default function Day24ModulePage({ config }: Props) {
                         </p>
                     </div>
 
-                    <label className="w-full lg:max-w-sm">
-                        <span className="sr-only">{searchPlaceholder}</span>
-                        <input
-                            value={search}
-                            onChange={(event) => setSearch(event.target.value)}
-                            placeholder={searchPlaceholder}
-                            className="w-full rounded-2xl border border-[#d4af37]/20 bg-[#08131f] px-4 py-3 text-sm text-[#f8f3df] outline-none transition focus:border-[#d4af37]/60 focus:ring-2 focus:ring-[#d4af37]/15"
-                        />
-                    </label>
+                    {showSearch ? (
+                        <label className="w-full lg:max-w-sm">
+                            <span className="sr-only">{searchPlaceholder}</span>
+                            <input
+                                value={search}
+                                onChange={(event) => setSearch(event.target.value)}
+                                placeholder={searchPlaceholder}
+                                className="w-full rounded-2xl border border-[#d4af37]/20 bg-[#08131f] px-4 py-3 text-sm text-[#f8f3df] outline-none transition focus:border-[#d4af37]/60 focus:ring-2 focus:ring-[#d4af37]/15"
+                            />
+                        </label>
+                    ) : null}
                 </div>
             </section>
 
