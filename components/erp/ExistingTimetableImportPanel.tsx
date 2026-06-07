@@ -69,6 +69,15 @@ function friendlyStatus(status?: string) {
   return String(status || 'Validation Pending').replaceAll('_', ' ');
 }
 
+function displayImportStatus(status?: ImportStatus | null) {
+  const raw = String(status?.label || status?.status || 'No Timetable Imported').trim().toUpperCase();
+  if (!raw || raw === 'NO TIMETABLE IMPORTED' || raw === 'NOT_IMPORTED') return 'No Timetable Imported';
+  if (raw === 'VALIDATION_PENDING' || raw === 'IMPORTED – VALIDATION PENDING' || raw === 'IMPORTED - VALIDATION PENDING') return 'Imported – Validation Pending';
+  if (raw === 'READY_TO_PUBLISH' || raw === 'IMPORTED – READY TO PUBLISH' || raw === 'IMPORTED - READY TO PUBLISH') return 'Imported – Ready to Publish';
+  if (raw === 'PUBLISHED') return 'Published';
+  return friendlyStatus(status?.label || status?.status);
+}
+
 export default function ExistingTimetableImportPanel() {
   const user = getStoredUser();
   const [file, setFile] = useState<File | null>(null);
@@ -153,11 +162,11 @@ export default function ExistingTimetableImportPanel() {
 
         {status ? (
           <div className="mt-5 grid gap-3 md:grid-cols-[1.1fr_repeat(4,minmax(0,1fr))]">
-            <div className="metric-card"><p className="metric-label">Timetable Import Status</p><p className="metric-value text-xl !text-slate-950">{status.label || friendlyStatus(status.status)}</p></div>
-            <div className="metric-card"><p className="metric-label">Classes</p><p className="metric-value !text-slate-950">{status.totalClasses || 0}</p></div>
-            <div className="metric-card"><p className="metric-label">Sections</p><p className="metric-value !text-slate-950">{status.totalSections || 0}</p></div>
-            <div className="metric-card"><p className="metric-label">Teachers</p><p className="metric-value !text-slate-950">{status.totalTeachers || 0}</p></div>
-            <div className="metric-card"><p className="metric-label">Periods</p><p className="metric-value !text-slate-950">{status.totalPeriodAllocations || 0}</p></div>
+            <div className="metric-card import-kpi-card"><p className="metric-label">Timetable Import Status</p><p className="metric-value import-kpi-value import-kpi-status">{displayImportStatus(status)}</p></div>
+            <div className="metric-card import-kpi-card"><p className="metric-label">Classes</p><p className="metric-value import-kpi-value">{status.totalClasses || 0}</p></div>
+            <div className="metric-card import-kpi-card"><p className="metric-label">Sections</p><p className="metric-value import-kpi-value">{status.totalSections || 0}</p></div>
+            <div className="metric-card import-kpi-card"><p className="metric-label">Teachers</p><p className="metric-value import-kpi-value">{status.totalTeachers || 0}</p></div>
+            <div className="metric-card import-kpi-card"><p className="metric-label">Periods</p><p className="metric-value import-kpi-value">{status.totalPeriodAllocations || 0}</p></div>
           </div>
         ) : null}
 
@@ -184,13 +193,13 @@ export default function ExistingTimetableImportPanel() {
             </div>
             <button className="primary-button min-h-[46px] px-5" type="button" onClick={publishImported} disabled={!response.canPublish || publishing || Boolean(response.publishedBatchId)}>{publishing ? 'Publishing…' : response.publishedBatchId ? 'Published' : 'Publish Timetable'}</button>
           </div>
-          <div className="grid gap-3 md:grid-cols-6">
-            <div className="metric-card"><p className="metric-label">Total Classes</p><p className="metric-value !text-slate-950">{response.totalClasses || 0}</p></div>
-            <div className="metric-card"><p className="metric-label">Total Sections</p><p className="metric-value !text-slate-950">{response.totalSections || 0}</p></div>
-            <div className="metric-card"><p className="metric-label">Total Teachers</p><p className="metric-value !text-slate-950">{response.totalTeachers || 0}</p></div>
-            <div className="metric-card"><p className="metric-label">Period Allocations</p><p className="metric-value !text-slate-950">{response.totalPeriodAllocations || response.acceptedRows || 0}</p></div>
-            <div className="metric-card"><p className="metric-label">Warnings</p><p className="metric-value !text-slate-950">{response.warningCount || 0}</p></div>
-            <div className="metric-card"><p className="metric-label">Errors</p><p className="metric-value !text-slate-950">{response.errorCount || 0}</p></div>
+          <div className="grid gap-3 md:grid-cols-6 mb-4">
+            <div className="metric-card import-kpi-card"><p className="metric-label">Total Classes</p><p className="metric-value import-kpi-value">{response.totalClasses || 0}</p></div>
+            <div className="metric-card import-kpi-card"><p className="metric-label">Total Sections</p><p className="metric-value import-kpi-value">{response.totalSections || 0}</p></div>
+            <div className="metric-card import-kpi-card"><p className="metric-label">Total Teachers</p><p className="metric-value import-kpi-value">{response.totalTeachers || 0}</p></div>
+            <div className="metric-card import-kpi-card"><p className="metric-label">Period Allocations</p><p className="metric-value import-kpi-value">{response.totalPeriodAllocations || response.acceptedRows || 0}</p></div>
+            <div className="metric-card import-kpi-card"><p className="metric-label">Warnings</p><p className="metric-value import-kpi-value">{response.warningCount || 0}</p></div>
+            <div className="metric-card import-kpi-card"><p className="metric-label">Errors</p><p className="metric-value import-kpi-value">{response.errorCount || 0}</p></div>
           </div>
           {validationCards.length ? (
             <div className="mt-5 grid gap-3 md:grid-cols-2 lg:grid-cols-3">
@@ -201,7 +210,12 @@ export default function ExistingTimetableImportPanel() {
                 </div>
               ))}
             </div>
-          ) : <p className="mt-5 rounded-2xl border border-emerald-200/40 bg-emerald-950/20 p-3 text-sm font-black text-emerald-100">No validation errors found. Review the preview and publish when ready.</p>}
+          ) : (
+            <div className="mt-4 rounded-2xl border border-emerald-200/40 bg-emerald-950/20 p-3">
+              <div className="text-sm font-bold text-emerald-200">Validation Complete</div>
+              <div className="mt-1 text-xs font-medium text-emerald-100">Ready to Publish</div>
+            </div>
+          )}
           <div className="mt-5 grid gap-3 lg:grid-cols-2">
             {Object.entries(groupedPreview).map(([key, entries]) => (
               <div className="status-list" key={key}>

@@ -249,6 +249,11 @@ export default function ShellStyles() {
       .metric-card strong { color: var(--navy-950) !important; font-size: 28px; }
       .metric-card span { color: var(--ink-700); }
       .metric-card__trend { background: rgba(10,29,50,0.08); border-color: rgba(10,29,50,0.1); color: var(--navy-900) !important; }
+
+      .import-kpi-card { min-height: 95px !important; padding: 14px 16px !important; display: flex; flex-direction: column; justify-content: flex-start; }
+      .import-kpi-card .metric-label { margin: 0 0 8px !important; color: var(--gold-700) !important; font-size: 11px !important; line-height: 1.15 !important; letter-spacing: 0.08em !important; text-transform: uppercase !important; }
+      .import-kpi-card .import-kpi-value { margin: 0 !important; color: #0F2744 !important; font-size: 22px !important; font-weight: 900 !important; line-height: 1.2 !important; letter-spacing: 0 !important; text-transform: none !important; }
+      .import-kpi-card .import-kpi-status { font-size: 16px !important; line-height: 1.2 !important; max-width: 170px; }
       .work-panel { padding: 22px; }
       .work-panel h2 { margin-bottom: 8px; line-height: 1.14; }
       .work-panel > p:not(.eyebrow) { margin-bottom: 0; line-height: 1.45; }
