@@ -28,6 +28,7 @@ export const portalRoutes: PortalRoute[] = [
 
   { icon: '🧠', label: 'School Intelligence', href: '/school-intelligence', description: 'Executive insights', roles: ['ADMIN', 'PRINCIPAL'], group: 'Daily Work' },
   { icon: '📊', label: 'Attendance Reports', href: '/reports/attendance', description: 'Attendance records', roles: ['ADMIN', 'PRINCIPAL'], group: 'Reports' },
+  { icon: '🩹', label: 'Recover Missed Attendance', href: '/attendance-recovery', description: 'Validate and submit missed attendance', roles: ['ADMIN', 'PRINCIPAL'], group: 'Daily Work' },
   { icon: '👨‍🏫', label: 'Teacher Reports', href: '/reports/teachers', description: 'Teacher records', roles: ['ADMIN', 'PRINCIPAL'], group: 'Reports' },
   { icon: '📈', label: 'Operational Analytics', href: '/analytics', description: 'Trends and risk', roles: ['ADMIN', 'PRINCIPAL'], group: 'Reports' },
   { icon: '🗓️', label: 'Leave Approvals', href: '/teacher-leave', description: 'Approve enquiries', roles: ['ADMIN', 'PRINCIPAL'], group: 'Daily Work' },

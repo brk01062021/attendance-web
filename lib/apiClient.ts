@@ -124,7 +124,14 @@ export const webApi = {
   },
   timetableRoleNotifications: <T>(role: string, token?: string, schoolId?: string) =>
     apiClient<T>('/timetable/role-notifications', { token, schoolId, query: { role } }),
-  teacherLeaveEnquiries: <T>(fromDate: string, toDate: string, token?: string, schoolId?: string) =>
+
+  validateMissedAttendanceRecovery: <T>(formData: FormData, token?: string, schoolId?: string, uploadedBy?: string) =>
+    apiClient<T>('/attendance/recovery/validate', { method: 'POST', token, schoolId, query: { schoolId, uploadedBy }, body: formData }),
+  submitMissedAttendanceRecovery: <T>(batchId: string, token?: string, schoolId?: string, submittedBy?: string) =>
+    apiClient<T>(`/attendance/recovery/submit/${batchId}`, { method: 'POST', token, schoolId, query: { schoolId, submittedBy } }),
+  missedAttendanceRecoveryStatus: <T>(token?: string, schoolId?: string) =>
+    apiClient<T>('/attendance/recovery/status', { token, schoolId, query: { schoolId } }),
+    teacherLeaveEnquiries: <T>(fromDate: string, toDate: string, token?: string, schoolId?: string) =>
     apiClient<T>('/teacher-leave/admin/enquiries', { token, schoolId, query: { fromDate, toDate } }),
   approveTeacherLeaveEnquiry: <T>(enquiryId: number, adminRemarks: string, token?: string, schoolId?: string) =>
     apiClient<T>(`/teacher-leave/admin/enquiries/${enquiryId}/approve`, { method: 'POST', token, schoolId, query: { adminRemarks } }),
