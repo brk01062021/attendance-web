@@ -75,6 +75,18 @@ type WorkbookErrorIntelligence = {
   groups: WorkbookErrorGroup[];
 };
 
+type TimetableImportStatus = {
+  status: string;
+  label: string;
+  message: string;
+  importBatchId?: string;
+  publishedBatchId?: string;
+  totalClasses: number;
+  totalSections: number;
+  totalTeachers: number;
+  totalPeriodAllocations: number;
+};
+
 type ActivationSummary = {
   schoolId: string;
   schoolName: string;
@@ -203,6 +215,7 @@ export default function WorkspaceHealthPage() {
   const [summary, setSummary] = useState<ActivationSummary | null>(null);
   const [operations, setOperations] = useState<ActivationOperationsCenter | null>(null);
   const [errorIntel, setErrorIntel] = useState<WorkbookErrorIntelligence | null>(null);
+  const [timetableImportStatus, setTimetableImportStatus] = useState<TimetableImportStatus | null>(null);
   const [loading, setLoading] = useState(true);
   const [activating, setActivating] = useState(false);
   const [error, setError] = useState('');
@@ -217,14 +230,16 @@ export default function WorkspaceHealthPage() {
     setError('');
     setNotice('');
     try {
-      const [summaryResponse, operationsResponse, errorIntelResponse] = await Promise.all([
+      const [summaryResponse, operationsResponse, errorIntelResponse, timetableImportResponse] = await Promise.all([
         webApi.workspaceActivationSummary<ApiEnvelope<ActivationSummary>>(tenantUser.schoolId, tenantUser.token),
         webApi.activationOperationsCenter<ApiEnvelope<ActivationOperationsCenter>>(tenantUser.schoolId, tenantUser.token),
         webApi.workbookErrorIntelligence<ApiEnvelope<WorkbookErrorIntelligence>>(tenantUser.schoolId, tenantUser.token),
+        webApi.existingTimetableImportStatus<TimetableImportStatus>(tenantUser.token, tenantUser.schoolId),
       ]);
       setSummary(unwrap(summaryResponse));
       setOperations(unwrap(operationsResponse));
       setErrorIntel(unwrap(errorIntelResponse));
+      setTimetableImportStatus(timetableImportResponse);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Unable to load Workspace Health.');
     } finally {
@@ -352,6 +367,18 @@ export default function WorkspaceHealthPage() {
               </div>
             </div>
           </section>
+
+
+          {timetableImportStatus ? (
+            <section className="glass-panel premium-panel erp-section panel">
+              <p className="section-eyebrow">Timetable Import Status</p>
+              <div className="tri-grid">
+                <div className="health-card"><span className="status-pill">{statusLabel(timetableImportStatus.status)}</span><strong style={{ marginTop: 10 }}>{timetableImportStatus.label}</strong><p>{timetableImportStatus.message}</p></div>
+                <div className="health-card"><strong>Total Classes</strong><p>{timetableImportStatus.totalClasses || 0}</p><strong style={{ marginTop: 10 }}>Total Sections</strong><p>{timetableImportStatus.totalSections || 0}</p></div>
+                <div className="health-card"><strong>Total Teachers</strong><p>{timetableImportStatus.totalTeachers || 0}</p><strong style={{ marginTop: 10 }}>Period Allocations</strong><p>{timetableImportStatus.totalPeriodAllocations || 0}</p></div>
+              </div>
+            </section>
+          ) : null}
 
           {errorIntel ? (
             <section className="glass-panel premium-panel erp-section panel">

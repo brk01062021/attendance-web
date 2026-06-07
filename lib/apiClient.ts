@@ -108,6 +108,8 @@ export const webApi = {
     apiClient<T>('/timetable/import-existing/preview', { method: 'POST', token, schoolId, query: { uploadedBy }, body: formData }),
   publishImportedTimetable: <T>(importBatchId: string, role: string, approvedBy?: string, token?: string, schoolId?: string) =>
     apiClient<T>(`/timetable/import-existing/publish/${importBatchId}`, { method: 'POST', token, schoolId, query: { role, approvedBy } }),
+  existingTimetableImportStatus: <T>(token?: string, schoolId?: string) =>
+    apiClient<T>('/timetable/import-existing/status', { token, schoolId, query: { schoolId } }),
   liveTimetable: <T>(role: string, token?: string, schoolId?: string, teacherId?: number | null, className?: string, section?: string, teacherName?: string | null) => {
     if (role === 'TEACHER') {
       return apiClient<T>('/timetable/live/teacher', { token, schoolId, query: { teacherName: teacherName || undefined, teacherId: teacherName ? undefined : teacherId || undefined } });
