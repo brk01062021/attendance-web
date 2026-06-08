@@ -25,6 +25,10 @@ type ImportResponse = {
   warningCount: number;
   conflictsDetected: number;
   message: string;
+  fileStorageKey?: string;
+  originalFilename?: string;
+  contentType?: string;
+  fileSizeBytes?: number;
   issues: ImportIssue[];
   validationCards: ValidationCard[];
   previewEntries: TimetableEntry[];
@@ -69,11 +73,34 @@ function friendlyStatus(status?: string) {
   return String(status || 'Validation Pending').replaceAll('_', ' ');
 }
 
+function friendlyImportOutcome(response?: ImportResponse | null) {
+  if (!response) return 'Validation Pending';
+  if (response.publishedBatchId || String(response.status || '').toUpperCase() === 'PUBLISHED') return 'Published';
+  if (response.canPublish) return 'Ready to Publish';
+  const raw = String(response.status || '').toUpperCase();
+  if (raw.includes('VALIDATION_FAILED') || response.errorCount > 0 || response.conflictsDetected > 0) return 'Needs Correction';
+  if (raw.includes('FAILED')) return 'Needs Correction';
+  return friendlyStatus(response.status);
+}
+
+
+function compactFilename(filename?: string | null) {
+  if (!filename) return 'Not Available';
+  if (filename.length <= 24) return filename;
+
+  const lastDot = filename.lastIndexOf('.');
+  const extension = lastDot > 0 ? filename.slice(lastDot) : '';
+  const baseName = lastDot > 0 ? filename.slice(0, lastDot) : filename;
+
+  return `${baseName.slice(0, 18)}...${extension}`;
+}
+
 function displayImportStatus(status?: ImportStatus | null) {
   const raw = String(status?.label || status?.status || 'No Timetable Imported').trim().toUpperCase();
   if (!raw || raw === 'NO TIMETABLE IMPORTED' || raw === 'NOT_IMPORTED') return 'No Timetable Imported';
-  if (raw === 'VALIDATION_PENDING' || raw === 'IMPORTED – VALIDATION PENDING' || raw === 'IMPORTED - VALIDATION PENDING') return 'Imported – Validation Pending';
-  if (raw === 'READY_TO_PUBLISH' || raw === 'IMPORTED – READY TO PUBLISH' || raw === 'IMPORTED - READY TO PUBLISH') return 'Imported – Ready to Publish';
+  if (raw === 'VALIDATION_PENDING' || raw === 'IMPORTED – VALIDATION PENDING' || raw === 'IMPORTED - VALIDATION PENDING') return 'Validation Pending';
+  if (raw === 'VALIDATION_FAILED' || raw === 'IMPORTED – VALIDATION FAILED' || raw === 'IMPORTED - VALIDATION FAILED') return 'Needs Correction';
+  if (raw === 'READY_TO_PUBLISH' || raw === 'IMPORTED – READY TO PUBLISH' || raw === 'IMPORTED - READY TO PUBLISH') return 'Ready to Publish';
   if (raw === 'PUBLISHED') return 'Published';
   return friendlyStatus(status?.label || status?.status);
 }
@@ -130,8 +157,10 @@ export default function ExistingTimetableImportPanel() {
     }
   }
 
+  const hasBlockingErrors = Boolean(response && ((response.errorCount || 0) > 0 || (response.conflictsDetected || 0) > 0 || !response.canPublish));
+
   async function publishImported() {
-    if (!response?.importBatchId) return;
+    if (!response?.importBatchId || hasBlockingErrors || response.publishedBatchId) return;
     setPublishing(true);
     setError('');
     try {
@@ -176,7 +205,7 @@ export default function ExistingTimetableImportPanel() {
             <button className="primary-button min-h-[46px] px-6" type="button" onClick={uploadAndValidate} disabled={loading}>{loading ? 'Validating…' : 'Validate Timetable'}</button>
             <button className="secondary-button min-h-[46px] px-5" type="button" onClick={csvTemplate}>Download Template</button>
           </div>
-          <p className="mt-3 text-sm font-semibold text-slate-200/80">Publish is available after successful validation.</p>
+          <p className="mt-3 text-sm font-semibold text-slate-200/80">Publish is available only after validation passes with no blocking errors. If errors are found, correct the workbook and upload again.</p>
           {file ? <p className="mt-3 text-sm font-bold text-amber-100">Selected: {file.name}</p> : null}
           {error ? <p className="mt-3 rounded-2xl border border-red-300/40 bg-red-950/40 p-3 text-sm font-bold text-red-100">{error}</p> : null}
         </div>
@@ -187,11 +216,59 @@ export default function ExistingTimetableImportPanel() {
           <div className="section-heading-row">
             <div>
               <p className="eyebrow">Preview before publish</p>
-              <h2>{friendlyStatus(response.status)}</h2>
+              <h2>{friendlyImportOutcome(response)}</h2>
               <p className="page-subtitle mt-2">{response.message}</p>
               {response.publishedBatchId ? <p className="mt-2 text-sm font-black text-emerald-200">Published Batch: {response.publishedBatchId}</p> : null}
             </div>
-            <button className="primary-button min-h-[46px] px-5" type="button" onClick={publishImported} disabled={!response.canPublish || publishing || Boolean(response.publishedBatchId)}>{publishing ? 'Publishing…' : response.publishedBatchId ? 'Published' : 'Publish Timetable'}</button>
+            <button className="primary-button min-h-[46px] px-5" type="button" onClick={publishImported} disabled={hasBlockingErrors || publishing || Boolean(response.publishedBatchId)}>{publishing ? 'Publishing…' : response.publishedBatchId ? 'Published' : hasBlockingErrors ? 'Publish Disabled' : 'Publish Timetable'}</button>
+          </div>
+
+          {hasBlockingErrors ? (
+            <div className="mb-4 rounded-3xl border border-red-300/40 bg-red-950/30 p-4">
+              <p className="eyebrow">Publish unavailable</p>
+              <h3 className="text-lg font-black text-red-100">Correct and Re-upload Timetable</h3>
+              <p className="mt-2 text-sm font-semibold text-red-50/90">This timetable has blocking errors, so it cannot become the active timetable. Correct the Excel workbook and upload the corrected file again.</p>
+              <div className="mt-3 grid gap-3 md:grid-cols-3">
+                <div className="status-list"><div className="status-row"><strong>Errors</strong><span>{response.errorCount || 0}</span></div></div>
+                <div className="status-list"><div className="status-row"><strong>Conflicts</strong><span>{response.conflictsDetected || 0}</span></div></div>
+                <div className="status-list"><div className="status-row"><strong>Next Step</strong><span>Re-upload corrected sheet</span></div></div>
+              </div>
+            </div>
+          ) : null}
+          <div className="mb-4 rounded-3xl border border-amber-200/30 bg-slate-950/25 p-4">
+            <div className="mb-3">
+              <p className="eyebrow">Imported Timetable</p>
+              <h3 className="text-lg font-black text-amber-100">Uploaded file details</h3>
+            </div>
+            <div className="grid gap-3 md:grid-cols-4">
+              <div className="status-list">
+                <div className="status-row">
+                  <strong>Filename</strong>
+                  <span
+                    title={response.originalFilename || file?.name || 'Not Available'}
+                    style={{
+                      display: 'inline-block',
+                      maxWidth: '150px',
+                      overflow: 'hidden',
+                      textOverflow: 'ellipsis',
+                      whiteSpace: 'nowrap',
+                      textAlign: 'right',
+                    }}
+                  >
+                    {compactFilename(response.originalFilename || file?.name)}
+                  </span>
+                </div>
+              </div>
+              <div className="status-list">
+                <div className="status-row"><strong>Status</strong><span>{friendlyImportOutcome(response)}</span></div>
+              </div>
+              <div className="status-list">
+                <div className="status-row"><strong>File Size</strong><span>{response.fileSizeBytes ? `${Math.round(response.fileSizeBytes / 1024)} KB` : 'Not Available'}</span></div>
+              </div>
+              <div className="status-list">
+                <div className="status-row"><strong>Upload</strong><span>{response.fileStorageKey ? 'Stored' : 'Pending'}</span></div>
+              </div>
+            </div>
           </div>
           <div className="grid gap-3 md:grid-cols-6 mb-4">
             <div className="metric-card import-kpi-card"><p className="metric-label">Total Classes</p><p className="metric-value import-kpi-value">{response.totalClasses || 0}</p></div>
