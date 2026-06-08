@@ -95,6 +95,11 @@ function compactFilename(filename?: string | null) {
   return `${baseName.slice(0, 18)}...${extension}`;
 }
 
+
+function isPublishedImport(response?: ImportResponse | null) {
+  return Boolean(response?.publishedBatchId || String(response?.status || '').toUpperCase() === 'PUBLISHED');
+}
+
 function displayImportStatus(status?: ImportStatus | null) {
   const raw = String(status?.label || status?.status || 'No Timetable Imported').trim().toUpperCase();
   if (!raw || raw === 'NO TIMETABLE IMPORTED' || raw === 'NOT_IMPORTED') return 'No Timetable Imported';
@@ -160,6 +165,7 @@ export default function ExistingTimetableImportPanel() {
   const hasBlockingErrors = Boolean(response && ((response.errorCount || 0) > 0 || (response.conflictsDetected || 0) > 0 || !response.canPublish));
 
   async function publishImported() {
+    if (!window.confirm('Publish Timetable? Existing active timetable will be archived and this timetable will become active.')) return;
     if (!response?.importBatchId || hasBlockingErrors || response.publishedBatchId) return;
     setPublishing(true);
     setError('');
@@ -289,8 +295,8 @@ export default function ExistingTimetableImportPanel() {
             </div>
           ) : (
             <div className="mt-4 rounded-2xl border border-emerald-200/40 bg-emerald-950/20 p-3">
-              <div className="text-sm font-bold text-emerald-200">Validation Complete</div>
-              <div className="mt-1 text-xs font-medium text-emerald-100">Ready to Publish</div>
+              <div className="text-sm font-bold text-emerald-200">{isPublishedImport(response) ? 'Published Successfully' : 'Validation Complete'}</div>
+              <div className="mt-1 text-xs font-medium text-emerald-100">{isPublishedImport(response) ? 'Visible to Teachers, Students and Parents' : 'Ready to Publish'}</div>
             </div>
           )}
           <div className="mt-5 grid gap-3 lg:grid-cols-2">
