@@ -15,6 +15,8 @@ import type {
   TimetableVersion,
 } from '@/types/timetable';
 
+type ActiveLiveTimetable = { batchId?: string; published?: boolean; locked?: boolean; message?: string; entries?: { id: string; dayOfWeek: string; periodNumber: number; className: string; section: string; subjectName: string; teacherName: string }[] };
+
 function safeRole(role?: string) {
   return role === 'PRINCIPAL' ? 'PRINCIPAL' : 'ADMIN';
 }
@@ -51,6 +53,7 @@ export default function TimetableOperationsPanel() {
   const [notifications, setNotifications] = useState<TimetableNotification[]>([]);
   const [archives, setArchives] = useState<TimetableArchiveSummary[]>([]);
   const [repairActions, setRepairActions] = useState<string[]>([]);
+  const [activeLive, setActiveLive] = useState<ActiveLiveTimetable | null>(null);
 
   async function loadOperations(targetBatchId = cleanBatchId) {
     if (!targetBatchId) {
@@ -76,6 +79,20 @@ export default function TimetableOperationsPanel() {
       setMessage('Timetable operations loaded.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Unable to load timetable operations. Confirm the batch ID and try again.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function loadActivePublishedTimetable() {
+    setLoading(true);
+    try {
+      const live = await apiClient<ActiveLiveTimetable>('/timetable/operations/live', { token, schoolId, query: { role } });
+      setActiveLive(live);
+      if (live.batchId) setBatchId(live.batchId);
+      setMessage(live.message || 'Latest active published timetable loaded.');
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Unable to load active published timetable.');
     } finally {
       setLoading(false);
     }
@@ -187,9 +204,19 @@ export default function TimetableOperationsPanel() {
         <Action title="Rollback / Unlock" body="Create rollback audit marker and return to review mode." onClick={runRollback} />
         <Action title="Download PDF" body="Generate PDF timetable export payload." onClick={() => runExport('PDF')} />
         <Action title="Download Excel" body="Generate Excel-compatible timetable export." onClick={() => runExport('EXCEL')} />
+        <Action title="Active Published Timetable" body="Load latest ACTIVE timetable for Admin/Principal consumption." onClick={loadActivePublishedTimetable} />
         <Action title="Principal Intelligence" body="Load readiness score, risk teachers, and executive insights." onClick={() => loadOperations()} />
         <Action title="Refresh History" body="Reload publish history, archive, versions, and notifications." onClick={() => loadOperations()} />
       </div>
+
+      {activeLive ? (
+        <div className="grid gap-3 md:grid-cols-4">
+          <Metric label="Active Batch" value={activeLive.batchId || 'NONE'} />
+          <Metric label="Published" value={activeLive.published ? 'YES' : 'NO'} />
+          <Metric label="Locked" value={activeLive.locked ? 'YES' : 'NO'} />
+          <Metric label="Visible Entries" value={String(activeLive.entries?.length || 0)} />
+        </div>
+      ) : null}
 
       {readiness ? (
         <div className="grid gap-4 md:grid-cols-[280px_1fr]">
