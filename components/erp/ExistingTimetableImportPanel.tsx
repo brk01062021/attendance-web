@@ -119,6 +119,20 @@ export default function ExistingTimetableImportPanel() {
   const [response, setResponse] = useState<ImportResponse | null>(null);
   const [error, setError] = useState('');
 
+  const currentImportStatus = response
+    ? {
+        importBatchId: response.importBatchId,
+        publishedBatchId: response.publishedBatchId,
+        status: response.status,
+        label: friendlyImportOutcome(response),
+        message: response.message,
+        totalClasses: response.totalClasses || 0,
+        totalSections: response.totalSections || 0,
+        totalTeachers: response.totalTeachers || 0,
+        totalPeriodAllocations: response.totalPeriodAllocations || response.acceptedRows || 0,
+      }
+    : status;
+
   const groupedPreview = useMemo(() => {
     const entries = response?.previewEntries || [];
     return entries.slice(0, 90).reduce<Record<string, TimetableEntry[]>>((acc, entry) => {
@@ -195,13 +209,14 @@ export default function ExistingTimetableImportPanel() {
           <span className="status-pill status-pill--pending">Pilot school ready</span>
         </div>
 
-        {status ? (
-          <div className="mt-5 grid gap-3 md:grid-cols-[1.1fr_repeat(4,minmax(0,1fr))]">
-            <div className="metric-card import-kpi-card"><p className="metric-label">Timetable Import Status</p><p className="metric-value import-kpi-value import-kpi-status">{displayImportStatus(status)}</p></div>
-            <div className="metric-card import-kpi-card"><p className="metric-label">Classes</p><p className="metric-value import-kpi-value">{status.totalClasses || 0}</p></div>
-            <div className="metric-card import-kpi-card"><p className="metric-label">Sections</p><p className="metric-value import-kpi-value">{status.totalSections || 0}</p></div>
-            <div className="metric-card import-kpi-card"><p className="metric-label">Teachers</p><p className="metric-value import-kpi-value">{status.totalTeachers || 0}</p></div>
-            <div className="metric-card import-kpi-card"><p className="metric-label">Periods</p><p className="metric-value import-kpi-value">{status.totalPeriodAllocations || 0}</p></div>
+        {currentImportStatus ? (
+          <div className="mt-5 grid gap-3 md:grid-cols-6">
+            <div className="metric-card import-kpi-card md:col-span-2"><p className="metric-label">Timetable Import Status</p><p className="metric-value import-kpi-value import-kpi-status">{response ? friendlyImportOutcome(response) : displayImportStatus(status)}</p></div>
+            <div className="metric-card import-kpi-card md:col-span-2"><p className="metric-label">Import Batch ID</p><p className="metric-value import-kpi-value import-kpi-status">{currentImportStatus.importBatchId || 'Not Generated'}</p></div>
+            <div className="metric-card import-kpi-card"><p className="metric-label">Classes</p><p className="metric-value import-kpi-value">{currentImportStatus.totalClasses || 0}</p></div>
+            <div className="metric-card import-kpi-card"><p className="metric-label">Sections</p><p className="metric-value import-kpi-value">{currentImportStatus.totalSections || 0}</p></div>
+            <div className="metric-card import-kpi-card"><p className="metric-label">Teachers</p><p className="metric-value import-kpi-value">{currentImportStatus.totalTeachers || 0}</p></div>
+            <div className="metric-card import-kpi-card"><p className="metric-label">Periods</p><p className="metric-value import-kpi-value">{currentImportStatus.totalPeriodAllocations || 0}</p></div>
           </div>
         ) : null}
 
@@ -224,6 +239,7 @@ export default function ExistingTimetableImportPanel() {
               <p className="eyebrow">Preview before publish</p>
               <h2>{friendlyImportOutcome(response)}</h2>
               <p className="page-subtitle mt-2">{response.message}</p>
+              {response.importBatchId ? <p className="mt-2 rounded-2xl border border-amber-200/35 bg-slate-950/35 px-4 py-2 text-sm font-black text-amber-100">Import Batch ID for Timetable Operations: {response.importBatchId}</p> : null}
               {response.publishedBatchId ? <p className="mt-2 text-sm font-black text-emerald-200">Published Batch: {response.publishedBatchId}</p> : null}
             </div>
             <button className="primary-button min-h-[46px] px-5" type="button" onClick={publishImported} disabled={hasBlockingErrors || publishing || Boolean(response.publishedBatchId)}>{publishing ? 'Publishing…' : response.publishedBatchId ? 'Published' : hasBlockingErrors ? 'Publish Disabled' : 'Publish Timetable'}</button>
@@ -237,7 +253,7 @@ export default function ExistingTimetableImportPanel() {
               <div className="mt-3 grid gap-3 md:grid-cols-3">
                 <div className="status-list"><div className="status-row"><strong>Errors</strong><span>{response.errorCount || 0}</span></div></div>
                 <div className="status-list"><div className="status-row"><strong>Conflicts</strong><span>{response.conflictsDetected || 0}</span></div></div>
-                <div className="status-list"><div className="status-row"><strong>Next Step</strong><span>Re-upload corrected sheet</span></div></div>
+                <div className="status-list"><div className="status-row"><strong>Next Step</strong><span>{response.importBatchId ? 'Use Batch ID in Timetable Operations / re-upload corrected sheet' : 'Re-upload corrected sheet'}</span></div></div>
               </div>
             </div>
           ) : null}
@@ -246,7 +262,10 @@ export default function ExistingTimetableImportPanel() {
               <p className="eyebrow">Imported Timetable</p>
               <h3 className="text-lg font-black text-amber-100">Uploaded file details</h3>
             </div>
-            <div className="grid gap-3 md:grid-cols-4">
+            <div className="grid gap-3 md:grid-cols-5">
+              <div className="status-list">
+                <div className="status-row"><strong>Batch ID</strong><span>{response.importBatchId || 'Not Generated'}</span></div>
+              </div>
               <div className="status-list">
                 <div className="status-row">
                   <strong>Filename</strong>

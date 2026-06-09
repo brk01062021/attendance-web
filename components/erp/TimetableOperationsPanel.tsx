@@ -15,8 +15,6 @@ import type {
   TimetableVersion,
 } from '@/types/timetable';
 
-type ActiveLiveTimetable = { batchId?: string; published?: boolean; locked?: boolean; message?: string; entries?: { id: string; dayOfWeek: string; periodNumber: number; className: string; section: string; subjectName: string; teacherName: string }[] };
-
 function safeRole(role?: string) {
   return role === 'PRINCIPAL' ? 'PRINCIPAL' : 'ADMIN';
 }
@@ -53,7 +51,6 @@ export default function TimetableOperationsPanel() {
   const [notifications, setNotifications] = useState<TimetableNotification[]>([]);
   const [archives, setArchives] = useState<TimetableArchiveSummary[]>([]);
   const [repairActions, setRepairActions] = useState<string[]>([]);
-  const [activeLive, setActiveLive] = useState<ActiveLiveTimetable | null>(null);
 
   async function loadOperations(targetBatchId = cleanBatchId) {
     if (!targetBatchId) {
@@ -84,19 +81,6 @@ export default function TimetableOperationsPanel() {
     }
   }
 
-  async function loadActivePublishedTimetable() {
-    setLoading(true);
-    try {
-      const live = await apiClient<ActiveLiveTimetable>('/timetable/operations/live', { token, schoolId, query: { role } });
-      setActiveLive(live);
-      if (live.batchId) setBatchId(live.batchId);
-      setMessage(live.message || 'Latest active published timetable loaded.');
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : 'Unable to load active published timetable.');
-    } finally {
-      setLoading(false);
-    }
-  }
 
   async function runAutoRepair() {
     if (!cleanBatchId) return setMessage('Enter batch ID before running Auto Conflict Repair.');
@@ -169,7 +153,7 @@ export default function TimetableOperationsPanel() {
     <section className="space-y-5">
       <div className="rounded-[28px] border border-amber-300/40 bg-slate-950/90 p-6 text-white shadow-xl">
         <p className="text-[11px] font-black uppercase tracking-[0.28em] text-amber-200">Timetable Operations</p>
-        <h2 className="mt-2 text-2xl font-black">Repair, Manual Review, Publish Lock, Export, and Principal Intelligence</h2>
+        <h2 className="mt-2 text-2xl font-black">Repair, Manual Review, Publish Lock, and Rollback</h2>
         <p className="mt-2 max-w-4xl text-sm font-semibold leading-6 text-white/70">{message}</p>
       </div>
 
@@ -202,21 +186,8 @@ export default function TimetableOperationsPanel() {
         <Action title="Manual Edit" body="Open review/edit flow after repair. Manual edits are locked after publish." onClick={() => setMessage('Manual edit is available from the timetable review flow.')} />
         <Action title="Publish Timetable" body="Admin/Principal publish lock after zero blocking conflicts." onClick={runPublishLock} />
         <Action title="Rollback / Unlock" body="Create rollback audit marker and return to review mode." onClick={runRollback} />
-        <Action title="Download PDF" body="Generate PDF timetable export payload." onClick={() => runExport('PDF')} />
-        <Action title="Download Excel" body="Generate Excel-compatible timetable export." onClick={() => runExport('EXCEL')} />
-        <Action title="Active Published Timetable" body="Load latest ACTIVE timetable for Admin/Principal consumption." onClick={loadActivePublishedTimetable} />
-        <Action title="Principal Intelligence" body="Load readiness score, risk teachers, and executive insights." onClick={() => loadOperations()} />
         <Action title="Refresh History" body="Reload publish history, archive, versions, and notifications." onClick={() => loadOperations()} />
       </div>
-
-      {activeLive ? (
-        <div className="grid gap-3 md:grid-cols-4">
-          <Metric label="Active Batch" value={activeLive.batchId || 'NONE'} />
-          <Metric label="Published" value={activeLive.published ? 'YES' : 'NO'} />
-          <Metric label="Locked" value={activeLive.locked ? 'YES' : 'NO'} />
-          <Metric label="Visible Entries" value={String(activeLive.entries?.length || 0)} />
-        </div>
-      ) : null}
 
       {readiness ? (
         <div className="grid gap-4 md:grid-cols-[280px_1fr]">
