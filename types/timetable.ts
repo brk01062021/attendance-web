@@ -96,3 +96,36 @@ export type TimetableRepairResult = {
   publishReady: boolean;
   actions: string[];
 };
+
+
+export type TimetableBatchSummary = {
+  batchId: string;
+  status: string;
+  totalEntries: number;
+  classSections: number;
+  conflicts: number;
+  overloadRiskTeachers: number;
+  completionPercentage: number;
+  lastPublishedAt?: string | null;
+  approvedBy?: string | null;
+  message: string;
+  uploadedAt?: string | null;
+  uploadedBy?: string | null;
+  locked?: boolean | null;
+  latestPublished?: boolean | null;
+  archived?: boolean | null;
+};
+
+export type TimetablePublishAudit = {
+  auditId: string;
+  batchId: string;
+  status: string;
+  publishedAt?: string | null;
+  approvedBy?: string | null;
+  publishedEntries: number;
+  remainingConflicts: number;
+  classSections: number;
+  message: string;
+  previousActiveBatchId?: string | null;
+  newActiveBatchId?: string | null;
+};

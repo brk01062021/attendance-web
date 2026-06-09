@@ -1,14 +1,16 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { getStoredUser } from '@/lib/auth';
 import type {
   PrincipalTimetableIntelligence,
   TimetableArchiveSummary,
+  TimetableBatchSummary,
   TimetableBinaryExportResponse,
   TimetableNotification,
   TimetableOperationsStatus,
+  TimetablePublishAudit,
   TimetablePublishResponse,
   TimetableRepairResult,
   TimetableRolloutReadiness,
@@ -50,7 +52,30 @@ export default function TimetableOperationsPanel() {
   const [versions, setVersions] = useState<TimetableVersion[]>([]);
   const [notifications, setNotifications] = useState<TimetableNotification[]>([]);
   const [archives, setArchives] = useState<TimetableArchiveSummary[]>([]);
+  const [batches, setBatches] = useState<TimetableBatchSummary[]>([]);
+  const [selectedBatch, setSelectedBatch] = useState<TimetableBatchSummary | null>(null);
+  const [publishAudit, setPublishAudit] = useState<TimetablePublishAudit[]>([]);
   const [repairActions, setRepairActions] = useState<string[]>([]);
+
+  async function loadBatchHistory() {
+    try {
+      const [nextBatches, nextArchives, nextAudit] = await Promise.all([
+        apiClient<TimetableBatchSummary[]>('/timetable/operations/batches', { token, schoolId }),
+        apiClient<TimetableArchiveSummary[]>('/timetable/operations/archives', { token, schoolId }),
+        apiClient<TimetablePublishAudit[]>('/timetable/operations/publish-history', { token, schoolId }),
+      ]);
+      setBatches(nextBatches || []);
+      setArchives(nextArchives || []);
+      setPublishAudit(nextAudit || []);
+    } catch {
+      // Keep the loaded batch screen usable even if history is not available.
+    }
+  }
+
+  useEffect(() => {
+    loadBatchHistory();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   async function loadOperations(targetBatchId = cleanBatchId) {
     if (!targetBatchId) {
@@ -59,13 +84,15 @@ export default function TimetableOperationsPanel() {
     }
     setLoading(true);
     try {
-      const [nextStatus, nextReadiness, nextIntelligence, nextVersions, nextNotifications, nextArchives] = await Promise.all([
+      const [nextStatus, nextReadiness, nextIntelligence, nextVersions, nextNotifications, nextArchives, nextSummary, nextPublishAudit] = await Promise.all([
         apiClient<TimetableOperationsStatus>(`/timetable/operations/status/${targetBatchId}`, { token, schoolId }),
         apiClient<TimetableRolloutReadiness>(`/timetable/operations/rollout-readiness/${targetBatchId}`, { token, schoolId }),
         apiClient<PrincipalTimetableIntelligence>('/timetable/operations/principal-analytics', { token, schoolId, query: { batchId: targetBatchId } }),
         apiClient<TimetableVersion[]>(`/timetable/operations/versions/${targetBatchId}`, { token, schoolId }),
         apiClient<TimetableNotification[]>(`/timetable/operations/notifications/${targetBatchId}`, { token, schoolId }),
         apiClient<TimetableArchiveSummary[]>('/timetable/operations/archives', { token, schoolId }),
+        apiClient<TimetableBatchSummary>(`/timetable/operations/batch-summary/${targetBatchId}`, { token, schoolId }),
+        apiClient<TimetablePublishAudit[]>(`/timetable/operations/publish-history/${targetBatchId}`, { token, schoolId }),
       ]);
       setStatus(nextStatus);
       setReadiness(nextReadiness);
@@ -73,6 +100,9 @@ export default function TimetableOperationsPanel() {
       setVersions(nextVersions || []);
       setNotifications(nextNotifications || []);
       setArchives(nextArchives || []);
+      setSelectedBatch(nextSummary);
+      setPublishAudit(nextPublishAudit || []);
+      await loadBatchHistory();
       setMessage('Timetable operations loaded.');
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Unable to load timetable operations. Confirm the batch ID and try again.');
@@ -130,6 +160,26 @@ export default function TimetableOperationsPanel() {
     }
   }
 
+  async function restoreArchivedBatch(targetBatchId: string) {
+    if (!targetBatchId) return;
+    setLoading(true);
+    try {
+      const audit = await apiClient<TimetablePublishAudit>(`/timetable/operations/rollback-to-active/${targetBatchId}`, {
+        method: 'POST',
+        token,
+        schoolId,
+        query: { role, approvedBy: role === 'PRINCIPAL' ? 'Principal' : 'Admin' },
+      });
+      setBatchId(targetBatchId);
+      setMessage(audit.message || 'Previous published batch restored as active timetable.');
+      await loadOperations(targetBatchId);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Unable to restore previous published batch.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function runRollback() {
     if (!cleanBatchId) return setMessage('Enter batch ID before rollback.');
     setLoading(true);
@@ -146,6 +196,20 @@ export default function TimetableOperationsPanel() {
       setMessage(error instanceof Error ? error.message : 'Rollback failed.');
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function openHistoryBatch(targetBatchId: string) {
+    const normalizedBatchId = String(targetBatchId || '').trim().toUpperCase();
+    if (!normalizedBatchId) {
+      setMessage('Selected batch is missing a Batch ID.');
+      return;
+    }
+    setBatchId(normalizedBatchId);
+    setMessage(`Opening batch ${normalizedBatchId}...`);
+    await loadOperations(normalizedBatchId);
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
     }
   }
 
@@ -181,6 +245,26 @@ export default function TimetableOperationsPanel() {
         </div>
       ) : null}
 
+      {selectedBatch ? (
+        <article className="rounded-[24px] border border-amber-200 bg-white/90 p-5 shadow-lg">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-700">Batch Summary</p>
+              <h3 className="mt-1 text-xl font-black text-slate-950">{selectedBatch.batchId}</h3>
+              <p className="mt-1 text-sm font-bold text-slate-600">{selectedBatch.message}</p>
+            </div>
+            <span className="rounded-full bg-slate-950 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-white">{selectedBatch.status}</span>
+          </div>
+          <div className="mt-4 grid gap-3 md:grid-cols-5">
+            <Metric label="Upload Time" value={selectedBatch.uploadedAt ? selectedBatch.uploadedAt.slice(0, 16).replace('T', ' ') : '—'} />
+            <Metric label="Uploaded By" value={selectedBatch.uploadedBy || 'SYSTEM'} />
+            <Metric label="Completion" value={`${selectedBatch.completionPercentage || 0}%`} />
+            <Metric label="Class Sections" value={String(selectedBatch.classSections || 0)} />
+            <Metric label="Status" value={selectedBatch.locked ? 'LOCKED' : 'REVIEW'} />
+          </div>
+        </article>
+      ) : null}
+
       <div className="grid gap-3 md:grid-cols-4">
         <Action title="Auto Conflict Repair" body="Repair teacher overlaps and lab-heavy advisories." onClick={runAutoRepair} />
         <Action title="Manual Edit" body="Open review/edit flow after repair. Manual edits are locked after publish." onClick={() => setMessage('Manual edit is available from the timetable review flow.')} />
@@ -203,12 +287,81 @@ export default function TimetableOperationsPanel() {
       {intelligence ? <ListPanel title={`Principal Timetable Intelligence • ${intelligence.readinessStatus}`} items={intelligence.insights || []} /> : null}
       {repairActions.length ? <ListPanel title="Latest Auto Repair Actions" items={repairActions} /> : null}
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <BatchHistoryTable batches={batches} currentBatchId={cleanBatchId} onOpen={openHistoryBatch} />
+
+      <div className="grid gap-4 lg:grid-cols-2">
+        <ListPanel title="Publish Audit Trail" items={publishAudit.map((item) => `${item.status} • ${item.batchId} • ${item.approvedBy || 'SYSTEM'} • ${item.publishedAt ? item.publishedAt.slice(0, 16).replace('T', ' ') : 'Not published'} • Previous: ${item.previousActiveBatchId || 'None'} → Active: ${item.newActiveBatchId || item.batchId}`)} />
+        <ArchivePanel archives={archives} onRestore={restoreArchivedBatch} />
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-2">
         <ListPanel title="Version / Rollback History" items={versions.map((item) => `V${item.versionNumber} • ${item.changeType} • ${item.createdBy} • ${item.notes}`)} />
         <ListPanel title="Publish Notifications" items={notifications.map((item) => `${item.audience} • ${item.title} • ${item.message}`)} />
-        <ListPanel title="Archive History" items={archives.map((item) => `${item.batchId} • ${item.status} • ${item.entriesCount} entries • ${item.archivedBy}`)} />
       </div>
     </section>
+  );
+}
+
+function BatchHistoryTable({ batches, currentBatchId, onOpen }: { batches: TimetableBatchSummary[]; currentBatchId: string; onOpen: (batchId: string) => void }) {
+  return (
+    <article className="rounded-[24px] border border-amber-200 bg-white/90 p-5 shadow-lg">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-700">Batch History</p>
+          <h3 className="mt-1 text-lg font-black text-slate-950">Open previous, failed, ready, published, or archived timetable batches</h3>
+        </div>
+        <p className="rounded-full bg-amber-100 px-4 py-2 text-xs font-black text-amber-800">{batches.length} batch record(s)</p>
+      </div>
+      <div className="mt-4 overflow-x-auto">
+        <table className="w-full min-w-[860px] overflow-hidden rounded-2xl text-left text-sm">
+          <thead className="bg-slate-950 text-xs uppercase tracking-[0.14em] text-white">
+            <tr>
+              <th className="px-4 py-3">Batch ID</th>
+              <th className="px-4 py-3">Status</th>
+              <th className="px-4 py-3">Entries</th>
+              <th className="px-4 py-3">Conflicts</th>
+              <th className="px-4 py-3">Uploaded By</th>
+              <th className="px-4 py-3">Published</th>
+              <th className="px-4 py-3">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            {batches.length ? batches.map((batch) => (
+              <tr key={batch.batchId} className={batch.batchId === currentBatchId ? 'bg-amber-100/80' : 'border-b border-amber-100 bg-white/70'}>
+                <td className="px-4 py-3 font-black text-slate-950">{batch.batchId}</td>
+                <td className="px-4 py-3 font-bold text-slate-700">{batch.status}</td>
+                <td className="px-4 py-3 font-bold text-slate-700">{batch.totalEntries}</td>
+                <td className="px-4 py-3 font-bold text-slate-700">{batch.conflicts}</td>
+                <td className="px-4 py-3 font-bold text-slate-700">{batch.uploadedBy || 'SYSTEM'}</td>
+                <td className="px-4 py-3 font-bold text-slate-700">{batch.lastPublishedAt ? batch.lastPublishedAt.slice(0, 16).replace('T', ' ') : '—'}</td>
+                <td className="px-4 py-3"><button type="button" onClick={() => onOpen(batch.batchId)} className="rounded-xl bg-slate-950 px-3 py-2 text-xs font-black text-white">Open Batch</button></td>
+              </tr>
+            )) : (
+              <tr><td className="px-4 py-5 text-sm font-bold text-slate-500" colSpan={7}>No timetable batches yet.</td></tr>
+            )}
+          </tbody>
+        </table>
+      </div>
+    </article>
+  );
+}
+
+function ArchivePanel({ archives, onRestore }: { archives: TimetableArchiveSummary[]; onRestore: (batchId: string) => void }) {
+  return (
+    <article className="rounded-[24px] border border-amber-200 bg-white/90 p-5 shadow-lg">
+      <p className="text-sm font-black text-slate-950">Rollback / Archive History</p>
+      <div className="mt-3 space-y-2">
+        {archives.length ? archives.slice(0, 8).map((item) => (
+          <div key={`${item.batchId}-${item.status}`} className="rounded-2xl bg-amber-50/80 px-3 py-3 text-xs font-bold leading-5 text-slate-700">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <span>{item.batchId} • {item.status} • {item.entriesCount} entries • {item.archivedBy}</span>
+              {item.status !== 'ACTIVE' ? <button type="button" onClick={() => onRestore(item.batchId)} className="rounded-xl bg-slate-950 px-3 py-2 text-[11px] font-black text-white">Restore Active</button> : null}
+            </div>
+            <p className="mt-1 text-slate-500">{item.message}</p>
+          </div>
+        )) : <p className="text-sm font-bold text-slate-500">No records yet.</p>}
+      </div>
+    </article>
   );
 }
 

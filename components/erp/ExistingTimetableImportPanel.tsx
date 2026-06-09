@@ -263,36 +263,11 @@ export default function ExistingTimetableImportPanel() {
               <h3 className="text-lg font-black text-amber-100">Uploaded file details</h3>
             </div>
             <div className="grid gap-3 md:grid-cols-5">
-              <div className="status-list">
-                <div className="status-row"><strong>Batch ID</strong><span>{response.importBatchId || 'Not Generated'}</span></div>
-              </div>
-              <div className="status-list">
-                <div className="status-row">
-                  <strong>Filename</strong>
-                  <span
-                    title={response.originalFilename || file?.name || 'Not Available'}
-                    style={{
-                      display: 'inline-block',
-                      maxWidth: '150px',
-                      overflow: 'hidden',
-                      textOverflow: 'ellipsis',
-                      whiteSpace: 'nowrap',
-                      textAlign: 'right',
-                    }}
-                  >
-                    {compactFilename(response.originalFilename || file?.name)}
-                  </span>
-                </div>
-              </div>
-              <div className="status-list">
-                <div className="status-row"><strong>Status</strong><span>{friendlyImportOutcome(response)}</span></div>
-              </div>
-              <div className="status-list">
-                <div className="status-row"><strong>File Size</strong><span>{response.fileSizeBytes ? `${Math.round(response.fileSizeBytes / 1024)} KB` : 'Not Available'}</span></div>
-              </div>
-              <div className="status-list">
-                <div className="status-row"><strong>Upload</strong><span>{response.fileStorageKey ? 'Stored' : 'Pending'}</span></div>
-              </div>
+              <DetailCard label="Batch ID" value={response.importBatchId || 'Not Generated'} />
+              <DetailCard label="Filename" value={compactFilename(response.originalFilename || file?.name)} title={response.originalFilename || file?.name || 'Not Available'} />
+              <DetailCard label="Status" value={friendlyImportOutcome(response)} />
+              <DetailCard label="File Size" value={response.fileSizeBytes ? `${Math.round(response.fileSizeBytes / 1024)} KB` : 'Not Available'} />
+              <DetailCard label="Upload" value={response.fileStorageKey ? 'Stored' : 'Pending'} />
             </div>
           </div>
           <div className="grid gap-3 md:grid-cols-6 mb-4">
@@ -330,6 +305,16 @@ export default function ExistingTimetableImportPanel() {
           </div>
         </section>
       ) : null}
+    </div>
+  );
+}
+
+
+function DetailCard({ label, value, title }: { label: string; value: string; title?: string }) {
+  return (
+    <div className="rounded-2xl border border-amber-200/25 bg-slate-950/35 p-3">
+      <p className="text-[11px] font-black uppercase tracking-[0.14em] text-amber-100">{label}</p>
+      <p title={title || value} className="mt-2 break-words text-sm font-black leading-5 text-white">{value}</p>
     </div>
   );
 }
