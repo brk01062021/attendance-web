@@ -8,6 +8,8 @@ import type {
   TimetableArchiveSummary,
   TimetableBatchSummary,
   TimetableBinaryExportResponse,
+  TimetableEntry,
+  TimetableGenerationResponse,
   TimetableNotification,
   TimetableOperationsStatus,
   TimetablePublishAudit,
@@ -19,6 +21,27 @@ import type {
 
 function safeRole(role?: string) {
   return role === 'PRINCIPAL' ? 'PRINCIPAL' : 'ADMIN';
+}
+
+
+
+function formatStatusLabel(status?: string | null) {
+  if (!status) return 'Review';
+  return status
+    .toLowerCase()
+    .split('_')
+    .filter(Boolean)
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+function getBatchDisplayStatus(batch: TimetableBatchSummary, operationsStatus?: TimetableOperationsStatus | null) {
+  const conflicts = operationsStatus?.conflicts ?? 0;
+  if (batch.status === 'PUBLISHED') return 'PUBLISHED';
+  if (batch.locked) return 'LOCKED';
+  if (conflicts > 0 || batch.status === 'NEEDS_CORRECTION') return 'NEEDS_CORRECTION';
+  if (batch.status === 'READY_TO_PUBLISH') return 'READY_TO_PUBLISH';
+  return batch.status || 'REVIEW';
 }
 
 function downloadBase64File(file: TimetableBinaryExportResponse) {
@@ -56,6 +79,11 @@ export default function TimetableOperationsPanel() {
   const [selectedBatch, setSelectedBatch] = useState<TimetableBatchSummary | null>(null);
   const [publishAudit, setPublishAudit] = useState<TimetablePublishAudit[]>([]);
   const [repairActions, setRepairActions] = useState<string[]>([]);
+  const [manualEditOpen, setManualEditOpen] = useState(false);
+  const [manualEntries, setManualEntries] = useState<TimetableEntry[]>([]);
+  const [selectedEntryId, setSelectedEntryId] = useState('');
+  const selectedEntry = useMemo(() => manualEntries.find((entry) => String(entry.id) === selectedEntryId) || null, [manualEntries, selectedEntryId]);
+  const [editForm, setEditForm] = useState({ teacherName: '', teacherId: '', subjectName: '', roomNumber: '', dayOfWeek: '', periodNumber: '' });
 
   async function loadBatchHistory() {
     try {
@@ -111,6 +139,81 @@ export default function TimetableOperationsPanel() {
     }
   }
 
+
+  async function openManualEdit() {
+    if (!cleanBatchId) return setMessage('Enter or open a batch ID before Manual Edit.');
+    setLoading(true);
+    try {
+      const batch = await apiClient<TimetableGenerationResponse>(`/timetable/operations/manual-edit/${cleanBatchId}`, { token, schoolId });
+      const entries = batch.entries || [];
+      setManualEntries(entries);
+      setManualEditOpen(true);
+      const first = entries[0];
+      if (first) selectManualEntry(first);
+      setMessage('Manual Edit opened. Changes are saved to this batch only until publish.');
+      await loadOperations(cleanBatchId);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Unable to open Manual Edit for this batch.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  function selectManualEntry(entry: TimetableEntry) {
+    setSelectedEntryId(String(entry.id));
+    setEditForm({
+      teacherName: entry.teacherName || '',
+      teacherId: entry.teacherId == null ? '' : String(entry.teacherId),
+      subjectName: entry.subjectName || '',
+      roomNumber: entry.roomNumber || '',
+      dayOfWeek: entry.dayOfWeek || '',
+      periodNumber: entry.periodNumber == null ? '' : String(entry.periodNumber),
+    });
+  }
+
+  async function saveManualEdit() {
+    if (!cleanBatchId || !selectedEntryId) return setMessage('Select a timetable row before saving Manual Edit changes.');
+    setLoading(true);
+    try {
+      const batch = await apiClient<TimetableGenerationResponse>(`/timetable/operations/manual-edit/${cleanBatchId}`, {
+        method: 'POST',
+        token,
+        schoolId,
+        query: { role, editedBy: role === 'PRINCIPAL' ? 'Principal' : 'Admin' },
+        body: JSON.stringify({
+          entryId: selectedEntryId,
+          teacherName: editForm.teacherName,
+          teacherId: editForm.teacherId ? Number(editForm.teacherId) : undefined,
+          subjectName: editForm.subjectName,
+          roomNumber: editForm.roomNumber,
+          dayOfWeek: editForm.dayOfWeek,
+          periodNumber: editForm.periodNumber ? Number(editForm.periodNumber) : undefined,
+        }),
+      });
+      setManualEntries(batch.entries || []);
+      setMessage((batch.conflictsDetected || 0) > 0 ? 'Changes saved to batch. Revalidation found blocking conflicts; publish remains disabled.' : 'Changes saved and revalidated. Batch is ready to publish.');
+      await loadOperations(cleanBatchId);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Manual Edit save failed.');
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function revalidateManualBatch() {
+    if (!cleanBatchId) return setMessage('Open a batch before revalidation.');
+    setLoading(true);
+    try {
+      const batch = await apiClient<TimetableGenerationResponse>(`/timetable/operations/revalidate/${cleanBatchId}`, { method: 'POST', token, schoolId, query: { role } });
+      setManualEntries(batch.entries || []);
+      setMessage((batch.conflictsDetected || 0) > 0 ? 'Batch revalidated. Blocking conflicts remain, so publish is disabled.' : 'Batch revalidated. Ready to publish.');
+      await loadOperations(cleanBatchId);
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : 'Batch revalidation failed.');
+    } finally {
+      setLoading(false);
+    }
+  }
 
   async function runAutoRepair() {
     if (!cleanBatchId) return setMessage('Enter batch ID before running Auto Conflict Repair.');
@@ -253,25 +356,59 @@ export default function TimetableOperationsPanel() {
               <h3 className="mt-1 text-xl font-black text-slate-950">{selectedBatch.batchId}</h3>
               <p className="mt-1 text-sm font-bold text-slate-600">{selectedBatch.message}</p>
             </div>
-            <span className="rounded-full bg-slate-950 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-white">{selectedBatch.status}</span>
+            <span className="rounded-full bg-slate-950 px-4 py-2 text-xs font-black uppercase tracking-[0.12em] text-white">{formatStatusLabel(getBatchDisplayStatus(selectedBatch, status))}</span>
           </div>
           <div className="mt-4 grid gap-3 md:grid-cols-5">
             <Metric label="Upload Time" value={selectedBatch.uploadedAt ? selectedBatch.uploadedAt.slice(0, 16).replace('T', ' ') : '—'} />
             <Metric label="Uploaded By" value={selectedBatch.uploadedBy || 'SYSTEM'} />
             <Metric label="Completion" value={`${selectedBatch.completionPercentage || 0}%`} />
             <Metric label="Class Sections" value={String(selectedBatch.classSections || 0)} />
-            <Metric label="Status" value={selectedBatch.locked ? 'LOCKED' : 'REVIEW'} />
+            <Metric label="Status" value={formatStatusLabel(getBatchDisplayStatus(selectedBatch, status))} />
           </div>
         </article>
       ) : null}
 
       <div className="grid gap-3 md:grid-cols-4">
         <Action title="Auto Conflict Repair" body="Repair teacher overlaps and lab-heavy advisories." onClick={runAutoRepair} />
-        <Action title="Manual Edit" body="Open review/edit flow after repair. Manual edits are locked after publish." onClick={() => setMessage('Manual edit is available from the timetable review flow.')} />
+        <Action title="Manual Edit" body="Open selected batch, edit row values, save to batch, then revalidate." onClick={openManualEdit} />
         <Action title="Publish Timetable" body="Admin/Principal publish lock after zero blocking conflicts." onClick={runPublishLock} />
         <Action title="Rollback / Unlock" body="Create rollback audit marker and return to review mode." onClick={runRollback} />
         <Action title="Refresh History" body="Reload publish history, archive, versions, and notifications." onClick={() => loadOperations()} />
       </div>
+
+      {manualEditOpen ? (
+        <article className="rounded-[24px] border border-amber-200 bg-white/90 p-5 shadow-lg">
+          <div className="flex flex-wrap items-start justify-between gap-3">
+            <div>
+              <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-700">Manual Edit Workflow</p>
+              <h3 className="mt-1 text-xl font-black text-slate-950">Edit batch rows only • Active timetable updates after Publish</h3>
+              <p className="mt-1 text-sm font-bold text-slate-600">Change teacher, subject, room, day, or period. Save edits, revalidate, then publish only when conflicts are zero.</p>
+            </div>
+            <button type="button" onClick={revalidateManualBatch} disabled={loading} className="rounded-2xl bg-amber-600 px-4 py-3 text-xs font-black text-white disabled:opacity-60">Revalidate Batch</button>
+          </div>
+          <div className="mt-4 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+            <div className="max-h-[520px] overflow-auto rounded-2xl border border-amber-100 bg-amber-50/40">
+              {manualEntries.length ? manualEntries.map((entry) => (
+                <button key={String(entry.id)} type="button" onClick={() => selectManualEntry(entry)} className={`block w-full border-b border-amber-100 px-4 py-3 text-left text-xs font-bold ${String(entry.id) === selectedEntryId ? 'bg-amber-200/80 text-slate-950' : 'bg-white/70 text-slate-700'}`}>
+                  <span className="font-black">{entry.className}-{entry.section}</span> • {entry.dayOfWeek} P{entry.periodNumber} • {entry.subjectName} • {entry.teacherName} {entry.conflict ? '• CONFLICT' : ''}
+                </button>
+              )) : <p className="p-4 text-sm font-bold text-slate-500">No timetable entries loaded.</p>}
+            </div>
+            <div className="rounded-2xl border border-amber-100 bg-white p-4">
+              <p className="text-sm font-black text-slate-950">Selected Entry: {selectedEntry ? `${selectedEntry.className}-${selectedEntry.section} ${selectedEntry.dayOfWeek} P${selectedEntry.periodNumber}` : '—'}</p>
+              <div className="mt-3 grid gap-3 md:grid-cols-2">
+                <EditInput label="Teacher" value={editForm.teacherName} onChange={(value) => setEditForm((current) => ({ ...current, teacherName: value }))} />
+                <EditInput label="Teacher ID" value={editForm.teacherId} onChange={(value) => setEditForm((current) => ({ ...current, teacherId: value }))} />
+                <EditInput label="Subject" value={editForm.subjectName} onChange={(value) => setEditForm((current) => ({ ...current, subjectName: value }))} />
+                <EditInput label="Room" value={editForm.roomNumber} onChange={(value) => setEditForm((current) => ({ ...current, roomNumber: value }))} />
+                <EditInput label="Day" value={editForm.dayOfWeek} onChange={(value) => setEditForm((current) => ({ ...current, dayOfWeek: value.toUpperCase() }))} />
+                <EditInput label="Period" value={editForm.periodNumber} onChange={(value) => setEditForm((current) => ({ ...current, periodNumber: value }))} />
+              </div>
+              <button type="button" onClick={saveManualEdit} disabled={loading || !selectedEntryId} className="mt-4 w-full rounded-2xl bg-slate-950 px-4 py-3 text-sm font-black text-white disabled:opacity-60">Save Changes to Batch</button>
+            </div>
+          </div>
+        </article>
+      ) : null}
 
       {readiness ? (
         <div className="grid gap-4 md:grid-cols-[280px_1fr]">
@@ -365,10 +502,20 @@ function ArchivePanel({ archives, onRestore }: { archives: TimetableArchiveSumma
   );
 }
 
+
+function EditInput({ label, value, onChange }: { label: string; value: string; onChange: (value: string) => void }) {
+  return (
+    <label className="text-xs font-black uppercase tracking-[0.12em] text-slate-500">
+      {label}
+      <input value={value} onChange={(event) => onChange(event.target.value)} className="mt-1 w-full rounded-xl border border-amber-200 bg-white px-3 py-2 text-sm font-bold text-slate-900 outline-none focus:border-amber-500" />
+    </label>
+  );
+}
+
 function Metric({ label, value }: { label: string; value: string }) {
   return (
     <article className="rounded-[22px] border border-amber-200 bg-white/90 p-4 shadow-lg">
-      <p className="text-2xl font-black text-slate-950">{value}</p>
+      <p className="break-words text-xl font-black leading-tight text-slate-950 sm:text-2xl">{value}</p>
       <p className="mt-1 text-xs font-black uppercase tracking-[0.16em] text-slate-500">{label}</p>
     </article>
   );

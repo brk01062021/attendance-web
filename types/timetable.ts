@@ -129,3 +129,26 @@ export type TimetablePublishAudit = {
   previousActiveBatchId?: string | null;
   newActiveBatchId?: string | null;
 };
+
+export type TimetableEntry = {
+  id: string;
+  className: string;
+  section: string;
+  subjectName: string;
+  teacherId?: number | null;
+  teacherName: string;
+  dayOfWeek: string;
+  periodNumber: number;
+  roomNumber?: string | null;
+  startTime?: string | null;
+  endTime?: string | null;
+  conflict?: boolean | null;
+};
+
+export type TimetableGenerationResponse = {
+  generatedBatchId: string;
+  completionPercentage: number;
+  totalEntries: number;
+  conflictsDetected: number;
+  entries: TimetableEntry[];
+};
