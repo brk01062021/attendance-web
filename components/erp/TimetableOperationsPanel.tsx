@@ -37,6 +37,7 @@ function formatStatusLabel(status?: string | null) {
 
 function getBatchDisplayStatus(batch: TimetableBatchSummary, operationsStatus?: TimetableOperationsStatus | null) {
   const conflicts = operationsStatus?.conflicts ?? 0;
+  if (batch.status === 'PUBLISHED_ACTIVE') return 'PUBLISHED_ACTIVE';
   if (batch.status === 'PUBLISHED') return 'PUBLISHED';
   if (batch.locked) return 'LOCKED';
   if (conflicts > 0 || batch.status === 'NEEDS_CORRECTION') return 'NEEDS_CORRECTION';
@@ -221,7 +222,7 @@ export default function TimetableOperationsPanel() {
     try {
       const result = await apiClient<TimetableRepairResult>(`/timetable/auto-repair/${cleanBatchId}`, { method: 'POST', token, schoolId });
       setRepairActions(result.actions || []);
-      setMessage(result.publishReady ? 'Auto repair completed. Timetable is publish-ready.' : 'Auto repair completed. Manual review is still recommended.');
+      setMessage(result.publishReady ? 'Auto repair completed with zero conflicts. Click Revalidate Timetable to mark READY_TO_PUBLISH.' : 'Auto repair completed. Run Auto Conflict Repair again or use Manual Edit only for intentional custom changes.');
       await loadOperations(result.batchId || cleanBatchId);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Auto repair failed.');
@@ -232,6 +233,15 @@ export default function TimetableOperationsPanel() {
 
   async function runPublishLock() {
     if (!cleanBatchId) return setMessage('Enter batch ID before publishing.');
+    const conflicts = status?.conflicts ?? selectedBatch?.conflicts ?? 0;
+    const readiness = selectedBatch?.completionPercentage ?? 0;
+    const batchStatus = selectedBatch ? getBatchDisplayStatus(selectedBatch, status) : 'UNKNOWN';
+    if (batchStatus !== 'READY_TO_PUBLISH' || conflicts > 0 || readiness < 100) {
+      setMessage('Publish blocked. Batch must be READY_TO_PUBLISH with 100% readiness and zero errors/conflicts.');
+      return;
+    }
+    const confirmed = window.confirm(`Publish timetable batch ${cleanBatchId}?\n\nStatus: ${batchStatus}\nReadiness: ${readiness}%\nErrors: 0\nConflicts: ${conflicts}\nVersion: V${versions.length + 1}\n\nActive Published Timetable will update only after successful publish.`);
+    if (!confirmed) return;
     setLoading(true);
     try {
       const response = await apiClient<TimetablePublishResponse>(`/timetable/operations/publish-lock/${cleanBatchId}`, {
@@ -265,6 +275,8 @@ export default function TimetableOperationsPanel() {
 
   async function restoreArchivedBatch(targetBatchId: string) {
     if (!targetBatchId) return;
+    const confirmed = window.confirm(`Rollback active timetable to published batch ${targetBatchId}?\n\nThis switches Active Published Timetable to the selected version and keeps all old history.`);
+    if (!confirmed) return;
     setLoading(true);
     try {
       const audit = await apiClient<TimetablePublishAudit>(`/timetable/operations/rollback-to-active/${targetBatchId}`, {
@@ -320,7 +332,7 @@ export default function TimetableOperationsPanel() {
     <section className="space-y-5">
       <div className="rounded-[28px] border border-amber-300/40 bg-slate-950/90 p-6 text-white shadow-xl">
         <p className="text-[11px] font-black uppercase tracking-[0.28em] text-amber-200">Timetable Operations</p>
-        <h2 className="mt-2 text-2xl font-black">Repair, Manual Review, Publish Lock, and Rollback</h2>
+        <h2 className="mt-2 text-2xl font-black">Auto Repair, Revalidate, Publish, and Rollback</h2>
         <p className="mt-2 max-w-4xl text-sm font-semibold leading-6 text-white/70">{message}</p>
       </div>
 
@@ -363,16 +375,19 @@ export default function TimetableOperationsPanel() {
             <Metric label="Uploaded By" value={selectedBatch.uploadedBy || 'SYSTEM'} />
             <Metric label="Completion" value={`${selectedBatch.completionPercentage || 0}%`} />
             <Metric label="Class Sections" value={String(selectedBatch.classSections || 0)} />
+            <Metric label="Errors" value={String(selectedBatch.conflicts || status?.conflicts || 0)} />
+            <Metric label="Version" value={`V${Math.max(1, versions.length + (selectedBatch.latestPublished ? 0 : 1))}`} />
             <Metric label="Status" value={formatStatusLabel(getBatchDisplayStatus(selectedBatch, status))} />
           </div>
         </article>
       ) : null}
 
-      <div className="grid gap-3 md:grid-cols-4">
-        <Action title="Auto Conflict Repair" body="Repair teacher overlaps and lab-heavy advisories." onClick={runAutoRepair} />
+      <div className="grid gap-3 md:grid-cols-5">
+        <Action title="Auto Conflict Repair" body="Resolve teacher day-period conflicts without changing class, section, subject, or teacher ownership." onClick={runAutoRepair} />
+        <Action title="Revalidate Timetable" body="Recalculate conflicts and mark the batch READY_TO_PUBLISH when errors and conflicts are zero." onClick={revalidateManualBatch} />
         <Action title="Manual Edit" body="Open selected batch, edit row values, save to batch, then revalidate." onClick={openManualEdit} />
-        <Action title="Publish Timetable" body="Admin/Principal publish lock after zero blocking conflicts." onClick={runPublishLock} />
-        <Action title="Rollback / Unlock" body="Create rollback audit marker and return to review mode." onClick={runRollback} />
+        <Action title="Publish Confirmation" body="Review batch ID, status, readiness, errors, conflicts, and next version before publishing." onClick={runPublishLock} />
+        <Action title="Rollback / Unlock" body="Create rollback audit marker for batch review. Active rollback is available in archive history." onClick={runRollback} />
         <Action title="Refresh History" body="Reload publish history, archive, versions, and notifications." onClick={() => loadOperations()} />
       </div>
 
@@ -427,12 +442,12 @@ export default function TimetableOperationsPanel() {
       <BatchHistoryTable batches={batches} currentBatchId={cleanBatchId} onOpen={openHistoryBatch} />
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <ListPanel title="Publish Audit Trail" items={publishAudit.map((item) => `${item.status} • ${item.batchId} • ${item.approvedBy || 'SYSTEM'} • ${item.publishedAt ? item.publishedAt.slice(0, 16).replace('T', ' ') : 'Not published'} • Previous: ${item.previousActiveBatchId || 'None'} → Active: ${item.newActiveBatchId || item.batchId}`)} />
+        <ListPanel title="Publish Audit Trail" items={publishAudit.map((item) => `${item.status} • V${item.versionNumber || '-'} • ${item.batchId} • ${item.approvedBy || 'SYSTEM'} • Ready ${item.readinessPercentage ?? '-'}% • Errors ${item.errorCount ?? item.remainingConflicts ?? 0} • Conflicts ${item.remainingConflicts ?? 0} • ${item.publishedAt ? item.publishedAt.slice(0, 16).replace('T', ' ') : 'Not published'} • Previous: ${item.previousActiveBatchId || 'None'} → Active: ${item.newActiveBatchId || item.batchId}`)} />
         <ArchivePanel archives={archives} onRestore={restoreArchivedBatch} />
       </div>
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <ListPanel title="Version / Rollback History" items={versions.map((item) => `V${item.versionNumber} • ${item.changeType} • ${item.createdBy} • ${item.notes}`)} />
+        <ListPanel title="Published Version / Rollback History" items={versions.map((item) => `V${item.versionNumber} • ${item.batchId} • ${item.changeType} • ${item.createdBy} • ${item.createdAt ? item.createdAt.slice(0, 16).replace('T', ' ') : ''} • ${item.notes}`)} />
         <ListPanel title="Publish Notifications" items={notifications.map((item) => `${item.audience} • ${item.title} • ${item.message}`)} />
       </div>
     </section>

@@ -3,7 +3,17 @@
 import { useEffect, useMemo, useState } from 'react';
 import { apiClient } from '@/lib/apiClient';
 import { getStoredUser } from '@/lib/auth';
-import type { TimetableBinaryExportResponse } from '@/types/timetable';
+
+
+type TimetableBinaryExportResponse = {
+  batchId: string;
+  format: 'PDF' | 'EXCEL' | string;
+  fileName: string;
+  contentType: string;
+  base64Content: string;
+  byteSize: number;
+  message: string;
+};
 
 type LiveEntry = {
   id?: string;

@@ -128,6 +128,9 @@ export type TimetablePublishAudit = {
   message: string;
   previousActiveBatchId?: string | null;
   newActiveBatchId?: string | null;
+  versionNumber?: number | null;
+  readinessPercentage?: number | null;
+  errorCount?: number | null;
 };
 
 export type TimetableEntry = {
