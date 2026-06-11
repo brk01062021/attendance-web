@@ -45,6 +45,40 @@ function getBatchDisplayStatus(batch: TimetableBatchSummary, operationsStatus?: 
   return batch.status || 'REVIEW';
 }
 
+
+function displayActorName(actor?: string | null) {
+  const value = String(actor || '').trim();
+  if (!value || value.toUpperCase() === 'SYSTEM') return 'Admin';
+  if (value.toUpperCase() === 'ADMIN') return 'Admin';
+  if (value.toUpperCase() === 'PRINCIPAL') return 'Principal';
+  return value;
+}
+
+function getLifecycleStatus(batch?: TimetableBatchSummary | null, operationsStatus?: TimetableOperationsStatus | null, intelligence?: PrincipalTimetableIntelligence | null) {
+  if (!batch) return intelligence?.readinessStatus || 'REVIEW';
+  if (batch.latestPublished || batch.status === 'PUBLISHED_ACTIVE') return 'PUBLISHED_ACTIVE';
+  if (batch.archived || batch.status === 'ARCHIVED') return 'ARCHIVED';
+  return getBatchDisplayStatus(batch, operationsStatus);
+}
+
+function getBatchSortRank(status?: string | null) {
+  switch (status) {
+    case 'PUBLISHED_ACTIVE': return 0;
+    case 'READY_TO_PUBLISH': return 1;
+    case 'NEEDS_CORRECTION': return 2;
+    case 'PUBLISH_BLOCKED': return 3;
+    case 'ARCHIVED': return 4;
+    default: return 5;
+  }
+}
+
+function shouldShowNotification(item: TimetableNotification, lifecycleStatus: string) {
+  const title = `${item.title || ''} ${item.message || ''}`.toLowerCase();
+  if ((lifecycleStatus === 'READY_TO_PUBLISH' || lifecycleStatus === 'PUBLISHED_ACTIVE' || lifecycleStatus === 'ARCHIVED') && title.includes('needs correction')) return false;
+  if (lifecycleStatus === 'PUBLISHED_ACTIVE' && title.includes('ready for publishing')) return false;
+  return true;
+}
+
 function downloadBase64File(file: TimetableBinaryExportResponse) {
   const byteCharacters = atob(file.base64Content);
   const byteNumbers = Array.from(byteCharacters, (char) => char.charCodeAt(0));
@@ -85,6 +119,12 @@ export default function TimetableOperationsPanel() {
   const [selectedEntryId, setSelectedEntryId] = useState('');
   const selectedEntry = useMemo(() => manualEntries.find((entry) => String(entry.id) === selectedEntryId) || null, [manualEntries, selectedEntryId]);
   const [editForm, setEditForm] = useState({ teacherName: '', teacherId: '', subjectName: '', roomNumber: '', dayOfWeek: '', periodNumber: '' });
+
+  const lifecycleStatus = getLifecycleStatus(selectedBatch, status, intelligence);
+  const visibleNotifications = useMemo(
+    () => (notifications || []).filter((item) => shouldShowNotification(item, lifecycleStatus)),
+    [notifications, lifecycleStatus]
+  );
 
   async function loadBatchHistory() {
     try {
@@ -375,10 +415,10 @@ export default function TimetableOperationsPanel() {
           </div>
           <div className="mt-4 grid gap-3 md:grid-cols-5">
             <Metric label="Upload Time" value={selectedBatch.uploadedAt ? selectedBatch.uploadedAt.slice(0, 16).replace('T', ' ') : '—'} />
-            <Metric label="Uploaded By" value={selectedBatch.uploadedBy || 'SYSTEM'} />
+            <Metric label="Imported By" value={displayActorName(selectedBatch.uploadedBy)} />
             <Metric label="Completion" value={`${selectedBatch.completionPercentage || 0}%`} />
             <Metric label="Class Sections" value={String(selectedBatch.classSections || 0)} />
-            <Metric label="Errors" value={String(selectedBatch.conflicts || status?.conflicts || 0)} />
+            <Metric label="Conflicts" value={String(selectedBatch.conflicts || status?.conflicts || 0)} />
             <Metric label="Version" value={`V${Math.max(1, versions.length + (selectedBatch.latestPublished ? 0 : 1))}`} />
             <Metric label="Status" value={formatStatusLabel(getBatchDisplayStatus(selectedBatch, status))} />
           </div>
@@ -431,15 +471,15 @@ export default function TimetableOperationsPanel() {
       {readiness ? (
         <div className="grid gap-4 md:grid-cols-[280px_1fr]">
           <div className="rounded-[24px] border border-amber-200 bg-white/90 p-5 shadow-lg">
-            <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-700">Rollout Readiness</p>
-            <p className="mt-3 text-4xl font-black text-slate-950">{readiness.readinessScore}%</p>
-            <p className="mt-2 text-sm font-bold text-slate-600">{readiness.readyForRollout ? 'Ready for school rollout.' : 'Review blockers before rollout.'}</p>
+            <p className="text-xs font-black uppercase tracking-[0.18em] text-amber-700">Timetable Lifecycle Status</p>
+            <p className="mt-3 text-3xl font-black leading-tight text-slate-950">{formatStatusLabel(lifecycleStatus)}</p>
+            <p className="mt-2 text-sm font-bold text-slate-600">{readiness.readyForRollout ? 'Ready for school rollout.' : 'Review lifecycle blockers before rollout.'}</p>
           </div>
           <ListPanel title="Readiness Checks" items={[...(readiness.checks || []), ...(readiness.blockers || []).map((item) => `Blocker: ${item}`)]} />
         </div>
       ) : null}
 
-      {intelligence ? <ListPanel title={`Principal Timetable Intelligence • ${intelligence.readinessStatus}`} items={intelligence.insights || []} /> : null}
+      {intelligence ? <ListPanel title={`Principal Timetable Intelligence • ${lifecycleStatus}`} items={intelligence.insights || []} /> : null}
       {repairActions.length ? <ListPanel title="Latest Auto Repair Optimization Actions" items={repairActions} /> : null}
 
       <BatchHistoryTable batches={batches} currentBatchId={cleanBatchId} onOpen={openHistoryBatch} />
@@ -451,7 +491,7 @@ export default function TimetableOperationsPanel() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <ListPanel title="Published Version / Rollback History" items={versions.map((item) => `V${item.versionNumber} • ${item.batchId} • ${item.changeType} • ${item.createdBy} • ${item.createdAt ? item.createdAt.slice(0, 16).replace('T', ' ') : ''} • ${item.notes}`)} />
-        <ListPanel title="Publish Notifications" items={notifications.map((item) => `${item.audience} • ${item.title} • ${item.message}`)} />
+        <ListPanel title="Publish Notifications" items={visibleNotifications.map((item) => `${item.audience} • ${item.title} • ${item.message}`)} />
       </div>
     </section>
   );
@@ -481,13 +521,13 @@ function BatchHistoryTable({ batches, currentBatchId, onOpen }: { batches: Timet
             </tr>
           </thead>
           <tbody>
-            {batches.length ? batches.map((batch) => (
+            {batches.length ? [...batches].sort((left, right) => getBatchSortRank(left.status) - getBatchSortRank(right.status) || String(right.uploadedAt || right.lastPublishedAt || '').localeCompare(String(left.uploadedAt || left.lastPublishedAt || ''))).map((batch) => (
               <tr key={batch.batchId} className={batch.batchId === currentBatchId ? 'bg-amber-100/80' : 'border-b border-amber-100 bg-white/70'}>
                 <td className="px-4 py-3 font-black text-slate-950">{batch.batchId}</td>
                 <td className="px-4 py-3 font-bold text-slate-700">{batch.status}</td>
                 <td className="px-4 py-3 font-bold text-slate-700">{batch.totalEntries}</td>
                 <td className="px-4 py-3 font-bold text-slate-700">{batch.conflicts}</td>
-                <td className="px-4 py-3 font-bold text-slate-700">{batch.uploadedBy || 'SYSTEM'}</td>
+                <td className="px-4 py-3 font-bold text-slate-700">{displayActorName(batch.uploadedBy)}</td>
                 <td className="px-4 py-3 font-bold text-slate-700">{batch.lastPublishedAt ? batch.lastPublishedAt.slice(0, 16).replace('T', ' ') : '—'}</td>
                 <td className="px-4 py-3"><button type="button" onClick={() => onOpen(batch.batchId)} className="rounded-xl bg-slate-950 px-3 py-2 text-xs font-black text-white">Open Batch</button></td>
               </tr>
