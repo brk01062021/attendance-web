@@ -222,7 +222,7 @@ export default function TimetableOperationsPanel() {
     try {
       const result = await apiClient<TimetableRepairResult>(`/timetable/auto-repair/${cleanBatchId}`, { method: 'POST', token, schoolId });
       setRepairActions(result.actions || []);
-      setMessage(result.publishReady ? 'Auto repair completed with zero conflicts. Click Revalidate Timetable to mark READY_TO_PUBLISH.' : 'Auto repair completed. Run Auto Conflict Repair again or use Manual Edit only for intentional custom changes.');
+      setMessage((result.actions || []).slice(-1)[0] || (result.publishReady ? 'Auto Conflict Repair completed successfully. Revalidate to mark READY_TO_PUBLISH.' : 'Auto Conflict Repair attempted. Run again if conflicts remain; Manual Edit is only for intentional Admin/Principal customization.'));
       await loadOperations(result.batchId || cleanBatchId);
     } catch (error) {
       setMessage(error instanceof Error ? error.message : 'Auto repair failed.');
@@ -332,8 +332,11 @@ export default function TimetableOperationsPanel() {
     <section className="space-y-5">
       <div className="rounded-[28px] border border-amber-300/40 bg-slate-950/90 p-6 text-white shadow-xl">
         <p className="text-[11px] font-black uppercase tracking-[0.28em] text-amber-200">Timetable Operations</p>
-        <h2 className="mt-2 text-2xl font-black">Auto Repair, Revalidate, Publish, and Rollback</h2>
+        <h2 className="mt-2 text-2xl font-black">Auto Conflict Repair, Revalidate, Publish, and Rollback</h2>
         <p className="mt-2 max-w-4xl text-sm font-semibold leading-6 text-white/70">{message}</p>
+        <p className="mt-3 max-w-4xl text-xs font-bold leading-5 text-amber-100/80">
+          Existing timetable repair uses same-day period reshuffling inside affected class timetables. It preserves teacher, subject, class, and section ownership; only period placement changes after conflict simulation.
+        </p>
       </div>
 
       <div className="grid gap-4 rounded-[24px] border border-amber-200/70 bg-white/90 p-5 shadow-lg md:grid-cols-[1fr_auto]">
@@ -383,9 +386,9 @@ export default function TimetableOperationsPanel() {
       ) : null}
 
       <div className="grid gap-3 md:grid-cols-5">
-        <Action title="Auto Conflict Repair" body="Resolve teacher day-period conflicts without changing class, section, subject, or teacher ownership." onClick={runAutoRepair} />
+        <Action title="Auto Repair & Optimize" body="Run timetable-wide conflict resolution. Simulates legal moves/swaps, preserves teacher/class/subject ownership, and applies only improvements." onClick={runAutoRepair} />
         <Action title="Revalidate Timetable" body="Recalculate conflicts and mark the batch READY_TO_PUBLISH when errors and conflicts are zero." onClick={revalidateManualBatch} />
-        <Action title="Manual Edit" body="Open selected batch, edit row values, save to batch, then revalidate." onClick={openManualEdit} />
+        <Action title="Manual Edit" body="Intentional Admin/Principal customization only after auto optimization; save row changes, then revalidate." onClick={openManualEdit} />
         <Action title="Publish Confirmation" body="Review batch ID, status, readiness, errors, conflicts, and next version before publishing." onClick={runPublishLock} />
         <Action title="Rollback / Unlock" body="Create rollback audit marker for batch review. Active rollback is available in archive history." onClick={runRollback} />
         <Action title="Refresh History" body="Reload publish history, archive, versions, and notifications." onClick={() => loadOperations()} />
@@ -437,7 +440,7 @@ export default function TimetableOperationsPanel() {
       ) : null}
 
       {intelligence ? <ListPanel title={`Principal Timetable Intelligence • ${intelligence.readinessStatus}`} items={intelligence.insights || []} /> : null}
-      {repairActions.length ? <ListPanel title="Latest Auto Repair Actions" items={repairActions} /> : null}
+      {repairActions.length ? <ListPanel title="Latest Auto Repair Optimization Actions" items={repairActions} /> : null}
 
       <BatchHistoryTable batches={batches} currentBatchId={cleanBatchId} onOpen={openHistoryBatch} />
 
