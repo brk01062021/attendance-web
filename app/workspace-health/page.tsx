@@ -148,6 +148,27 @@ function activatedAtLabel(summary?: ActivationSummary | null) {
   return isActive(summary) && summary?.activatedAt ? formatDate(summary.activatedAt) : 'Not activated';
 }
 
+function activationActionLabel(summary: ActivationSummary, intel?: WorkbookErrorIntelligence | null) {
+  if (isActive(summary)) return 'Workspace Active';
+  if (summary.importCommitted && summary.readinessPercent >= 100 && !summary.readyForActivation) return 'Workbook Commit Complete';
+  if (summary.readyForActivation) return summary.activationButtonLabel || 'Activate Workspace';
+  if (intel?.activationBlocked) return 'Resolve Workbook Errors First';
+  return summary.importCommitted ? 'Activation Pending' : 'Workbook Commit Pending';
+}
+
+function workbookStatusTitle(summary: ActivationSummary, intel?: WorkbookErrorIntelligence | null) {
+  if (isActive(summary)) return 'Workbook Imported';
+  if (summary.importCommitted) return 'Workbook Commit Complete';
+  if (!intel?.activationBlocked && (intel?.totalErrors || 0) === 0) return 'Workbook Ready To Import';
+  return 'Workbook Validation Required';
+}
+
+function workbookStatusMessage(summary: ActivationSummary, intel?: WorkbookErrorIntelligence | null) {
+  if (isActive(summary)) return 'Validation passed, workbook committed, and workspace is active.';
+  if (summary.importCommitted) return 'Validation passed and workbook commit is complete.';
+  if (!intel?.activationBlocked && (intel?.totalErrors || 0) === 0) return 'Workbook is ready to commit.';
+  return 'Resolve workbook validation issues before activation.';
+}
 
 function normalizedGroupText(group: WorkbookErrorGroup) {
   return `${group.category || ''} ${group.title || ''}`.toUpperCase();
@@ -362,7 +383,7 @@ export default function WorkspaceHealthPage() {
               <p><strong>Lifecycle</strong><br />{statusLabel(summary.tenantLifecycleStatus || summary.activationStatus)}</p>
               <div className="actions">
                 <button className={`primary ${!summary.readyForActivation ? 'pending' : ''}`} disabled={!summary.readyForActivation || activating} onClick={handleActivate}>
-                  {activating ? 'Checking...' : (summary.readyForActivation ? (summary.activationButtonLabel || 'Activate Workspace') : (errorIntel?.activationBlocked ? 'Resolve Workbook Errors First' : 'Workbook Commit Pending'))}
+                  {activating ? 'Checking...' : activationActionLabel(summary, errorIntel)}
                 </button>
               </div>
             </div>
@@ -384,9 +405,9 @@ export default function WorkspaceHealthPage() {
             <section className="glass-panel premium-panel erp-section panel">
               <p className="section-eyebrow">Workbook Status</p>
               <div className="tri-grid" style={{ marginBottom: 14 }}>
-                <div className="health-card"><span className="status-pill error">{statusLabel(errorIntel.status)}</span><strong style={{ marginTop: 10 }}>Workbook Validation Required</strong><p>Resolve workbook validation issues before activation.</p></div>
+                <div className="health-card"><span className={`status-pill ${errorIntel.activationBlocked ? 'error' : ''}`}>{statusLabel(isActive(summary) ? 'COMMITTED' : errorIntel.status)}</span><strong style={{ marginTop: 10 }}>{workbookStatusTitle(summary, errorIntel)}</strong><p>{workbookStatusMessage(summary, errorIntel)}</p></div>
                 <div className="health-card"><strong>Total Errors</strong><p>{errorIntel.totalErrors}</p><strong style={{ marginTop: 10 }}>Total Warnings</strong><p>{errorIntel.totalWarnings}</p></div>
-                <div className="health-card"><strong>Workbook File</strong><p>{errorIntel.fileName ? 'Latest upload available' : 'Not available'}</p><strong style={{ marginTop: 10 }}>Activation Status</strong><p>{errorIntel.activationBlocked ? 'Blocked' : 'Ready'}</p></div>
+                <div className="health-card"><strong>Workbook File</strong><p>{errorIntel.fileName ? (summary.importCommitted ? 'Latest committed workbook available' : 'Latest upload available') : 'Not available'}</p><strong style={{ marginTop: 10 }}>Activation Status</strong><p>{isActive(summary) ? 'Complete' : (errorIntel.activationBlocked ? 'Blocked' : 'Ready')}</p></div>
               </div>
 
               <div className="health-grid" style={{ marginBottom: 14 }}>

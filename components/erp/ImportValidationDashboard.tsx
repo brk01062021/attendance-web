@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from 'react';
 import {
+  clearInactiveImportHistory,
   commitImportWorkbook,
   day28SampleSheets,
   getImportHistory,
@@ -169,6 +170,30 @@ export default function ImportValidationDashboard() {
       setMessage(toSafeImportMessage(error, 'Workbook import could not be rolled back.'));
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function clearOldImports() {
+    const committedCount = uploadHistory.filter((item) => item.committed).length;
+    const inactiveCount = uploadHistory.filter((item) => !item.committed).length;
+    if (inactiveCount === 0) {
+      setMessage('No old blocked, rolled back, or uncommitted imports are available to clear.');
+      return;
+    }
+    if (committedCount === 0) {
+      setMessage('Commit one clean workbook before clearing old import history.');
+      return;
+    }
+    setHistoryLoading(true);
+    setMessage(null);
+    try {
+      const result = await clearInactiveImportHistory();
+      setMessage(result.message || `Cleared ${result.clearedCount} old import record(s).`);
+      await loadHistory();
+    } catch (error) {
+      setMessage(toSafeImportMessage(error, 'Old import history could not be cleared.'));
+    } finally {
+      setHistoryLoading(false);
     }
   }
 
@@ -391,8 +416,16 @@ export default function ImportValidationDashboard() {
       ) : null}
 
       <section className="rounded-[2rem] border border-amber-100/60 bg-white/82 p-6 shadow-lg shadow-amber-900/5">
-        <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">Upload History</p>
-        <h3 className="mt-2 text-xl font-black text-slate-950">Workbook Import History</h3>
+        <div className="flex flex-wrap items-start justify-between gap-3">
+          <div>
+            <p className="text-xs font-black uppercase tracking-[0.25em] text-amber-700">Upload History</p>
+            <h3 className="mt-2 text-xl font-black text-slate-950">Workbook Import History</h3>
+            <p className="mt-2 text-sm font-semibold text-slate-600">Committed workbook audit records are preserved. Old blocked, rolled back, and uncommitted imports can be cleared after a clean commit.</p>
+          </div>
+          <button type="button" onClick={clearOldImports} disabled={historyLoading || uploadHistory.filter((item) => item.committed).length === 0 || uploadHistory.filter((item) => !item.committed).length === 0} className="rounded-2xl bg-rose-50 px-4 py-3 text-xs font-black uppercase tracking-[0.12em] text-rose-700 disabled:cursor-not-allowed disabled:opacity-50">
+            Clear Old Imports
+          </button>
+        </div>
         {historyError && uploadHistory.length === 0 ? <p className="mt-3 rounded-2xl bg-amber-50 p-3 text-sm font-bold text-amber-800">{historyError}</p> : null}
         <div className="mt-5 overflow-hidden rounded-2xl border border-slate-200/70">
           <table className="w-full text-left text-sm">
@@ -410,7 +443,7 @@ export default function ImportValidationDashboard() {
                     <div className="flex flex-wrap items-center gap-2">
                       <button type="button" onClick={() => openHistoryReport(item.uploadId)} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">View Report</button>
                       {isCommitReadyStatus(item.status) && !item.committed && !item.rolledBack && item.errorCount === 0 ? <button type="button" onClick={() => commitUpload(item.uploadId)} className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">Commit</button> : null}
-                      {!item.rolledBack ? <button type="button" onClick={() => rollbackUpload(item.uploadId)} className="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-800">Rollback</button> : null}
+                      {!item.rolledBack && !item.committed ? <button type="button" onClick={() => rollbackUpload(item.uploadId)} className="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-800">Rollback</button> : null}
                     </div>
                   </td>
                 </tr>

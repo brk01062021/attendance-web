@@ -88,6 +88,13 @@ export type ImportUploadHistoryRow = {
   uploadedAt: string;
 };
 
+
+export type ClearImportHistoryResponse = {
+  schoolId: string;
+  clearedCount: number;
+  message: string;
+};
+
 export type ImportCommitResponse = {
   uploadId: number;
   schoolId: string;
@@ -192,6 +199,13 @@ export async function rollbackImportWorkbook(uploadId: number) {
   const schoolId = user?.schoolId || 'BRK1';
   const result = await webApi.rollbackImportWorkbook<{ data?: ImportCommitResponse } | ImportCommitResponse>(uploadId, schoolId, user?.token);
   return unwrap<ImportCommitResponse>(result);
+}
+
+export async function clearInactiveImportHistory() {
+  const user = getStoredUser();
+  const schoolId = user?.schoolId || 'BRK1';
+  const result = await webApi.clearInactiveImportHistory<{ data?: ClearImportHistoryResponse } | ClearImportHistoryResponse>(schoolId, user?.token);
+  return unwrap<ClearImportHistoryResponse>(result);
 }
 
 

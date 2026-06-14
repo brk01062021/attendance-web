@@ -149,6 +149,8 @@ export const webApi = {
     apiClient<T>('/imports/workbooks/upload', { method: 'POST', token, schoolId, body: formData }),
   importWorkbookHistory: <T>(schoolId: string, token?: string) =>
     apiClient<T>('/imports/workbooks/history', { token, schoolId, query: { schoolId } }),
+  clearInactiveImportHistory: <T>(schoolId: string, token?: string) =>
+    apiClient<T>('/imports/workbooks/history/inactive', { method: 'DELETE', token, schoolId, query: { schoolId } }),
   importWorkbookPreview: <T>(uploadId: number, schoolId: string, token?: string) =>
     apiClient<T>(`/imports/workbooks/${uploadId}/preview`, { token, schoolId, query: { schoolId } }),
   commitImportWorkbook: <T>(uploadId: number, schoolId: string, token?: string) =>
