@@ -124,6 +124,10 @@ export const webApi = {
   },
   timetableRoleNotifications: <T>(role: string, token?: string, schoolId?: string) =>
     apiClient<T>('/timetable/role-notifications', { token, schoolId, query: { role } }),
+  generateUsersFromCommittedWorkbook: <T>(schoolId: string, token?: string) =>
+    apiClient<T>('/api/user-provisioning/generate', { method: 'POST', token, schoolId, query: { schoolId } }),
+  userProvisioningSummary: <T>(schoolId: string, token?: string) =>
+    apiClient<T>('/api/user-provisioning/summary', { token, schoolId, query: { schoolId } }),
 
   validateMissedAttendanceRecovery: <T>(formData: FormData, token?: string, schoolId?: string, uploadedBy?: string) =>
     apiClient<T>('/attendance/recovery/validate', { method: 'POST', token, schoolId, query: { schoolId, uploadedBy }, body: formData }),
