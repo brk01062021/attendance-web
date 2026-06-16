@@ -67,6 +67,11 @@ const quickActions = [
     href: "/school-notices",
     description: "Create and publish school-wide announcements",
   },
+  {
+    title: "School Activities & Memories",
+    href: "/school-activities",
+    description: "Private school activity feed, gallery and memories timeline",
+  },
 ];
 
 export default function Home() {

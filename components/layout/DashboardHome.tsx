@@ -17,6 +17,7 @@ const roleCopy = {
       ['/reports/teachers', '👨‍🏫', 'Teacher Reports', 'Review teacher workload, leave, submissions, and replacement records.'],
       ['/timetable/operations', '🕒', 'Timetable Operations', 'Review, repair, publish, and manage timetable batches.'],
       ['/school-notices', '📣', 'School Notices', 'Create academic, holiday, and operational notices.'],
+      ['/school-activities', '🎉', 'School Activities', 'Publish school events, achievements, gallery posts and memories.'],
     ],
     secondaryActions: [
       ['/school-intelligence', '🧠', 'School Intelligence', 'Executive operational insights.'],
@@ -41,6 +42,7 @@ const roleCopy = {
       ['/reports/teachers', '👨‍🏫', 'Teacher Reports', 'Review teacher workload, leaves, and replacement load.'],
       ['/analytics', '📈', 'Operational Analytics', 'Compare attendance trends, sections, and risk signals.'],
       ['/school-notices', '📣', 'Create School Notice', 'Publish announcements, holidays, and academic alerts.'],
+      ['/school-activities', '🎉', 'School Activities', 'Approve, publish and review activity feed posts.'],
     ],
     secondaryActions: [
       ['/timetable/operations', '🕒', 'Timetable Operations', 'Review and publish timetable batches.'],
@@ -61,6 +63,7 @@ const roleCopy = {
       ['/teacher/attendance-bulk', '✅', 'Recover Missed Attendance', 'Submit missed attendance records for recent working days from web.'],
       ['/teacher/timetable', '📅', 'My Timetable', 'View today schedule, periods, and replacement responsibilities.'],
       ['/teacher/classes', '🏫', 'My Classes', 'View assigned classes, sections, and subjects.'],
+      ['/school-activities/create', '🖼️', 'Create Activity', 'Create classroom events and submit memories for approval.'],
     ],
     secondaryActions: [
       ['/teacher/results', '🧾', 'Results Submission', 'Enter exam results when enabled.'],
@@ -79,6 +82,7 @@ const roleCopy = {
       ['/student/timetable', '🕒', 'My Timetable', 'View published class timetable and holiday changes.'],
       ['/student/results', '📘', 'Exam Results', 'Review subject marks, grades, and academic progress.'],
       ['/student/notices', '📣', 'School Notices', 'Read announcements, holidays, and academic calendar updates.'],
+      ['/school-activities', '🎉', 'School Activities', 'View school activities, gallery posts and memories.'],
     ],
     secondaryActions: [
       ['/student', '📝', 'Assignments', 'View homework summary when enabled.'],
@@ -98,6 +102,7 @@ const roleCopy = {
       ['/student/attendance', '📊', 'Child Attendance', 'Check attendance percentage and recent attendance updates.'],
       ['/student/results', '📘', 'Exam Results', 'Review subject marks, grades, and academic progress.'],
       ['/student/notices', '📣', 'School Notices', 'Read announcements, holidays, and academic calendar updates.'],
+      ['/school-activities', '🎉', 'School Activities', 'View school activities, gallery posts and memories.'],
     ],
     secondaryActions: [
       ['/parent', '📅', 'Today Schedule', "Open the child timetable and check today's periods."],
