@@ -92,6 +92,33 @@ export default function ActivityFeedPanel({ role, schoolId = "TST2" }: Props) {
     role === "ADMIN" || role === "PRINCIPAL" || role === "TEACHER";
   const canApprove = role === "ADMIN" || role === "PRINCIPAL";
 
+  const heroPillStyle: CSSProperties = {
+  height: 42,
+  minWidth: 118,
+  padding: "0 20px",
+  borderRadius: 999,
+  display: "inline-flex",
+  alignItems: "center",
+  justifyContent: "center",
+  fontWeight: 900,
+  fontSize: 14,
+  lineHeight: 1,
+  textDecoration: "none",
+  whiteSpace: "nowrap",
+  border: "1px solid rgba(255,255,255,.28)",
+  background: "rgba(255,255,255,.12)",
+  color: "#fff",
+};
+
+const heroGoldPillStyle: CSSProperties = {
+  ...heroPillStyle,
+  minWidth: 130,
+  background: "linear-gradient(135deg, #f5bc42, #ffd76a)",
+  color: "#10223a",
+  borderColor: "rgba(255,255,255,.38)",
+  boxShadow: "0 14px 34px rgba(245,188,66,.28)",
+};
+
   async function hydrateMedia(list: Activity[]) {
     return Promise.all(
       list.map(async (activity) => {
@@ -389,29 +416,38 @@ export default function ActivityFeedPanel({ role, schoolId = "TST2" }: Props) {
       <section className="activity-hero">
         <div>
           <p className="eyebrow">School Activities & Memories</p>
-          <h1>Private school activity feed</h1>
+          <h1>School Activity Feed</h1>
           <p>
             Share celebrations, classroom events, achievements and school
             memories with tenant-safe visibility for students and parents.
           </p>
         </div>
-        <div className="activity-actions">
-          <a className="secondary-action" href="#gallery">
+        <nav className="activity-actions" aria-label="Activities shortcuts">
+          <a
+  className="activity-hero-pill"
+  style={heroPillStyle}
+  href="#gallery"
+>
             Gallery
           </a>
-          <a className="secondary-action" href="#memories">
+          <a
+  className="activity-hero-pill"
+  style={heroPillStyle}
+  href="#memories"
+>
             Memories
           </a>
           {canCreate ? (
             <Link
-              className="primary-action create-new-action"
-              href="/school-activities/create"
-              aria-label="Create new activity"
-            >
+  className="activity-hero-pill activity-hero-pill-gold"
+  style={heroGoldPillStyle}
+  href="/school-activities/create"
+  aria-label="Create new activity"
+>
               Create New
             </Link>
           ) : null}
-        </div>
+        </nav>
       </section>
       <section className="activity-stats">
         <div>
@@ -762,44 +798,71 @@ export default function ActivityFeedPanel({ role, schoolId = "TST2" }: Props) {
           line-height: 1.6;
         }
         .activity-actions {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-          align-items: center;
-          justify-content: flex-end;
-          align-self: flex-start;
-          margin-top: 52px;
-          min-width: 330px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+  justify-content: flex-end;
+  align-self: flex-start;
+  min-width: 390px;
+}
+        .activity-actions > a {
+          height: 42px !important;
+          min-width: 118px !important;
+          padding: 0 20px !important;
+          border-radius: 999px !important;
+          display: inline-flex !important;
+          align-items: center !important;
+          justify-content: center !important;
+          text-decoration: none !important;
+          font-weight: 900 !important;
         }
+        .activity-hero-pill,
         .primary-action,
         .secondary-action {
-          border: 0;
+          min-height: 42px;
+          border: 1px solid rgba(255, 255, 255, 0.28);
           border-radius: 999px;
-          padding: 12px 18px;
-          font-weight: 900;
-          text-decoration: none;
-          cursor: pointer;
-          white-space: nowrap;
-        }
-        .primary-action {
-          background: #f5bc42;
-          color: #10223a;
-        }
-        .create-new-action {
-          background: linear-gradient(135deg, #f5bc42, #ffd76a) !important;
-          color: #10223a !important;
-          border: 1px solid rgba(255, 255, 255, 0.35) !important;
-          box-shadow: 0 14px 34px rgba(245, 188, 66, 0.28) !important;
-          padding: 13px 22px !important;
-          min-width: 128px;
-          text-align: center;
+          padding: 0 20px;
           display: inline-flex;
           align-items: center;
           justify-content: center;
+          font-weight: 900;
+          font-size: 14px;
+          line-height: 1;
+          text-decoration: none;
+          cursor: pointer;
+          white-space: nowrap;
+          transition:
+            transform 0.18s ease,
+            box-shadow 0.18s ease,
+            background-color 0.18s ease,
+            border-color 0.18s ease;
         }
-        .create-new-action:hover {
+        .activity-hero-pill {
+          min-width: 118px;
+          background: rgba(255, 255, 255, 0.12);
+          color: white;
+          box-shadow: 0 10px 26px rgba(8, 18, 32, 0.14);
+        }
+        .activity-hero-pill:hover,
+        .primary-action:hover,
+        .secondary-action:hover {
           transform: translateY(-1px);
-          box-shadow: 0 18px 42px rgba(245, 188, 66, 0.36) !important;
+          background: rgba(255, 255, 255, 0.18);
+          box-shadow: 0 16px 36px rgba(8, 18, 32, 0.2);
+        }
+        .activity-hero-pill-gold,
+        .primary-action {
+          background: linear-gradient(135deg, #f5bc42, #ffd76a);
+          color: #10223a;
+          border-color: rgba(255, 255, 255, 0.38);
+          box-shadow: 0 14px 34px rgba(245, 188, 66, 0.28);
+        }
+        .activity-hero-pill-gold:hover,
+        .primary-action:hover {
+          background: linear-gradient(135deg, #f5bc42, #ffe08a);
+          box-shadow: 0 18px 42px rgba(245, 188, 66, 0.36);
         }
         .secondary-action {
           background: rgba(255, 255, 255, 0.12);
@@ -1145,7 +1208,7 @@ export default function ActivityFeedPanel({ role, schoolId = "TST2" }: Props) {
             min-width: 0;
             margin-top: 0;
           }
-          .create-new-action {
+          .activity-hero-pill-gold {
             min-width: 140px;
           }
           .activity-stats {
