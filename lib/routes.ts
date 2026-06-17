@@ -42,6 +42,7 @@ export const portalRoutes: PortalRoute[] = [
   { icon: '🧩', label: 'Teacher Assignments', href: '/teacher-assignments', description: 'Class mapping', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
   { icon: '🎌', label: 'Holiday Calendar', href: '/holiday-calendar', description: 'Calendar overrides', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
   { icon: '🎉', label: 'School Activities', href: '/school-activities', description: 'Feed, gallery and memories', roles: ['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT'], group: 'Daily Work' },
+  { icon: '📝', label: 'Activity Approvals', href: '/school-activities/approvals', description: 'Review media and approve activities', roles: ['ADMIN', 'PRINCIPAL'], group: 'Daily Work' },
   { icon: '📣', label: 'Create Notice', href: '/school-notices', description: 'Announcements', roles: ['ADMIN', 'PRINCIPAL'], group: 'Daily Work' },
   { icon: '🛡️', label: 'System Operations', href: '/production-hardening', description: 'Role Access Control', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
 ];

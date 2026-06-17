@@ -18,6 +18,7 @@ const roleCopy = {
       ['/timetable/operations', '🕒', 'Timetable Operations', 'Review, repair, publish, and manage timetable batches.'],
       ['/school-notices', '📣', 'School Notices', 'Create academic, holiday, and operational notices.'],
       ['/school-activities', '🎉', 'School Activities', 'Publish school events, achievements, gallery posts and memories.'],
+      ['/school-activities/approvals', '📝', 'Activity Approvals', 'Review teacher-submitted media and publish activities.'],
     ],
     secondaryActions: [
       ['/school-intelligence', '🧠', 'School Intelligence', 'Executive operational insights.'],
@@ -43,6 +44,7 @@ const roleCopy = {
       ['/analytics', '📈', 'Operational Analytics', 'Compare attendance trends, sections, and risk signals.'],
       ['/school-notices', '📣', 'Create School Notice', 'Publish announcements, holidays, and academic alerts.'],
       ['/school-activities', '🎉', 'School Activities', 'Approve, publish and review activity feed posts.'],
+      ['/school-activities/approvals', '📝', 'Activity Approvals', 'Review media, approve, reject, and publish teacher submissions.'],
     ],
     secondaryActions: [
       ['/timetable/operations', '🕒', 'Timetable Operations', 'Review and publish timetable batches.'],

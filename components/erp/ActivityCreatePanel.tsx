@@ -38,6 +38,7 @@ export default function ActivityCreatePanel({ role, schoolId = 'TST2' }: Props) 
   const [submitAfterCreate, setSubmitAfterCreate] = useState(role === 'TEACHER');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState('');
+  const [mediaFiles, setMediaFiles] = useState<FileList | null>(null);
 
   const selectedVisibility = visibilityOptions.find((item) => item.value === visibilityType);
 
@@ -81,6 +82,10 @@ export default function ActivityCreatePanel({ role, schoolId = 'TST2' }: Props) 
       };
 
       const created = role === 'TEACHER' ? await activityApi.teacherCreate(schoolId, payload) : await activityApi.create(schoolId, payload);
+
+      if (created?.id && mediaFiles?.length) {
+        await activityApi.uploadMedia(schoolId, created.id, mediaFiles);
+      }
 
       if (submitAfterCreate && created?.id) {
         await activityApi.submit(schoolId, created.id, role === 'TEACHER');
@@ -145,6 +150,12 @@ export default function ActivityCreatePanel({ role, schoolId = 'TST2' }: Props) 
             <input value={studentIds} onChange={(event) => setStudentIds(event.target.value)} placeholder="Example: ST1019, ST1044" />
           </label>
         ) : null}
+
+        <label>
+          Activity Media
+          <input type="file" multiple accept="image/*,video/*" onChange={(event) => setMediaFiles(event.target.files)} />
+          <small>Optional media upload. Photos and videos are uploaded immediately after activity save.</small>
+        </label>
 
         {role === 'TEACHER' ? (
           <label className="checkbox-row">
