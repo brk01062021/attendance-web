@@ -6,8 +6,8 @@ import { financeApi, type FeeReminderHistory, type FeeReminderPreview, type FeeR
 
 const card: CSSProperties = { border: '1px solid rgba(15, 23, 42, 0.12)', borderRadius: 18, padding: 18, background: 'rgba(255,255,255,0.94)', boxShadow: '0 12px 28px rgba(15,23,42,0.08)' };
 const stat: CSSProperties = { ...card, padding: 14, minHeight: 88 };
-const th: CSSProperties = { textAlign: 'left', padding: '10px 12px', fontSize: 12, color: '#475569', borderBottom: '1px solid #e2e8f0' };
-const td: CSSProperties = { padding: '10px 12px', fontSize: 13, borderBottom: '1px solid #f1f5f9', verticalAlign: 'top' };
+const th: CSSProperties = { textAlign: 'left', padding: '10px 12px', fontSize: 12, color: '#334155', borderBottom: '1px solid #e2e8f0', background: '#f8fafc' };
+const td: CSSProperties = { padding: '10px 12px', fontSize: 13, borderBottom: '1px solid #f1f5f9', verticalAlign: 'top', color: '#0f172a' };
 
 function statusColor(status?: string) {
   if (status === 'READY' || status === 'SENT') return '#166534';

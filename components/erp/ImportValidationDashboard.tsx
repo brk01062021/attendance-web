@@ -158,6 +158,22 @@ export default function ImportValidationDashboard() {
     }
   }
 
+  async function recommitUpload(uploadId: number) {
+    setLoading(true);
+    setMessage(null);
+    try {
+      const result = await commitImportWorkbook(uploadId);
+      setUploadHistory((current) => current.map((item) => item.uploadId === uploadId ? { ...item, status: result.status, committed: result.committed, rolledBack: result.rolledBack, stagedRowCount: result.stagedRowCount ?? item.stagedRowCount, lifecycleMessage: result.lifecycleMessage || item.lifecycleMessage, importBatchId: result.importBatchId || item.importBatchId } : item));
+      setMessage(result.message || 'Workbook recommit completed. Existing staged workbook data was reprocessed into operational tables.');
+      await loadHistory();
+      if (activeReportId === uploadId) await openHistoryReport(uploadId);
+    } catch (error) {
+      setMessage(toSafeImportMessage(error, 'Workbook recommit could not be completed.'));
+    } finally {
+      setLoading(false);
+    }
+  }
+
   async function rollbackUpload(uploadId: number) {
     setLoading(true);
     setMessage(null);
@@ -217,7 +233,7 @@ export default function ImportValidationDashboard() {
         </p>
 
         <div className="mt-5 flex flex-wrap gap-2">
-          <Badge label={`school_id isolation: ${schoolId}`} />
+          <Badge label={`School ID/Code isolation: ${schoolId}`} />
           <Badge label={`Role access: ${role}`} />
           <Badge label="Workbook Review" />
           <Badge label="Workbook Commit" />
@@ -295,6 +311,7 @@ export default function ImportValidationDashboard() {
                 <p className="text-xs font-black uppercase tracking-[0.16em] text-emerald-700">{item.status}</p>
                 <h4 className="mt-2 font-black text-slate-950">{item.importBatchId || `Upload #${item.uploadId}`}</h4>
                 <p className="mt-1 text-sm font-semibold text-slate-600">{item.stagedRowCount || 0} staged rows • {item.totalSheets} sheets</p>
+                <button type="button" onClick={() => recommitUpload(item.uploadId)} disabled={loading} className="mt-3 rounded-full bg-emerald-700 px-3 py-1 text-xs font-black text-white disabled:opacity-60">Recommit</button>
               </div>
             ))}
           </div>
@@ -443,6 +460,7 @@ export default function ImportValidationDashboard() {
                     <div className="flex flex-wrap items-center gap-2">
                       <button type="button" onClick={() => openHistoryReport(item.uploadId)} className="rounded-full bg-slate-100 px-3 py-1 text-xs font-black text-slate-700">View Report</button>
                       {isCommitReadyStatus(item.status) && !item.committed && !item.rolledBack && item.errorCount === 0 ? <button type="button" onClick={() => commitUpload(item.uploadId)} className="rounded-full bg-emerald-50 px-3 py-1 text-xs font-black text-emerald-700">Commit</button> : null}
+                      {item.committed && !item.rolledBack ? <button type="button" onClick={() => recommitUpload(item.uploadId)} className="rounded-full bg-emerald-700 px-3 py-1 text-xs font-black text-white">Recommit</button> : null}
                       {!item.rolledBack && !item.committed ? <button type="button" onClick={() => rollbackUpload(item.uploadId)} className="rounded-full bg-amber-50 px-3 py-1 text-xs font-black text-amber-800">Rollback</button> : null}
                     </div>
                   </td>
