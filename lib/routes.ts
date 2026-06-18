@@ -41,6 +41,7 @@ export const portalRoutes: PortalRoute[] = [
   { icon: '📥', label: 'Import School Data', href: '/import-school-data', description: 'Excel onboarding and workbook commit', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
   { icon: '🧩', label: 'Teacher Assignments', href: '/teacher-assignments', description: 'Class mapping', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
   { icon: '🎌', label: 'Holiday Calendar', href: '/holiday-calendar', description: 'Calendar overrides', roles: ['ADMIN', 'PRINCIPAL'], group: 'Setup' },
+  { icon: '💰', label: 'Finance', href: '/finance/fee-reminders', description: 'Upload and send parent fee reminders', roles: ['ADMIN', 'PRINCIPAL'], group: 'Daily Work' },
   { icon: '🎉', label: 'School Activities', href: '/school-activities', description: 'Feed, gallery and memories', roles: ['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT'], group: 'Daily Work' },
   { icon: '📝', label: 'Activity Approvals', href: '/school-activities/approvals', description: 'Review media and approve activities', roles: ['ADMIN', 'PRINCIPAL'], group: 'Daily Work' },
   { icon: '📣', label: 'Create Notice', href: '/school-notices', description: 'Announcements', roles: ['ADMIN', 'PRINCIPAL'], group: 'Daily Work' },
