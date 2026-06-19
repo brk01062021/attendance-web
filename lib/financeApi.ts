@@ -8,10 +8,14 @@ export type FeeReminderHistory = { id: number; uploadId: number; studentId?: str
 export const financeApi = {
   uploadFeeReminders: <T = FeeReminderPreview>(formData: FormData, schoolId: string, token?: string, uploadedBy?: string) =>
     apiClient<T>('/api/finance/fee-reminders/upload', { method: 'POST', token, schoolId, query: { schoolId, uploadedBy }, body: formData }),
-  sendFeeReminders: <T = { summary: FeeReminderSummary; notificationsCreated: number; rowsSent: number; rowsSkipped: number }>(uploadId: number, schoolId: string, token?: string, sentBy?: string) =>
+  sendFeeReminders: <T = { summary: FeeReminderSummary; notificationsCreated: number; rowsSent: number; rowsSkipped: number; message?: string }>(uploadId: number, schoolId: string, token?: string, sentBy?: string) =>
     apiClient<T>(`/api/finance/fee-reminders/${uploadId}/send`, { method: 'POST', token, schoolId, query: { schoolId, sentBy } }),
   history: <T = FeeReminderHistory[]>(schoolId: string, token?: string) =>
     apiClient<T>('/api/finance/fee-reminders/history', { token, schoolId, query: { schoolId } }),
   uploads: <T = FeeReminderSummary[]>(schoolId: string, token?: string) =>
     apiClient<T>('/api/finance/fee-reminders/uploads', { token, schoolId, query: { schoolId } }),
+  preview: <T = FeeReminderPreview>(uploadId: number, schoolId: string, token?: string) =>
+    apiClient<T>(`/api/finance/fee-reminders/${uploadId}/preview`, { token, schoolId, query: { schoolId } }),
+  deleteUploads: <T = { deleted: number }>(uploadIds: number[], schoolId: string, token?: string) =>
+    apiClient<T>('/api/finance/fee-reminders/uploads', { method: 'DELETE', token, schoolId, query: { schoolId }, body: JSON.stringify({ uploadIds }) }),
 };
