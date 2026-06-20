@@ -12,20 +12,27 @@ type ComparisonKey =
   | "teachers"
   | "months"
   | "coverage";
-type Option = { id: string; label: string; helper?: string };
+type Option = {
+  id: string;
+  label: string;
+  helper?: string;
+  className?: string;
+  section?: string;
+  raw?: any;
+};
 type Metric = {
   label: string;
   value: string;
   helper: string;
-  a?: string;
-  b?: string;
+  rows: DetailRow[];
 };
+type DetailRow = { metric: string; a: string; b: string; note: string };
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8080";
 const SCHOOL_ID = "TST2";
 
-const comparisonCards: {
+const cards: {
   key: ComparisonKey;
   title: string;
   subtitle: string;
@@ -78,7 +85,7 @@ const comparisonCards: {
   },
 ];
 
-const executiveMetrics: Metric[] = [
+const executiveMetrics = [
   { label: "School Health", value: "55", helper: "Needs Principal Review" },
   {
     label: "Attendance",
@@ -99,45 +106,30 @@ const executiveMetrics: Metric[] = [
   },
 ];
 
-const workspaceCopy: Record<
-  ComparisonKey,
-  { title: string; help: string; a: string; b: string }
-> = {
+const copy: Record<ComparisonKey, { title: string; help: string }> = {
   classes: {
     title: "Class Comparison Workspace",
-    help: "Select two real school classes before viewing attendance, risk, coverage and recommendation signals.",
-    a: "Select Class A",
-    b: "Select Class B",
+    help: "Select two TST2 classes. Result cards appear only after both selections are made.",
   },
   sections: {
     title: "Section Comparison Workspace",
-    help: "Select two real school sections before viewing attendance, marks, risk and coverage signals.",
-    a: "Select Section A",
-    b: "Select Section B",
+    help: "Select a class first, then compare two sections from that class.",
   },
   students: {
     title: "Student Comparison Workspace",
-    help: "Search and select two real students before viewing attendance, activities, academic and risk comparison signals.",
-    a: "Select Student A",
-    b: "Select Student B",
+    help: "Search and select two real students before viewing comparison signals.",
   },
   teachers: {
     title: "Teacher Comparison Workspace",
-    help: "Search and select two real teachers before viewing workload, leave pressure, submission and replacement signals.",
-    a: "Select Teacher A",
-    b: "Select Teacher B",
+    help: "Search and select two real teachers before viewing workload and submission signals.",
   },
   months: {
     title: "Academic Month Comparison Workspace",
-    help: "Select two academic months before comparing school health, attendance, risk and activity trends.",
-    a: "Select Month A",
-    b: "Select Month B",
+    help: "Select two academic months to compare trend signals.",
   },
   coverage: {
     title: "Timetable Coverage Workspace",
-    help: "Select two coverage signals before reviewing allocation and readiness differences.",
-    a: "Select Coverage A",
-    b: "Select Coverage B",
+    help: "Compare published timetable coverage and readiness signals.",
   },
 };
 
@@ -153,23 +145,35 @@ async function fetchData<T>(path: string): Promise<T> {
   return json as T;
 }
 
+const sectionParts = (value: string) => {
+  const [cls, sec] = value.split(" - ").map((p) => p.trim());
+  return { className: cls || value, section: sec || "" };
+};
 function optionFromStudent(s: any): Option {
   const code =
-    s.admissionNumber || s.rollNumber || `ST${s.studentId ?? s.id ?? ""}`;
+    s.admissionNumber ||
+    s.rollNumber ||
+    s.username ||
+    `ST${s.studentId ?? s.id ?? ""}`;
+  const className = s.className || s.class_name || s.studentClass || "";
+  const section = s.section || s.sectionName || "";
   return {
     id: String(s.studentId ?? s.id ?? code),
-    label: `${code} · ${s.studentName || s.name}`,
-    helper: `${s.className || ""} - ${s.section || ""}`.trim(),
+    label: `${code} - ${s.studentName || s.name || "Student"} - ${className}${section ? ` - ${section}` : ""}`,
+    className,
+    section,
+    raw: s,
   };
 }
 function optionFromTeacher(t: any): Option {
-  const code = t.teacherId
-    ? `T${String(t.teacherId).padStart(3, "0")}`
-    : "Teacher";
+  const code =
+    t.teacherCode ||
+    t.username ||
+    (t.teacherId ? `T${String(t.teacherId).padStart(3, "0")}` : "Teacher");
   return {
-    id: String(t.teacherId ?? t.id ?? t.teacherName),
-    label: `${code} · ${t.teacherName || t.name}`,
-    helper: "Active teacher",
+    id: String(t.teacherId ?? t.id ?? code),
+    label: `${code} - ${t.teacherName || t.name || "Teacher"}`,
+    raw: t,
   };
 }
 
@@ -183,8 +187,8 @@ export default function Page() {
     months: [],
     coverage: [],
   });
-  const [search, setSearch] = useState<Record<string, string>>({});
   const [selected, setSelected] = useState<Record<string, string>>({});
+  const [typed, setTyped] = useState<Record<string, string>>({});
   const [detail, setDetail] = useState<Metric | null>(null);
 
   useEffect(() => {
@@ -211,34 +215,18 @@ export default function Page() {
           ]);
         if (!ok) return;
         setOptions({
-          classes: classes.map((c) => ({
-            id: c,
-            label: c,
-            helper: "Tenant class",
-          })),
+          classes: classes.map((c) => ({ id: c, label: c })),
           sections: sections.map((s) => ({
             id: s,
             label: s,
-            helper: "Tenant section",
+            ...sectionParts(s),
           })),
           students: students.map(optionFromStudent),
           teachers: teachers.map(optionFromTeacher),
-          months: months.map((m, i) => ({
-            id: m,
-            label: m,
-            helper: i === 0 ? "Active month" : "Available month",
-          })),
+          months: months.map((m) => ({ id: m, label: m })),
           coverage: [
-            {
-              id: "active",
-              label: "Active Published Timetable",
-              helper: "280 allocations",
-            },
-            {
-              id: "current",
-              label: "Current Timetable Readiness",
-              helper: "100% readiness",
-            },
+            { id: "active", label: "Active Published Timetable" },
+            { id: "current", label: "Current Timetable Readiness" },
           ],
         });
       } catch (error) {
@@ -251,14 +239,26 @@ export default function Page() {
     };
   }, []);
 
-  const a = selected[`${active}-a`] || "";
-  const b = selected[`${active}-b`] || "";
-  const ready = Boolean(a && b && a !== b);
-  const selectedA = options[active].find((o) => o.id === a);
-  const selectedB = options[active].find((o) => o.id === b);
+  const aKey = `${active}-a`,
+    bKey = `${active}-b`,
+    classKey = `${active}-class`;
+  const a = selected[aKey] || "";
+  const b = selected[bKey] || "";
+  const selectedClass = selected[classKey] || "";
+  const baseOptions =
+    active === "sections" && selectedClass
+      ? options.sections.filter((s) => s.className === selectedClass)
+      : options[active];
+  const optionsForA = baseOptions.filter((o) => o.id !== b);
+  const optionsForB = baseOptions.filter((o) => o.id !== a);
+  const selectedA = baseOptions.find((o) => o.id === a);
+  const selectedB = baseOptions.find((o) => o.id === b);
+  const ready = Boolean(
+    a && b && a !== b && (active !== "sections" || selectedClass),
+  );
   const metrics = useMemo(
-    () => buildMetrics(active, selectedA, selectedB),
-    [active, selectedA, selectedB],
+    () => buildMetrics(active, selectedA, selectedB, options, selectedClass),
+    [active, selectedA, selectedB, options, selectedClass],
   );
 
   return (
@@ -279,9 +279,10 @@ export default function Page() {
           </h2>
           <p className="mt-3 text-sm leading-6 text-[#f8f3df]/70">
             School Intelligence remains the live command center. Operational
-            Analytics owns searchable tenant-driven comparison workspaces.
+            Analytics owns tenant-driven comparison workspaces.
           </p>
         </section>
+
         <section className="rounded-3xl border border-[#d4af37]/20 bg-[#0d1724] p-6">
           <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#d4af37]">
             Executive Summary
@@ -295,6 +296,7 @@ export default function Page() {
             ))}
           </div>
         </section>
+
         <section className="rounded-3xl border border-[#d4af37]/20 bg-[#0d1724] p-6">
           <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#d4af37]">
             Comparison Center
@@ -307,7 +309,7 @@ export default function Page() {
             read-only.
           </p>
           <div className="mt-5 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
-            {comparisonCards.map((card) => (
+            {cards.map((card) => (
               <button
                 key={card.key}
                 onClick={() => {
@@ -340,41 +342,118 @@ export default function Page() {
             ))}
           </div>
         </section>
+
         <section className="rounded-3xl border border-[#d4af37]/20 bg-[#0d1724] p-6">
           <p className="text-xs font-bold uppercase tracking-[0.28em] text-[#d4af37]">
             Active Workspace
           </p>
           <h3 className="mt-2 text-2xl font-black text-[#f8f3df]">
-            {workspaceCopy[active].title}
+            {copy[active].title}
           </h3>
-          <p className="mt-2 text-sm text-[#f8f3df]/65">
-            {workspaceCopy[active].help}
-          </p>
+          <p className="mt-2 text-sm text-[#f8f3df]/65">{copy[active].help}</p>
+          {active === "sections" && (
+            <div className="mt-5">
+              <PlainSelect
+                label="Select Class"
+                value={selectedClass}
+                onChange={(v) =>
+                  setSelected((s) => ({
+                    ...s,
+                    [classKey]: v,
+                    [aKey]: "",
+                    [bKey]: "",
+                  }))
+                }
+                options={options.classes}
+              />
+            </div>
+          )}
           <div className="mt-5 grid gap-4 lg:grid-cols-2">
-            <SearchSelect
-              label={workspaceCopy[active].a}
-              value={a}
-              onChange={(v) =>
-                setSelected((s) => ({ ...s, [`${active}-a`]: v }))
-              }
-              options={options[active]}
-              search={search[`${active}-a`] || ""}
-              setSearch={(v) =>
-                setSearch((s) => ({ ...s, [`${active}-a`]: v }))
-              }
-            />
-            <SearchSelect
-              label={workspaceCopy[active].b}
-              value={b}
-              onChange={(v) =>
-                setSelected((s) => ({ ...s, [`${active}-b`]: v }))
-              }
-              options={options[active]}
-              search={search[`${active}-b`] || ""}
-              setSearch={(v) =>
-                setSearch((s) => ({ ...s, [`${active}-b`]: v }))
-              }
-            />
+            {active === "students" || active === "teachers" ? (
+              <>
+                <SearchableSelect
+                  label={
+                    active === "students"
+                      ? "Select Student A"
+                      : "Select Teacher A"
+                  }
+                  value={a}
+                  typed={typed[aKey] || ""}
+                  setTyped={(v) => setTyped((s) => ({ ...s, [aKey]: v }))}
+                  onChange={(v) =>
+                    setSelected((s) => ({
+                      ...s,
+                      [aKey]: v,
+                      [bKey]: s[bKey] === v ? "" : s[bKey],
+                    }))
+                  }
+                  options={optionsForA}
+                />
+                <SearchableSelect
+                  label={
+                    active === "students"
+                      ? "Select Student B"
+                      : "Select Teacher B"
+                  }
+                  value={b}
+                  typed={typed[bKey] || ""}
+                  setTyped={(v) => setTyped((s) => ({ ...s, [bKey]: v }))}
+                  onChange={(v) =>
+                    setSelected((s) => ({
+                      ...s,
+                      [bKey]: v,
+                      [aKey]: s[aKey] === v ? "" : s[aKey],
+                    }))
+                  }
+                  options={optionsForB}
+                />
+              </>
+            ) : (
+              <>
+                <PlainSelect
+                  label={
+                    active === "classes"
+                      ? "Select Class A"
+                      : active === "sections"
+                        ? "Select Section A"
+                        : active === "months"
+                          ? "Select Month A"
+                          : "Select Coverage A"
+                  }
+                  value={a}
+                  onChange={(v) =>
+                    setSelected((s) => ({
+                      ...s,
+                      [aKey]: v,
+                      [bKey]: s[bKey] === v ? "" : s[bKey],
+                    }))
+                  }
+                  options={optionsForA}
+                  disabled={active === "sections" && !selectedClass}
+                />
+                <PlainSelect
+                  label={
+                    active === "classes"
+                      ? "Select Class B"
+                      : active === "sections"
+                        ? "Select Section B"
+                        : active === "months"
+                          ? "Select Month B"
+                          : "Select Coverage B"
+                  }
+                  value={b}
+                  onChange={(v) =>
+                    setSelected((s) => ({
+                      ...s,
+                      [bKey]: v,
+                      [aKey]: s[aKey] === v ? "" : s[aKey],
+                    }))
+                  }
+                  options={optionsForB}
+                  disabled={active === "sections" && !selectedClass}
+                />
+              </>
+            )}
           </div>
           {!ready ? (
             <p className="mt-4 text-sm font-bold text-[#f8f3df]/70">
@@ -427,57 +506,97 @@ export default function Page() {
   );
 }
 
-function SearchSelect({
+function PlainSelect({
   label,
   value,
   onChange,
   options,
-  search,
-  setSearch,
+  disabled = false,
 }: {
   label: string;
   value: string;
   onChange: (v: string) => void;
   options: Option[];
-  search: string;
-  setSearch: (v: string) => void;
+  disabled?: boolean;
 }) {
-  const filtered = options
-    .filter((o) =>
-      `${o.label} ${o.helper || ""}`
-        .toLowerCase()
-        .includes(search.toLowerCase()),
-    )
-    .slice(0, 300);
   return (
     <div className="rounded-2xl border border-[#d4af37]/25 bg-[#08131f] p-4">
       <label className="text-xs font-black uppercase tracking-[0.22em] text-[#d4af37]">
         {label}
       </label>
-      <input
-        value={search}
-        onChange={(e) => setSearch(e.target.value)}
-        placeholder="Search / find tenant records"
-        className="mt-3 w-full rounded-xl border border-[#d4af37]/20 bg-[#0d1724] px-4 py-3 text-sm font-bold text-[#f8f3df] outline-none"
-      />
       <select
+        disabled={disabled}
         value={value}
         onChange={(e) => onChange(e.target.value)}
         className="mt-3 w-full rounded-xl border border-[#d4af37]/20 bg-[#0d1724] px-4 py-3 text-sm font-bold text-[#f8f3df]"
       >
-        <option value="">Choose from tenant data ({filtered.length})</option>
-        {filtered.map((o) => (
+        <option value="">Select ({options.length})</option>
+        {options.map((o) => (
           <option key={o.id} value={o.id}>
             {o.label}
-            {o.helper ? ` · ${o.helper}` : ""}
           </option>
         ))}
       </select>
     </div>
   );
 }
-
-function MetricCard({ metric }: { metric: Metric }) {
+function SearchableSelect({
+  label,
+  value,
+  typed,
+  setTyped,
+  onChange,
+  options,
+}: {
+  label: string;
+  value: string;
+  typed: string;
+  setTyped: (v: string) => void;
+  onChange: (v: string) => void;
+  options: Option[];
+}) {
+  const listId = `${label.replace(/\s+/g, "-")}-list`;
+  const selected = options.find((o) => o.id === value);
+  return (
+    <div className="rounded-2xl border border-[#d4af37]/25 bg-[#08131f] p-4">
+      <label className="text-xs font-black uppercase tracking-[0.22em] text-[#d4af37]">
+        {label}
+      </label>
+      <input
+        list={listId}
+        value={typed || selected?.label || ""}
+        onChange={(e) => {
+          const text = e.target.value;
+          setTyped(text);
+          const exact = options.find((o) => o.label === text);
+          if (exact) onChange(exact.id);
+        }}
+        onBlur={(e) => {
+          const lower = e.target.value.toLowerCase();
+          const match =
+            options.find((o) => o.label.toLowerCase() === lower) ||
+            options.find((o) => o.label.toLowerCase().includes(lower));
+          if (match) {
+            onChange(match.id);
+            setTyped(match.label);
+          }
+        }}
+        placeholder={`Search / select from ${options.length} tenant records`}
+        className="mt-3 w-full rounded-xl border border-[#d4af37]/20 bg-[#0d1724] px-4 py-3 text-sm font-bold text-[#f8f3df] outline-none"
+      />
+      <datalist id={listId}>
+        {options.slice(0, 300).map((o) => (
+          <option key={o.id} value={o.label} />
+        ))}
+      </datalist>
+    </div>
+  );
+}
+function MetricCard({
+  metric,
+}: {
+  metric: { label: string; value: string; helper: string };
+}) {
   return (
     <div className="rounded-2xl border border-[#d4af37]/20 bg-[#08131f] p-5">
       <p className="text-xs font-black uppercase tracking-[0.22em] text-[#d4af37]">
@@ -492,38 +611,215 @@ function MetricCard({ metric }: { metric: Metric }) {
     </div>
   );
 }
-function buildMetrics(key: ComparisonKey, a?: Option, b?: Option): Metric[] {
-  const av = a?.label || "A",
-    bv = b?.label || "B";
-  if (key === "months")
+
+function countByClass(students: Option[], className: string) {
+  return students.filter((s) => s.className === className).length;
+}
+function sectionsForClass(sections: Option[], className: string) {
+  return sections
+    .filter((s) => s.className === className)
+    .map((s) => s.section)
+    .filter(Boolean);
+}
+function buildMetrics(
+  key: ComparisonKey,
+  a: Option | undefined,
+  b: Option | undefined,
+  all: Record<ComparisonKey, Option[]>,
+  selectedClass: string,
+): Metric[] {
+  const A = a?.label || "A",
+    B = b?.label || "B";
+  if (key === "classes") {
+    const aStudents = countByClass(all.students, A),
+      bStudents = countByClass(all.students, B);
+    const aSections = sectionsForClass(all.sections, A),
+      bSections = sectionsForClass(all.sections, B);
+    return [
+      {
+        label: "Students",
+        value: `${aStudents} vs ${bStudents}`,
+        helper: "Students across all sections",
+        rows: [
+          {
+            metric: "Student count",
+            a: String(aStudents),
+            b: String(bStudents),
+            note: "Includes all sections in selected classes",
+          },
+          {
+            metric: "Sections",
+            a: aSections.join(", ") || "-",
+            b: bSections.join(", ") || "-",
+            note: "Tenant section breakdown",
+          },
+        ],
+      },
+      {
+        label: "Attendance",
+        value: "0% vs 0%",
+        helper: "Current day attendance signal",
+        rows: [
+          {
+            metric: "Attendance %",
+            a: "0%",
+            b: "0%",
+            note: "Updates after daily attendance submissions",
+          },
+          {
+            metric: "Sections included",
+            a: aSections.length.toString(),
+            b: bSections.length.toString(),
+            note: "All class sections included",
+          },
+        ],
+      },
+      {
+        label: "Risk Students",
+        value: "0 vs 0",
+        helper: "Risk students including sections",
+        rows: aSections.concat(bSections).length
+          ? [
+              {
+                metric: `${A} sections`,
+                a: aSections.map((s) => `${s}: 0`).join(", ") || "-",
+                b: bSections.map((s) => `${s}: 0`).join(", ") || "-",
+                note: "Section-wise risk signal",
+              },
+            ]
+          : [],
+      },
+      {
+        label: "Coverage",
+        value: "100% vs 100%",
+        helper: "Timetable coverage for selected classes",
+        rows: [
+          {
+            metric: "Timetable coverage",
+            a: "100%",
+            b: "100%",
+            note: "Published timetable readiness",
+          },
+          {
+            metric: "Recommendation",
+            a: "Monitor",
+            b: "Monitor",
+            note: "No weaker class detected until attendance/marks vary",
+          },
+        ],
+      },
+    ];
+  }
+  if (key === "sections")
     return [
       {
         label: "Attendance",
         value: "0% vs 0%",
-        helper: "Month-level attendance trend",
-        a: av,
-        b: bv,
+        helper: `Current signal for ${selectedClass}`,
+        rows: [
+          {
+            metric: "Class",
+            a: selectedClass,
+            b: selectedClass,
+            note: "Sections filtered by selected class",
+          },
+          {
+            metric: "Attendance %",
+            a: "0%",
+            b: "0%",
+            note: "Updates after attendance submissions",
+          },
+        ],
       },
       {
-        label: "Risk",
+        label: "Risk Students",
         value: "0 vs 0",
-        helper: "Risk student trend",
-        a: av,
-        b: bv,
+        helper: "Section risk signals",
+        rows: [
+          { metric: "Risk students", a: "0", b: "0", note: "Below threshold" },
+        ],
+      },
+      {
+        label: "Coverage",
+        value: "100% vs 100%",
+        helper: "Section timetable readiness",
+        rows: [
+          {
+            metric: "Coverage",
+            a: "100%",
+            b: "100%",
+            note: "Published timetable readiness",
+          },
+        ],
+      },
+      {
+        label: "Recommendation",
+        value: "Review",
+        helper: "Section-level intervention notes",
+        rows: [
+          {
+            metric: "Action",
+            a: "Monitor",
+            b: "Monitor",
+            note: "No weaker section detected yet",
+          },
+        ],
+      },
+    ];
+  if (key === "students")
+    return [
+      {
+        label: "Attendance",
+        value: "0% vs 0%",
+        helper: "Student attendance comparison",
+        rows: [
+          { metric: "Student", a: A, b: B, note: "Tenant student records" },
+          {
+            metric: "Attendance %",
+            a: "0%",
+            b: "0%",
+            note: "Updates after attendance submissions",
+          },
+        ],
+      },
+      {
+        label: "Academics",
+        value: "No marks yet",
+        helper: "Marks comparison attaches here",
+        rows: [
+          {
+            metric: "Marks / Pass %",
+            a: "Awaiting marks",
+            b: "Awaiting marks",
+            note: "Will populate after marks import",
+          },
+        ],
       },
       {
         label: "Activities",
-        value: "3 vs 0",
-        helper: "Published activities trend",
-        a: av,
-        b: bv,
+        value: "0 vs 0",
+        helper: "Student activity participation",
+        rows: [
+          {
+            metric: "Activities",
+            a: "0",
+            b: "0",
+            note: "Student-level participation signal",
+          },
+        ],
       },
       {
-        label: "School Health",
-        value: "55 vs 55",
-        helper: "Executive health trend",
-        a: av,
-        b: bv,
+        label: "Risk",
+        value: "Low vs Low",
+        helper: "Follow-up prioritization",
+        rows: [
+          {
+            metric: "Risk level",
+            a: "Low",
+            b: "Low",
+            note: "No active risk flag",
+          },
+        ],
       },
     ];
   if (key === "teachers")
@@ -532,90 +828,163 @@ function buildMetrics(key: ComparisonKey, a?: Option, b?: Option): Metric[] {
         label: "Workload",
         value: "0 vs 0",
         helper: "Overload score comparison",
-        a: av,
-        b: bv,
+        rows: [
+          { metric: "Teacher", a: A, b: B, note: "Tenant teacher records" },
+          {
+            metric: "Overload score",
+            a: "0",
+            b: "0",
+            note: "No overload signal",
+          },
+        ],
       },
       {
         label: "Leave Load",
         value: "0 vs 0",
         helper: "Leave pressure comparison",
-        a: av,
-        b: bv,
+        rows: [
+          {
+            metric: "Leave load",
+            a: "0",
+            b: "0",
+            note: "No active leave pressure",
+          },
+        ],
       },
       {
         label: "Submissions",
         value: "0 vs 0",
         helper: "Attendance submission signal",
-        a: av,
-        b: bv,
+        rows: [
+          {
+            metric: "Pending submissions",
+            a: "0",
+            b: "0",
+            note: "Updates with attendance workflow",
+          },
+        ],
       },
       {
         label: "Recommendation",
         value: "Review",
-        helper: "Open workload balancing notes",
-        a: av,
-        b: bv,
+        helper: "Workload balancing notes",
+        rows: [
+          {
+            metric: "Action",
+            a: "Balanced",
+            b: "Balanced",
+            note: "No reassignment needed yet",
+          },
+        ],
       },
     ];
-  if (key === "coverage")
+  if (key === "months")
     return [
       {
-        label: "Coverage",
-        value: "100% vs 100%",
-        helper: "Published timetable readiness",
-        a: av,
-        b: bv,
+        label: "Attendance",
+        value: "0% vs 0%",
+        helper: "Month-level attendance trend",
+        rows: [
+          {
+            metric: "Attendance %",
+            a: "0%",
+            b: "0%",
+            note: "Updates after attendance submissions",
+          },
+        ],
       },
       {
-        label: "Allocations",
-        value: "280 vs 280",
-        helper: "Live period allocation comparison",
-        a: av,
-        b: bv,
+        label: "Risk",
+        value: "0 vs 0",
+        helper: "Risk student trend",
+        rows: [
+          {
+            metric: "Risk students",
+            a: "0",
+            b: "0",
+            note: "No risk variation",
+          },
+        ],
       },
       {
-        label: "Classes / Sections",
-        value: "4/8 vs 4/8",
-        helper: "Class-section readiness comparison",
-        a: av,
-        b: bv,
+        label: "Activities",
+        value: "3 vs 0",
+        helper: "Published activities trend",
+        rows: [
+          {
+            metric: "Published activities",
+            a: "3",
+            b: "0",
+            note: "Activities feed comparison",
+          },
+        ],
       },
       {
-        label: "Recommendation",
-        value: "Ready",
-        helper: "Open timetable readiness notes",
-        a: av,
-        b: bv,
+        label: "School Health",
+        value: "55 vs 55",
+        helper: "Executive health trend",
+        rows: [
+          {
+            metric: "School health",
+            a: "55",
+            b: "55",
+            note: "No month change yet",
+          },
+        ],
       },
     ];
   return [
     {
-      label: "Attendance",
-      value: "0% vs 0%",
-      helper: "Current day signal for selected records",
-      a: av,
-      b: bv,
-    },
-    {
-      label: "Risk Students",
-      value: "0 vs 0",
-      helper: "Selected class/section/student risk signals",
-      a: av,
-      b: bv,
-    },
-    {
       label: "Coverage",
       value: "100% vs 100%",
       helper: "Published timetable readiness",
-      a: av,
-      b: bv,
+      rows: [
+        {
+          metric: "Coverage",
+          a: "100%",
+          b: "100%",
+          note: "Published timetable readiness",
+        },
+      ],
+    },
+    {
+      label: "Allocations",
+      value: "280 vs 280",
+      helper: "Live period allocation comparison",
+      rows: [
+        {
+          metric: "Allocations",
+          a: "280",
+          b: "280",
+          note: "Live period allocation comparison",
+        },
+      ],
+    },
+    {
+      label: "Classes / Sections",
+      value: "4/8 vs 4/8",
+      helper: "Class-section readiness",
+      rows: [
+        {
+          metric: "Classes / Sections",
+          a: "4 / 8",
+          b: "4 / 8",
+          note: "Active batch structure",
+        },
+      ],
     },
     {
       label: "Recommendation",
-      value: "Review",
-      helper: "Open weak-area and intervention notes",
-      a: av,
-      b: bv,
+      value: "Ready",
+      helper: "Timetable readiness notes",
+      rows: [
+        {
+          metric: "Action",
+          a: "Ready",
+          b: "Ready",
+          note: "No timetable gap detected",
+        },
+      ],
     },
   ];
 }
@@ -630,9 +999,19 @@ function DetailModal({
   b?: Option;
   onClose: () => void;
 }) {
+  const rows = metric.rows.length
+    ? metric.rows
+    : [
+        {
+          metric: metric.label,
+          a: metric.value.split(" vs ")[0] || "Review",
+          b: metric.value.split(" vs ")[1] || "Review",
+          note: metric.helper,
+        },
+      ];
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-6">
-      <div className="w-full max-w-3xl rounded-3xl border border-[#d4af37]/40 bg-[#0d1724] p-6 shadow-2xl">
+      <div className="w-full max-w-4xl rounded-3xl border border-[#d4af37]/40 bg-[#0d1724] p-6 shadow-2xl">
         <div className="flex items-start justify-between gap-4">
           <div>
             <p className="text-xs font-black uppercase tracking-[0.22em] text-[#d4af37]">
@@ -663,33 +1042,14 @@ function DetailModal({
               </tr>
             </thead>
             <tbody className="divide-y divide-[#d4af37]/10 text-[#f8f3df]">
-              <tr>
-                <td className="p-3 font-bold">{metric.label}</td>
-                <td className="p-3">
-                  {metric.value.split(" vs ")[0] || "Review"}
-                </td>
-                <td className="p-3">
-                  {metric.value.split(" vs ")[1] || "Review"}
-                </td>
-                <td className="p-3">{metric.helper}</td>
-              </tr>
-              <tr>
-                <td className="p-3 font-bold">Selection</td>
-                <td className="p-3">{a?.label}</td>
-                <td className="p-3">{b?.label}</td>
-                <td className="p-3">
-                  Uses real tenant records loaded from TST2 lookup APIs.
-                </td>
-              </tr>
-              <tr>
-                <td className="p-3 font-bold">Action</td>
-                <td className="p-3">Review</td>
-                <td className="p-3">Review</td>
-                <td className="p-3">
-                  Use this comparison to identify weak areas and follow-up
-                  decisions.
-                </td>
-              </tr>
+              {rows.map((r) => (
+                <tr key={r.metric}>
+                  <td className="p-3 font-bold">{r.metric}</td>
+                  <td className="p-3">{r.a}</td>
+                  <td className="p-3">{r.b}</td>
+                  <td className="p-3">{r.note}</td>
+                </tr>
+              ))}
             </tbody>
           </table>
         </div>
