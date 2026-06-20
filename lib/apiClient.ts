@@ -128,6 +128,8 @@ export const webApi = {
     apiClient<T>('/api/user-provisioning/generate', { method: 'POST', token, schoolId, query: { schoolId } }),
   userProvisioningSummary: <T>(schoolId: string, token?: string) =>
     apiClient<T>('/api/user-provisioning/summary', { token, schoolId, query: { schoolId } }),
+  userCredentials: <T>(role: 'TEACHER' | 'STUDENT', schoolId: string, token?: string) =>
+    apiClient<T>(`/api/user-provisioning/credentials/${role}`, { token, schoolId, query: { schoolId } }),
 
   validateMissedAttendanceRecovery: <T>(formData: FormData, token?: string, schoolId?: string, uploadedBy?: string) =>
     apiClient<T>('/attendance/recovery/validate', { method: 'POST', token, schoolId, query: { schoolId, uploadedBy }, body: formData }),
