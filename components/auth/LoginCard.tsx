@@ -15,15 +15,39 @@ export default function LoginCard() {
     const [username, setUsername] = useState('admin');
     const [password, setPassword] = useState('admin123');
     const [schoolId, setSchoolId] = useState('BRK1');
+    const [parentStudentId, setParentStudentId] = useState('');
+    const [parentMobile, setParentMobile] = useState('');
+    const [parentOtp, setParentOtp] = useState('');
+    const [parentNewPassword, setParentNewPassword] = useState('');
+    const [parentOtpRequested, setParentOtpRequested] = useState(false);
     const [isLoading, setIsLoading] = useState(false);
     const [message, setMessage] = useState('');
+
+    const normalizeSchool = () => schoolId.trim().toUpperCase();
+
+    async function ensureLoginEnabled(normalizedSchoolId: string) {
+        const status = await webApi.onboardingStatusBySchoolId<{
+            status: string;
+            loginEnabled: boolean;
+            message?: string;
+            nextStep?: string;
+        }>(normalizedSchoolId);
+
+        if (!status.loginEnabled) {
+            throw new Error(
+                `${status.message || 'School registration is not active yet.'} ${
+                    status.nextStep || 'Please check registration status using your reference ID.'
+                }`
+            );
+        }
+    }
 
     async function onSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         setIsLoading(true);
         setMessage('');
 
-        const normalizedSchoolId = schoolId.trim().toUpperCase();
+        const normalizedSchoolId = normalizeSchool();
 
         if (!normalizedSchoolId) {
             setMessage('School ID is required.');
@@ -32,29 +56,14 @@ export default function LoginCard() {
         }
 
         const request: LoginRequest = {
-            username,
+            username: username.trim(),
             password,
             role,
             schoolId: normalizedSchoolId,
         };
 
         try {
-            const status = await webApi.onboardingStatusBySchoolId<{
-                status: string;
-                loginEnabled: boolean;
-                message?: string;
-                nextStep?: string;
-            }>(normalizedSchoolId);
-
-            if (!status.loginEnabled) {
-                setMessage(
-                    `${status.message || 'School registration is not active yet.'} ${
-                        status.nextStep || 'Please check registration status using your reference ID.'
-                    }`
-                );
-                setIsLoading(false);
-                return;
-            }
+            await ensureLoginEnabled(normalizedSchoolId);
 
             const response = await webApi.login<LoginApiResponse>(request);
             const user = { ...mapLoginResponseToUser(response, role), username: username.trim() };
@@ -90,17 +99,61 @@ export default function LoginCard() {
         }
     }
 
+    async function requestOtp() {
+        setMessage('');
+        const normalizedSchoolId = normalizeSchool();
+        if (!normalizedSchoolId || !parentStudentId.trim() || !parentMobile.trim()) {
+            setMessage('Enter School ID, Student ID and parent mobile number.');
+            return;
+        }
+        try {
+            setIsLoading(true);
+            await ensureLoginEnabled(normalizedSchoolId);
+            const response = await webApi.requestParentOtp<{ message?: string; devOtp?: string }>({
+                schoolId: normalizedSchoolId,
+                studentId: parentStudentId.trim(),
+                parentMobile: parentMobile.trim(),
+            });
+            setParentOtpRequested(true);
+            setUsername(parentMobile.trim());
+            setMessage(`${response.message || 'OTP generated for parent mobile.'}${response.devOtp ? ` Test OTP: ${response.devOtp}` : ''}`);
+        } catch (error) {
+            setMessage(error instanceof Error ? error.message : 'Student and parent mobile mapping could not be verified.');
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
+    async function activateParent() {
+        setMessage('');
+        const normalizedSchoolId = normalizeSchool();
+        if (!parentStudentId.trim() || !parentMobile.trim() || !parentOtp.trim() || parentNewPassword.trim().length < 8) {
+            setMessage('Enter Student ID, parent mobile, OTP and a new password of at least 8 characters.');
+            return;
+        }
+        try {
+            setIsLoading(true);
+            const response = await webApi.activateParentLogin<LoginApiResponse>({
+                schoolId: normalizedSchoolId,
+                studentId: parentStudentId.trim(),
+                parentMobile: parentMobile.trim(),
+                otp: parentOtp.trim(),
+                newPassword: parentNewPassword,
+            });
+            const user = { ...mapLoginResponseToUser(response, 'PARENT'), username: parentMobile.trim() };
+            storeUser(user);
+            router.push(homeRouteForRole(user.role));
+        } catch (error) {
+            setMessage(error instanceof Error ? error.message : 'Unable to activate parent login.');
+        } finally {
+            setIsLoading(false);
+        }
+    }
+
     return (
         <form className="login-card gold-panel" onSubmit={onSubmit}>
             <div className="login-logo">
-                <Image
-                    src="/branding/app-icon.png"
-                    alt="VidyaSetu"
-                    width={56}
-                    height={56}
-                    priority
-                />
-
+                <Image src="/branding/app-icon.png" alt="VidyaSetu" width={56} height={56} priority />
                 <div>
                     <p className="eyebrow">WEB ERP LOGIN</p>
                     <strong>portal.vidyasetu.co</strong>
@@ -110,97 +163,80 @@ export default function LoginCard() {
             <h1>VidyaSetu Portal</h1>
 
             <p className="login-copy">
-                Premium Admin, Principal, Teacher and Student web ERP for school onboarding,
+                Premium Admin, Principal, Teacher, Student and Parent web ERP for school onboarding,
                 timetable operations, reports, imports, and operational readiness.
             </p>
 
             <div className="role-switch" aria-label="Choose role">
-                {(['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT'] as WebUserRole[]).map((item) => (
-                    <button
-                        key={item}
-                        type="button"
-                        className={role === item ? 'role-pill role-pill--active' : 'role-pill'}
-                        onClick={() => setRole(item)}
-                    >
-                        {item === 'ADMIN'
-                            ? 'Admin'
-                            : item === 'PRINCIPAL'
-                                ? 'Principal'
-                                : item === 'TEACHER'
-                                    ? 'Teacher'
-                                    : 'Student'}
+                {(['ADMIN', 'PRINCIPAL', 'TEACHER', 'STUDENT', 'PARENT'] as WebUserRole[]).map((item) => (
+                    <button key={item} type="button" className={role === item ? 'role-pill role-pill--active' : 'role-pill'} onClick={() => setRole(item)}>
+                        {item.charAt(0) + item.slice(1).toLowerCase()}
                     </button>
                 ))}
             </div>
 
             <label>
-                Username
-                <input
-                    value={username}
-                    onChange={(event) => setUsername(event.target.value)}
-                    placeholder="admin"
-                />
+                {role === 'PARENT' ? 'Parent Mobile Number' : 'Username'}
+                <input value={username} onChange={(event) => setUsername(event.target.value)} placeholder={role === 'PARENT' ? 'Parent mobile number' : 'Username'} />
             </label>
 
             <label>
                 School ID
-                <input
-                    value={schoolId}
-                    onChange={(event) =>
-                        setSchoolId(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4))
-                    }
-                    placeholder="BRK1"
-                    maxLength={4}
-                />
+                <input value={schoolId} onChange={(event) => setSchoolId(event.target.value.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4))} placeholder="BRK1" maxLength={4} />
             </label>
 
             <label>
                 Password
-                <input
-                    type="password"
-                    value={password}
-                    onChange={(event) => setPassword(event.target.value)}
-                    placeholder="admin123"
-                />
+                <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} placeholder={role === 'PARENT' ? 'Parent password after OTP setup' : 'Temporary or updated password'} />
             </label>
 
             <button className="primary-button" type="submit" disabled={isLoading}>
-                {isLoading
-                    ? 'Signing in...'
-                    : `Open ${
-                        role === 'ADMIN'
-                            ? 'Admin'
-                            : role === 'PRINCIPAL'
-                                ? 'Principal'
-                                : role === 'TEACHER'
-                                    ? 'Teacher'
-                                    : 'Student'
-                    } Portal`}
+                {isLoading ? 'Signing in...' : role === 'PARENT' ? 'Login with Parent Password' : `Open ${role.charAt(0) + role.slice(1).toLowerCase()} Portal`}
             </button>
 
+            {role === 'PARENT' ? (
+                <div style={{ marginTop: 14, padding: 14, borderRadius: 18, border: '1px solid rgba(245, 213, 124, 0.28)', background: 'rgba(245, 213, 124, 0.08)' }}>
+                    <p className="eyebrow" style={{ marginBottom: 8 }}>FIRST-TIME PARENT OTP SETUP</p>
+                    <small className="dev-note">Use School ID + Student ID + imported parent phone number. After OTP verification, create the parent password.</small>
+                    <label>
+                        Student ID
+                        <input value={parentStudentId} onChange={(event) => setParentStudentId(event.target.value.toUpperCase())} placeholder="Imported student ID / admission no" />
+                    </label>
+                    <label>
+                        Parent Mobile
+                        <input value={parentMobile} onChange={(event) => setParentMobile(event.target.value)} placeholder="Imported parent mobile" />
+                    </label>
+                    <button className="secondary-button" type="button" onClick={requestOtp} disabled={isLoading} style={{ width: '100%', marginTop: 8 }}>
+                        Request OTP
+                    </button>
+                    {parentOtpRequested ? (
+                        <>
+                            <label>
+                                OTP
+                                <input value={parentOtp} onChange={(event) => setParentOtp(event.target.value)} placeholder="Enter OTP" />
+                            </label>
+                            <label>
+                                Create Parent Password
+                                <input type="password" value={parentNewPassword} onChange={(event) => setParentNewPassword(event.target.value)} placeholder="Minimum 8 characters" />
+                            </label>
+                            <button className="primary-button" type="button" onClick={activateParent} disabled={isLoading}>
+                                Verify OTP & Create Parent Password
+                            </button>
+                        </>
+                    ) : null}
+                </div>
+            ) : null}
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 10, marginTop: 12 }}>
-                <Link className="secondary-button" href="/register-school" style={{ textAlign: 'center' }}>
-                    Register School
-                </Link>
-
-                <Link className="secondary-button" href="/request-pilot-demo" style={{ textAlign: 'center' }}>
-                    Request Pilot Demo
-                </Link>
-
-                <Link
-                    className="secondary-button"
-                    href="/check-registration-status"
-                    style={{ textAlign: 'center', gridColumn: '1 / -1' }}
-                >
-                    Check Registration Status
-                </Link>
+                <Link className="secondary-button" href="/register-school" style={{ textAlign: 'center' }}>Register School</Link>
+                <Link className="secondary-button" href="/request-pilot-demo" style={{ textAlign: 'center' }}>Request Pilot Demo</Link>
+                <Link className="secondary-button" href="/check-registration-status" style={{ textAlign: 'center', gridColumn: '1 / -1' }}>Check Registration Status</Link>
             </div>
 
             {message ? <small className="dev-note">{message}</small> : null}
 
             <small className="dev-note">
-                Use the real 4-character School Access ID issued during onboarding, for example BRK1 or AB12.
-                Teacher identity and teacherId are bound from the login session.
+                Teachers and students must change downloaded temporary credentials on first login. Parents activate with School ID, Student ID, mobile OTP, then create their password.
             </small>
         </form>
     );
