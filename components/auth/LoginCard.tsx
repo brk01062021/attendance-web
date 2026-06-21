@@ -109,14 +109,14 @@ export default function LoginCard() {
         try {
             setIsLoading(true);
             await ensureLoginEnabled(normalizedSchoolId);
-            const response = await webApi.requestParentOtp<{ message?: string; devOtp?: string }>({
+            const response = await webApi.requestParentOtp<{ message?: string; maskedMobile?: string }>({
                 schoolId: normalizedSchoolId,
                 studentId: parentStudentId.trim(),
                 parentMobile: parentMobile.trim(),
             });
             setParentOtpRequested(true);
             setUsername(parentMobile.trim());
-            setMessage(`${response.message || 'OTP generated for parent mobile.'}${response.devOtp ? ` Test OTP: ${response.devOtp}` : ''}`);
+            setMessage(response.message || `OTP sent to registered parent mobile${response.maskedMobile ? ` ${response.maskedMobile}` : ''}.`);
         } catch (error) {
             setMessage(error instanceof Error ? error.message : 'Student and parent mobile mapping could not be verified.');
         } finally {
@@ -236,7 +236,7 @@ export default function LoginCard() {
             {message ? <small className="dev-note">{message}</small> : null}
 
             <small className="dev-note">
-                Teachers and students must change downloaded temporary credentials on first login. Parents activate with School ID, Student ID, mobile OTP, then create their password.
+                Teachers and students must change downloaded temporary credentials on first login. Parents receive OTP on the registered mobile, then create their password.
             </small>
         </form>
     );

@@ -60,8 +60,8 @@ export async function apiClient<T>(path: string, options: ApiOptions = {}): Prom
 export const webApi = {
   login: <T>(body: unknown) => apiClient<T>('/auth/login', { method: 'POST', body: JSON.stringify(body) }),
   changePassword: <T>(body: unknown) => apiClient<T>('/auth/change-password', { method: 'POST', body: JSON.stringify(body) }),
-  requestParentOtp: <T>(body: unknown) => apiClient<T>('/auth/parent/request-otp', { method: 'POST', body: JSON.stringify(body) }),
-  activateParentLogin: <T>(body: unknown) => apiClient<T>('/auth/parent/activate', { method: 'POST', body: JSON.stringify(body) }),
+  requestParentOtp: <T>(body: { schoolId?: string } & Record<string, unknown>) => apiClient<T>('/auth/parent/request-otp', { method: 'POST', schoolId: body.schoolId, body: JSON.stringify(body) }),
+  activateParentLogin: <T>(body: { schoolId?: string } & Record<string, unknown>) => apiClient<T>('/auth/parent/activate', { method: 'POST', schoolId: body.schoolId, body: JSON.stringify(body) }),
   health: <T>() => apiClient<T>('/pilot-onboarding/health'),
   checkSchoolId: <T>(schoolId: string) =>
     apiClient<T>('/school-registration/school-id/check', { query: { schoolId } }),
