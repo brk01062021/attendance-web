@@ -62,18 +62,19 @@ const roleCopy = {
     focus: 'Complete daily teacher work: attendance, timetable, leave enquiry, missed attendance recovery, and notifications.',
     primaryActions: [
       ['/teacher/leave-enquiry', '📝', 'Request Leave Enquiry', 'Submit leave enquiry and track Pending, Approved, or Rejected status.'],
-      ['/teacher/attendance-bulk', '✅', 'Recover Missed Attendance', 'Submit missed attendance records for recent working days from web.'],
+      ['/teacher/attendance', '✅', 'Take Attendance', 'Mark daily attendance only for assigned timetable classes.'],
+      ['/teacher/attendance-bulk', '🩹', 'Recover Missed Attendance', 'Submit missed attendance records for recent working days from web.'],
       ['/teacher/timetable', '📅', 'My Timetable', 'View today schedule, periods, and replacement responsibilities.'],
       ['/teacher/classes', '🏫', 'My Classes', 'View assigned classes, sections, and subjects.'],
       ['/school-activities/create', '🖼️', 'Create Activity', 'Create classroom events and submit memories for approval.'],
     ],
     secondaryActions: [
-      ['/teacher/results', '🧾', 'Results Submission', 'Enter exam results when enabled.'],
+      ['/teacher/results', '🧾', 'Results Submission', 'Download Excel template and upload whole-class marks for assigned subjects.'],
     ],
     updates: [
-      { title: 'Attendance reminder', message: 'Use bulk recovery when previous working-day submissions are pending.', tone: 'warning' },
+      { title: 'Attendance reminder', message: 'Take Attendance and Bulk Attendance use only your active published timetable classes.', tone: 'warning' },
+      { title: 'Result upload', message: 'Download the Excel template before submitting whole-class marks.', tone: 'gold' },
       { title: 'Leave status', message: 'Approval or rejection remarks appear in the leave enquiry workflow.', tone: 'info' },
-      { title: 'Session identity', message: 'Teacher ID and school ID are bound from login.', tone: 'success' },
     ],
   },
   STUDENT: {

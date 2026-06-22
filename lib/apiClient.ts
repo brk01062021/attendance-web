@@ -153,6 +153,8 @@ export const webApi = {
     apiClient<T>('/notifications', { token, schoolId, query: { userId, role } }),
   submitBulkAttendance: <T>(body: unknown, token?: string, schoolId?: string) =>
     apiClient<T>('/attendance/bulk', { method: 'POST', token, schoolId, body: JSON.stringify(body) }),
+  submitTeacherResults: <T>(body: unknown, token?: string, schoolId?: string) =>
+    apiClient<T>('/teacher-results/submit', { method: 'POST', token, schoolId, query: { schoolId }, body: JSON.stringify(body) }),
   uploadImportWorkbook: <T>(formData: FormData, token?: string, schoolId?: string) =>
     apiClient<T>('/imports/workbooks/upload', { method: 'POST', token, schoolId, body: formData }),
   importWorkbookHistory: <T>(schoolId: string, token?: string) =>
