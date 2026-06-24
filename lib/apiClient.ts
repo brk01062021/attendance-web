@@ -126,6 +126,8 @@ export const webApi = {
   },
   timetableRoleNotifications: <T>(role: string, token?: string, schoolId?: string) =>
     apiClient<T>('/timetable/role-notifications', { token, schoolId, query: { role } }),
+  studentAttendanceSummary: <T>(studentId: number, month?: string | null, token?: string, schoolId?: string) =>
+    apiClient<T>('/attendance/student-summary', { token, schoolId, query: { studentId, month: month || undefined } }),
   generateUsersFromCommittedWorkbook: <T>(schoolId: string, token?: string) =>
     apiClient<T>('/api/user-provisioning/generate', { method: 'POST', token, schoolId, query: { schoolId } }),
   userProvisioningSummary: <T>(schoolId: string, token?: string) =>

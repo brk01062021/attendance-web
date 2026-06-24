@@ -40,8 +40,8 @@ export default function RoleTimetableVisibilityPanel({ role }: { role: Role }) {
       try {
         setLoading(true);
         setError('');
-        const className = role === 'TEACHER' ? undefined : (user?.className || '10');
-        const section = role === 'TEACHER' ? undefined : (user?.section || 'A');
+        const className = role === 'TEACHER' ? undefined : (user?.className || undefined);
+        const section = role === 'TEACHER' ? undefined : (user?.section || undefined);
         const teacherName = role === 'TEACHER' ? (user?.teacherName || user?.displayName || undefined) : undefined;
         const [liveResult, notificationResult] = await Promise.all([
           webApi.liveTimetable<LiveResponse>(role, user?.token, user?.schoolId, role === 'TEACHER' ? user?.teacherId || user?.userId || 1 : undefined, className, section, teacherName),

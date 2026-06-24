@@ -35,6 +35,8 @@ export type LoginApiResponse = {
   teacherName?: string | null;
   studentId?: number | null;
   studentName?: string | null;
+  className?: string | null;
+  section?: string | null;
   displayName?: string | null;
   schoolName?: string | null;
   role: WebUserRole | string;
